@@ -42,7 +42,7 @@ public final class mod_Script extends BaseMod {
 	
 	@Override
 	public String getVersion() {
-		return "0.1a 2012-08-23";
+		return "0.03 2012-09-04";
 	}
 
 	@Override
