@@ -1,0 +1,24 @@
+Script Mod 0.03 for Minecraft 1.3.1
+
+DO NOT USE:
+Feel free to snoop around, but please remember that this is not an "official release".
+The software is pretty much unusable right now. It is unstable, undocumented
+and not even compatible with the latest version of Minecraft. You'll need MCP/Eclipse
+set up as well as Minecraft 1.3.1 binaries with ModLoader to run it,
+so my advice is to not even bother.
+
+IF YOU USE IT ANYWAY:
+I'd like some feedback as long as you don't try to tell me what I just tried to tell you.
+I can't promise to react to any pull requests or whatever all this git-stuff is called.
+Even if I do: please don't expect anything right now.
+
+ABOUT:
+This mod adds scripting support to Minecraft. Any JSR-223 compliant script engine
+can be used. All JVM-flavors that I ever heard of (all two of them) have JavaScript
+1.6 support out of the box, other engines can be added by dumping the jar in the
+minecraft bin directory.
+
+LEGAL STUFF:
+Don't forget to read the LICENSE.
+Minecraft is copyright (c) Mojang AB (www.mojang.com)
+I am in no way affiliated with Mojang AB.
