@@ -187,12 +187,12 @@ public enum Blocks {
 	WoodenButton("Wooden Button", 143),
 	;
 	
-	private int id, damage;
+	private int id, data;
 	private String name;
 	
 	private Blocks(String name, int id, int damage) {
 		this.id = id;
-		this.damage = damage;
+		this.data = damage;
 		this.name = name;
 	}
 	
@@ -218,7 +218,7 @@ public enum Blocks {
 	
 	public static Blocks findById(int id, int damage) {
 		for (Blocks b: Blocks.values()) {
-			if (b.id == id && b.damage == damage) {
+			if (b.id == id && b.data == damage) {
 				return b;
 			}
 		}
@@ -228,13 +228,10 @@ public enum Blocks {
 	public int getId() {
 		return id;
 	}
+
 	
-	public int getDamage() {
-		return damage;
-	}
-	
-	public int getMeta() {
-		return damage;
+	public int getData() {
+		return data;
 	}
 	
 	public String getName() {
@@ -246,7 +243,7 @@ public enum Blocks {
 	 * @return The Block instance with the id of this Blocks entry or null if that Block
 	 * doesn't exist. <br /><b>Don't forget:</b><code> Air (id=0)</code> is NOT a block. 
 	 */
-	public Block getMcBlock() {
+	public net.minecraft.src.Block getMcBlock() {
 		Block[] list = Block.blocksList;
 		if (id == 0) {
 			return null;
@@ -261,12 +258,12 @@ public enum Blocks {
 	}
 	
 	public ItemStack getMcStack(int quantity) {
-		return new ItemStack(getMcBlock(), quantity, damage);
+		return new ItemStack(getMcBlock(), quantity, data);
 	}
 	
 	public String toString() {
-		if (damage > 0) {
-			return String.format("%s (%2d:%2d)", name, id, damage);
+		if (data > 0) {
+			return String.format("%s (%2d:%2d)", name, id, data);
 		}
 		else {
 			return String.format("%s (%2d)", name, id);

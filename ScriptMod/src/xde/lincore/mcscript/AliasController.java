@@ -12,7 +12,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.src.CommandHandler;
 import net.minecraft.src.ICommand;
 import net.minecraft.src.ModLoader;
-import net.minecraft.src.mod_Script;
 
 public class AliasController {
 	private BindingsMinecraft mc;
@@ -34,27 +33,27 @@ public class AliasController {
 	}
 	
 	public String getAlias(String name) {
-		return Config.get(Config.CFG_ALIAS, name);
+		return Config.get(G.CFG_ALIAS, name);
 	}
 	
 	public Map getAliases() {
-		return Config.getMap(Config.CFG_ALIAS);
+		return Config.getMap(G.CFG_ALIAS);
 	}
 	
 	public Map getSortedMap() {
-		return Config.getSortedMap(Config.CFG_ALIAS);
+		return Config.getSortedMap(G.CFG_ALIAS);
 	}
 	
 	public void loadAliases() {
-		Config.load(Config.CFG_ALIAS);
-		for (Map.Entry alias: Config.getMap(Config.CFG_ALIAS).entrySet()) {
+		Config.load(G.CFG_ALIAS);
+		for (Map.Entry alias: Config.getMap(G.CFG_ALIAS).entrySet()) {
 			registerAlias((String)(alias.getKey()), (String)(alias.getValue()));
 		}
 	}
 	
 	private boolean registerAlias(String name, String script) {
-		if (commandExists(name) && !Config.contains(Config.CFG_ALIAS, name)) { // built-in command?
-			mc.echo("§cThere already is a command with the name \"" +
+		if (commandExists(name) && !Config.contains(G.CFG_ALIAS, name)) { // built-in command?
+			mc.echo("ï¿½cThere already is a command with the name \"" +
 					name + "\". Please pick a different one.");
 			return false;
 		}
@@ -63,8 +62,8 @@ public class AliasController {
 			handler = (CommandHandler)(MinecraftServer.getServer().getCommandManager());
 		}
 		else {
-			mc.echo("§cAn unexpected error has occured, I can't set the alias, sorry.");
-			mod_Script.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");			
+			mc.echo("ï¿½cAn unexpected error has occured, I can't set the alias, sorry.");
+			G.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");			
 			return false;
 		}
 		handler.registerCommand(new CommandAlias(env, name));
@@ -73,7 +72,7 @@ public class AliasController {
 	
 	public void reloadAliases() {
 		String tmpName = "aliasTmp";
-		Config.load(Config.generateFileName(Config.CFG_ALIAS), "aliasTmp");		
+		Config.load(Config.generateFileName(G.CFG_ALIAS), "aliasTmp");		
 		for (Map.Entry alias: Config.getMap("aliasTmp").entrySet()) {
 			setAlias((String)(alias.getKey()), (String)(alias.getValue()));
 		}
@@ -82,14 +81,14 @@ public class AliasController {
 	
 	public boolean removeAlias(String name) {
 		if (commandExists(name)) {
-			if (Config.contains(Config.CFG_ALIAS, name)) {
+			if (Config.contains(G.CFG_ALIAS, name)) {
 				CommandHandler handler;
 				if (MinecraftServer.getServer().getCommandManager() instanceof CommandHandler) {
 					handler = (CommandHandler)(MinecraftServer.getServer().getCommandManager());
 				}
 				else {
-					mc.echo("§cAn unexpected error has occured, I can't remove the alias, sorry.");
-					mod_Script.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");			
+					mc.echo("ï¿½cAn unexpected error has occured, I can't remove the alias, sorry.");
+					G.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");			
 					return false;
 				}
 
@@ -99,15 +98,15 @@ public class AliasController {
 					commandMap = (Map)ModLoader.getPrivateValue(CommandHandler.class, handler, "commandMap");
 					commandSet = (Set)ModLoader.getPrivateValue(CommandHandler.class, handler, "commandSet");
 				} catch (IllegalArgumentException e) {					
-					mod_Script.LOG.severe(e.getMessage());
+					G.LOG.severe(e.getMessage());
 					e.printStackTrace();
 					return false;
 				} catch (SecurityException e) {
-					mod_Script.LOG.severe(e.getMessage());
+					G.LOG.severe(e.getMessage());
 					e.printStackTrace();
 					return false;
 				} catch (NoSuchFieldException e) {
-					mod_Script.LOG.severe(e.getMessage());
+					G.LOG.severe(e.getMessage());
 					e.printStackTrace();
 					return false;
 				}
@@ -115,8 +114,8 @@ public class AliasController {
 				if (cmd != null) {
 					commandMap.remove(name);
 					commandSet.remove(cmd);
-					Config.remove(Config.CFG_ALIAS, name);
-					Config.save(Config.CFG_ALIAS);
+					Config.remove(G.CFG_ALIAS, name);
+					Config.save(G.CFG_ALIAS);
 					mc.echo("Ok.");
 					return true;
 				}
@@ -129,8 +128,8 @@ public class AliasController {
 	
 	public void setAlias(String name, String script) {		
 		if (registerAlias(name, script)) {
-			Config.set(Config.CFG_ALIAS, name, script);
-			Config.save(Config.CFG_ALIAS);
+			Config.set(G.CFG_ALIAS, name, script);
+			Config.save(G.CFG_ALIAS);
 		}
 	}
 	

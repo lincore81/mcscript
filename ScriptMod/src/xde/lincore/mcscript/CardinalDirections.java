@@ -1,6 +1,6 @@
 package xde.lincore.mcscript;
 
-public enum Directions {
+public enum CardinalDirections {
 	North(Voxel.NORTH),
 	East(Voxel.EAST),
 	South(Voxel.SOUTH),
@@ -10,12 +10,12 @@ public enum Directions {
 	
 	private Voxel move;
 	
-	private Directions(Voxel move) {
+	private CardinalDirections(Voxel move) {
 		this.move = move;
 	}
 	
-	public static Directions get(String name) {
-		for (Directions d: values()) {
+	public static CardinalDirections get(String name) {
+		for (CardinalDirections d: values()) {
 			if (d.name().equalsIgnoreCase(name)) {
 				return d;
 			}
@@ -31,7 +31,7 @@ public enum Directions {
 		return new Vector(move);
 	}
 	
-	public Directions turnLeft() {
+	public CardinalDirections turnLeft() {
 		switch (this) {
 			case North:
 				return West;
@@ -46,7 +46,7 @@ public enum Directions {
 		}
 	}
 	
-	public Directions turnRight() {
+	public CardinalDirections turnRight() {
 		switch (this) {
 			case North:
 				return East;
@@ -61,7 +61,7 @@ public enum Directions {
 		}
 	}
 	
-	public Directions turnAround() {
+	public CardinalDirections turnAround() {
 		switch (this) {
 			case North:
 				return South;

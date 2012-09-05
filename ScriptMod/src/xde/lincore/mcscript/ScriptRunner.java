@@ -3,6 +3,7 @@ package xde.lincore.mcscript;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 import javax.script.Compilable;
 import javax.script.CompiledScript;
@@ -21,11 +22,12 @@ public class ScriptRunner implements Runnable {
 	private BindingsMinecraft mc;
 	private ScriptingEnvironment env;
 	private ScriptGlobals globals;
+	private String filename;
 	
 	public Object result;
 	private ScriptArguments args;
 	
-	public ScriptRunner(ScriptEngine engine, String script, Map<String, String> args, 
+	public ScriptRunner(ScriptEngine engine, String script, String filename, Map<String, String> args, 
 			ScriptingEnvironment env) {
 		this.script = script;
 		this.env = env;
@@ -41,26 +43,25 @@ public class ScriptRunner implements Runnable {
 		engine.put("args", args);
 		engine.put("globals", env.getGlobals());
 		
-		
-		if (engine instanceof Compilable && script.length() > 30) {
-			Compilable cengine = (Compilable)engine;
-			try {
+		try {
+			if (engine instanceof Compilable && filename != null) {
+				Compilable cengine = (Compilable)engine;
 				CompiledScript cscript = cengine.compile(script);
-				mc.echo("§oScript compiled...");
-				cscript.eval();
-//			} catch (WrappedException e) {
-			} catch (Exception e) {
-				mc.echo("§6" + e.getMessage());
-				e.printStackTrace();
+				mc.echo("Â§oScript compiled...");
+				result = cscript.eval();				
 			}
-		}
-		else {
-			try {
-				result = engine.eval(script);
-			} catch (Exception e) {
-				mc.echo("§6" + e.getMessage());
-				e.printStackTrace();
+			else {				
+				result = engine.eval(script);				
+			}		
+		} catch (Exception e) {
+			String[] msg = e.getMessage().split(":", 2);
+			if (msg.length == 2) {
+				mc.echo("Â§e" + msg[1] + " Â§f(" + msg[0] + ")");
+			} else {
+				mc.echo("Â§e" + e.getMessage());
 			}
+			env.setLastException(e);
+			e.printStackTrace();
 		}
 	}
 }

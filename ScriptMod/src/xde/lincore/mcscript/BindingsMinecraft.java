@@ -1,5 +1,7 @@
 package xde.lincore.mcscript;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collection;
 
 import javax.script.Bindings;
@@ -12,6 +14,8 @@ import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.VarArgFunction;
 import org.luaj.vm2.lib.ZeroArgFunction;
+
+import xde.lincore.mcscript.edit.EditSession;
 
 
 import net.minecraft.client.Minecraft;
@@ -26,6 +30,7 @@ public class BindingsMinecraft extends BindingsBase {
 	public final BindingsUser user;
 	public final BindingsWorld world;
 	public final BindingsTypes types;
+	public final EditSession edit;
 	
 	protected BindingsMinecraft(ScriptingEnvironment env) {
 		super(env);
@@ -33,6 +38,7 @@ public class BindingsMinecraft extends BindingsBase {
 		time = new BindingsTime(env);
 		world = new BindingsWorld(env);
 		types = new BindingsTypes(env);
+		edit = new EditSession(this, true);
 		Turtle.setMc(this);
 		VectorTurtle.setMc(this);
 	}
@@ -42,6 +48,27 @@ public class BindingsMinecraft extends BindingsBase {
 //			echo(e);
 //		}
 //	}
+	
+	public Exception getLastException() {
+		return env.getLastException();
+	}
+	
+	public StackTraceElement[] getStackTrace() {
+		Exception e = env.getLastException();
+		
+		if (e != null) {
+			return e.getStackTrace();
+		}
+		
+		return new StackTraceElement[0];
+	}
+	
+	public void printStackTrace() {
+		StackTraceElement[] trace = getStackTrace();
+		for (int i = 0; i < trace.length; i++) {
+			err(trace[i]);
+		}
+	}
 	
 	public Blocks getBlock(String name) {
 		return Blocks.find(name);
@@ -55,13 +82,19 @@ public class BindingsMinecraft extends BindingsBase {
 		return Blocks.findById(id, damage);
 	}
 	
+	public void err(Object obj) {
+		echo("§c" + obj.toString());
+	}
+	
 	public void echo(Object obj) {
 		if (obj == null) {
 			env.getUser().sendChatToPlayer("null");
 		}
 		else if (obj instanceof String) {
 			String msg = (String)obj;
-			msg = msg.replaceAll("\t", "    ");
+			msg = msg.replaceAll("\t", "  ").replaceAll("\r", "").
+					replaceAll("%([0-9A-Fa-f])%", "\u00A7" + "$1");
+			System.out.println(msg);
 			
 			if (msg.toString().indexOf('\n') == -1) {
 				env.getUser().sendChatToPlayer((String)msg);

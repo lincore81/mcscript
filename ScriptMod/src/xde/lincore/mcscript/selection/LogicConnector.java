@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
+import xde.lincore.mcscript.G;
 import xde.lincore.mcscript.Voxel;
 
-import net.minecraft.src.mod_Script;
 
 
 public class LogicConnector extends SelectionBase {
@@ -29,7 +29,7 @@ public class LogicConnector extends SelectionBase {
 			this.operator = operator;
 		}
 		else {
-			mod_Script.LOG.warning("LogicConnector: invalid operator, defaulting to OP_OR.");
+			G.LOG.warning("LogicConnector: invalid operator, defaulting to OP_OR.");
 			this.operator = OP_OR;
 		}
 		setVoxels();

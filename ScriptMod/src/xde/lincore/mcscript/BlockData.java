@@ -1,48 +1,65 @@
 package xde.lincore.mcscript;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.src.TileEntity;
 
 public class BlockData {
-	private Voxel position;
 	private int id;
-	private int metadata;
+	private int data;
+	private TileEntity entity;
 	
+	public BlockData(int id, int data, TileEntity entity) {
+		this(id, data);
+		this.entity = entity;
+	}
 	
-	public BlockData(Voxel position, int id, int metadata) {
-		this.position = position;
+	public BlockData(int id, int data) {		
 		this.id = id;
-		this.metadata = metadata;
+		this.data = data;
 	}
 	
-	public BlockData(Voxel position, int id) {
-		this(position, id, 0);
-	}
-	
-	
-	public Voxel getPosition() {
-		return position;
+	public BlockData(int id) {
+		this(id, 0);
 	}
 
 	public int getId() {
 		return id;
 	}
 
-	public int getMetadata() {
-		return metadata;
+	public int getData() {
+		return data;
 	}
-
-	public void setPosition(Voxel position) {
-		this.position = position;
+	
+	public boolean hasData() {
+		return data > 0;
+	}
+	
+	public boolean hasTileEntity() {
+		return entity != null;
+	}
+	
+	public boolean isAir() {
+		return id != Blocks.Air.getId();
+	}
+	
+	public TileEntity getTileEntity() {
+		return entity;
+	}
+	
+	public void setTileEntity(TileEntity entity) {
+		this.entity = entity;
 	}
 
 	public void setId(int id) {
 		this.id = id;
 	}
 
-	public void setMetadata(int metadata) {
-		this.metadata = metadata;
+	public void setData(int data) {
+		this.data = data;
 	}
-
 	
-
+	@Override
+	public String toString() {
+		return Blocks.findById(id).getName() + "[" + data + "]";
+	}
 }

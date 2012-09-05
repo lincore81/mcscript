@@ -3,7 +3,7 @@ package xde.lincore.mcscript;
 import xde.lincore.mcscript.selection.ISelection;
 import xde.lincore.util.StringTools;
 import net.minecraft.client.Minecraft;
-import net.minecraft.src.Block;
+
 import net.minecraft.src.Entity;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.MathHelper;
@@ -11,7 +11,6 @@ import net.minecraft.src.ModLoader;
 import net.minecraft.src.MovingObjectPosition;
 import net.minecraft.src.Vec3;
 import net.minecraft.src.World;
-import net.minecraft.src.mod_Script;
 
 public class BindingsWorld extends BindingsBase {
 
@@ -33,7 +32,7 @@ public class BindingsWorld extends BindingsBase {
 	}
 
 	public void fillSelection(ISelection selection, Blocks block) {
-		fillSelection(selection, block.getId(), block.getDamage());
+		fillSelection(selection, block.getId(), block.getData());
 	}
 
 	public Blocks getBlock(Voxel v) {
@@ -66,6 +65,10 @@ public class BindingsWorld extends BindingsBase {
 		Minecraft minecraft = ModLoader.getMinecraftInstance();
 		EntityPlayer user = env.getUser();
 		return user.worldObj.getBlockMetadata(x, y, z);
+	}
+	
+	public int getBlockMeta(Voxel v) {
+		return getBlockMeta(v.x, v.y, v.z);
 	}
 
 	public long getSeed() {
@@ -103,7 +106,7 @@ public class BindingsWorld extends BindingsBase {
 		if (data.length < 1 || data.length > 2
 				|| !StringTools.isValidNumber(data[0])
 				|| !StringTools.isValidNumber(data[1])) {
-			mod_Script.LOG.warning("Unable to parse String " + blockIdAndMeta
+			G.LOG.warning("Unable to parse String " + blockIdAndMeta
 					+ ".");
 			return false;
 		} else {
@@ -117,7 +120,7 @@ public class BindingsWorld extends BindingsBase {
 	}
 
 	public boolean setBlock(Voxel v, Blocks block) {
-		return setBlock(v.x, v.y, v.z, block.getId(), block.getDamage());
+		return setBlock(v.x, v.y, v.z, block.getId(), block.getData());
 	}
 
 	public boolean setBlock(Voxel v, int id, int metadata) {
@@ -171,16 +174,6 @@ public class BindingsWorld extends BindingsBase {
 		user.worldObj.setRainStrength(strength);
 	}
 
-	public boolean setTargetBlockId(int id) {
-		EntityPlayer user = env.getUser();
-		MovingObjectPosition hit = user.rayTrace(300d, 1f);
-		if (hit != null) {
-			setBlockId(hit.blockX, hit.blockY, hit.blockZ, id);
-			return true;
-		} else {
-			return false;
-		}
-	}
 
 	// public Vector raytrace(Vector position, Vector direction, double
 	// distance) {
@@ -194,6 +187,14 @@ public class BindingsWorld extends BindingsBase {
 
 	public void sunshine() {
 		setRaining(false);
+	}
+
+	public void setBlock(Voxel position, BlockData block) {
+		setBlock(position, block.getId(), block.getData());
+	}
+	
+	public BlockData getBlockData(Voxel position) {
+		return new BlockData(getBlockId(position), getBlockMeta(position));
 	}
 
 }

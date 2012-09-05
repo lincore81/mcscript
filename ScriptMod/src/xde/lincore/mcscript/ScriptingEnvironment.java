@@ -37,8 +37,8 @@ public final class ScriptingEnvironment {
 
 	public static final String DEFAULT_SCRIPT_ENGINE = "js";
 	public static final String FILE_ALIASES_CFG = "alias.cfg";
-	public static final File SCRIPTS_DIR = new File(mod_Script.MOD_DIR, "scripts/");
-	public static final File CACHE_DIR = new File(mod_Script.MOD_DIR, "cache/");
+	public static final File SCRIPTS_DIR = new File(G.MOD_DIR, "scripts/");
+	public static final File CACHE_DIR = new File(G.MOD_DIR, "cache/");
 	
 	private ScriptEngineManager manager;
 	private static EntityPlayer currentUser;
@@ -50,6 +50,7 @@ public final class ScriptingEnvironment {
 	
 	public AliasController aliases;
 	private ScriptGlobals globals;
+	private Exception lastException;
 	
 	public ScriptingEnvironment(mod_Script modInst) {
 		this.modInst = modInst;
@@ -114,7 +115,7 @@ public final class ScriptingEnvironment {
 			engine = getCurrentEngine();
 		}
 		if (engine == null) return;
-		Runnable runner = new ScriptRunner(engine, script, null, this);
+		Runnable runner = new ScriptRunner(engine, script, null, null, this);
 		runner.run();
 		//executor.execute(runner);
 	}
@@ -134,12 +135,12 @@ public final class ScriptingEnvironment {
 				engine = manager.getEngineByExtension(extension);
 			}
 			if (engine == null) {
-				mc.echo("§6Could not determine which engine to use by file extension. Please specify the " +
+				mc.echo("Â§eCould not determine which engine to use by file extension. Please specify the " +
 						"engine you want to use.");
 			}
 		}		
 		
-		Runnable runner = new ScriptRunner(engine, script, args, this);		
+		Runnable runner = new ScriptRunner(engine, script, filename, args, this);		
 		runner.run();
 		//executor.execute(runner);
 	}
@@ -148,21 +149,21 @@ public final class ScriptingEnvironment {
 	
 	public String readScriptFile(File scriptfile) {
 		Text result = new Text();
-		String charset = Config.get(Config.CFG_MAIN, Globals.PROP_ENCODING);
+		String charset = Config.get(G.CFG_MAIN, G.PROP_ENCODING);
 		try {
 			result.readFile(scriptfile, charset);
 		} catch (FileNotFoundException e) {
-			mc.echo("§6File not found: " + scriptfile.toString());
+			mc.echo("Â§6File not found: " + scriptfile.toString());
 			return null;
 		} catch (IOException e) {
-			mc.echo("§6An error occured while trying to access the file " + scriptfile.toString());
+			mc.echo("Â§6An error occured while trying to access the file " + scriptfile.toString());
 			mc.echo(e.getMessage());
 			e.printStackTrace();
 			return null;
 		} catch (IllegalArgumentException e) {
-			Config.remove(Config.CFG_MAIN, Globals.PROP_ENCODING);
-			throw new BadUserInput("§6Invalid or unsupported file encoding: \"" + 
-					charset + "\". " + Globals.PROP_ENCODING + 
+			Config.remove(G.CFG_MAIN, G.PROP_ENCODING);
+			throw new BadUserInput("Â§6Invalid or unsupported file encoding: \"" + 
+					charset + "\". " + G.PROP_ENCODING + 
 					" has been reset to " + Text.DEFAULT_CHARSET.name());
 		}
 		return result.toString();
@@ -238,5 +239,15 @@ public final class ScriptingEnvironment {
 
 	public ScriptGlobals getGlobals() {
 		return globals;
+	}
+
+
+	public Exception getLastException() {
+		return lastException;
+	}
+
+
+	public void setLastException(Exception lastException) {
+		this.lastException = lastException;
 	}
 }

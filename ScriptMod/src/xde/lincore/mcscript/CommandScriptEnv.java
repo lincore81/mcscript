@@ -236,7 +236,7 @@ public final class CommandScriptEnv extends CommandBase {
 		assertArgCount(1, "Please enter the name of the property you want to get.");
 
 		String propName = StringTools.join(tokens, " ");
-		String propValue = Config.get(Config.CFG_MAIN, propName);
+		String propValue = Config.get(G.CFG_MAIN, propName);
 		if (propValue != null) {
 			mc.echo(propValue);
 		}
@@ -249,7 +249,7 @@ public final class CommandScriptEnv extends CommandBase {
 	private void doConfigList() {
 		String cfg;
 		if (tokens.isEmpty()) {
-			cfg = Config.CFG_MAIN;
+			cfg = G.CFG_MAIN;
 			mc.echo("§oMod Config:");
 		}
 		else {
@@ -271,7 +271,7 @@ public final class CommandScriptEnv extends CommandBase {
 	
 
 	private void doConfigReload() {
-		boolean success = Config.load(Config.CFG_MAIN);
+		boolean success = Config.load(G.CFG_MAIN);
 		mc.echo(success? "Ok." : "Properties were NOT reloaded.");
 		
 	}
@@ -281,9 +281,9 @@ public final class CommandScriptEnv extends CommandBase {
 		assertArgCount(1, "Please enter the name of the property you want to remove.");
 
 		String propName = StringTools.join(tokens, " ");			
-		if (Config.remove(Config.CFG_MAIN, propName)) {
+		if (Config.remove(G.CFG_MAIN, propName)) {
 			mc.echo("Ok.");
-			if (!Config.autosave(Config.CFG_MAIN)) mc.echo("§6Autosave failed!");
+			if (!Config.autosave(G.CFG_MAIN)) mc.echo("§6Autosave failed!");
 		}
 		else {
 			mc.echo("There is no property by the name of \"" + propName + "\".\n" +
@@ -293,13 +293,13 @@ public final class CommandScriptEnv extends CommandBase {
 
 	
 	private void doConfigReset() {
-		Config.clearMap(Config.CFG_MAIN, modInst.getDefaultProperties());	
-		if (!Config.autosave(Config.CFG_MAIN)) mc.echo("§c§oAutosave failed!");		
+		Config.clearMap(G.CFG_MAIN, modInst.getDefaultProperties());	
+		if (!Config.autosave(G.CFG_MAIN)) mc.echo("§c§oAutosave failed!");		
 	}
 	
 
 	private void doConfigSave() {
-		boolean success = Config.save(Config.CFG_MAIN);
+		boolean success = Config.save(G.CFG_MAIN);
 		mc.echo(success? "Ok." : "Properties were NOT saved.");		
 	}
 
@@ -320,9 +320,9 @@ public final class CommandScriptEnv extends CommandBase {
 					"<nameN> = <valueN>)");
 		}
 		else {
-			Config.setMultiple(Config.CFG_MAIN, newProps);			
+			Config.setMultiple(G.CFG_MAIN, newProps);			
 			mc.echo("Ok.");
-			if (!Config.autosave(Config.CFG_MAIN)) mc.echo("§c§oAutosave failed!");
+			if (!Config.autosave(G.CFG_MAIN)) mc.echo("§c§oAutosave failed!");
 		}
 	}
 
@@ -335,8 +335,8 @@ public final class CommandScriptEnv extends CommandBase {
 		if (filename.startsWith("$")) {
 			filename = filename.substring(1);
 		}
-		File file = new File(Config.get(Config.CFG_MAIN, Globals.PROP_CWD), filename);
-		String charset = Config.get(Config.CFG_MAIN, Globals.PROP_ENCODING);
+		File file = new File(Config.get(G.CFG_MAIN, G.PROP_CWD), filename);
+		String charset = Config.get(G.CFG_MAIN, G.PROP_ENCODING);
 		Text contents = new Text();
 		try {
 			contents.readFile(file, charset);
@@ -346,9 +346,9 @@ public final class CommandScriptEnv extends CommandBase {
 			e.printStackTrace();
 			throw new BadUserInput("Could not read the file " + file.toString(), e);
 		} catch (IllegalArgumentException e) {
-			Config.remove(Config.CFG_MAIN, Globals.PROP_ENCODING);
+			Config.remove(G.CFG_MAIN, G.PROP_ENCODING);
 			throw new BadUserInput("Invalid or unsupported file encoding: \"" + 
-					charset + "\". " + Globals.PROP_ENCODING + 
+					charset + "\". " + G.PROP_ENCODING + 
 					" has been reset to " + Text.DEFAULT_CHARSET.name());
 		}
 		
@@ -372,18 +372,18 @@ public final class CommandScriptEnv extends CommandBase {
 				dir = subdir;
 			}
 			else {
-				dir = new File(Config.get(Config.CFG_MAIN, Globals.PROP_CWD), subdir.getPath());
+				dir = new File(Config.get(G.CFG_MAIN, G.PROP_CWD), subdir.getPath());
 			}				
 		}
 		else {
-			dir = new File(Config.get(Config.CFG_MAIN, Globals.PROP_CWD));
+			dir = new File(Config.get(G.CFG_MAIN, G.PROP_CWD));
 		}
 		
 		try {
 			mc.echo("§o" + dir.getCanonicalPath() + ":");			
 		} catch (IOException e) {
 			e.printStackTrace();
-			mod_Script.LOG.warning("Could not get canonical path for " + dir.getAbsolutePath());
+			G.LOG.warning("Could not get canonical path for " + dir.getAbsolutePath());
 			mc.echo("§o" + dir.getAbsolutePath() + ":");
 		}	
 		
@@ -457,7 +457,7 @@ public final class CommandScriptEnv extends CommandBase {
 
 	
 	private void doInfoShowFile(String filename) {
-		File file = new File(mod_Script.MOD_DIR, filename);
+		File file = new File(G.MOD_DIR, filename);
 		Text contents = new Text();
 		try {
 			contents.readFile(file);
@@ -524,8 +524,8 @@ public final class CommandScriptEnv extends CommandBase {
 		else {
 			subdir = "";
 		}
-		File dir = new File(mod_Script.MOD_DIR, subdir);
-		String filemanager = Config.get(Config.CFG_MAIN, Globals.PROP_FILE_MANAGER);			
+		File dir = new File(G.MOD_DIR, subdir);
+		String filemanager = Config.get(G.CFG_MAIN, G.PROP_FILE_MGR);			
 		if (filemanager != null) {				
 			try {					
 				String cmd = filemanager + " " + dir.getCanonicalPath();

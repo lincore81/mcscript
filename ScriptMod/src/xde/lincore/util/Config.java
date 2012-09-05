@@ -12,21 +12,13 @@ import java.util.Properties;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import xde.lincore.mcscript.Globals;
+import xde.lincore.mcscript.G;
 
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.src.mod_Script;
 
 public final class Config {
 	private static Map<String, Properties> properties;	
 	private Config() {}
-	
-	public static final String CFG_MAIN = "main";
-	public static final String CFG_ALIAS = "alias";
-	public static final String CFG_EXT = ".cfg";
-	public static final File CFG_DIR = new File(Minecraft.getMinecraftDir(), "mods/script/config/");
-	 
 	
 	static {
 		properties = new HashMap<String, Properties>();
@@ -102,8 +94,8 @@ public final class Config {
 		else {
 			result = new Properties();
 		}
-		CFG_DIR.mkdirs();
-		File file = new File(CFG_DIR, fileName);
+		G.CFG_DIR.mkdirs();
+		File file = new File(G.CFG_DIR, fileName);
 		BufferedReader reader = null;
 		try {
 			if (file.exists() || file.createNewFile()) {
@@ -111,7 +103,7 @@ public final class Config {
 				result.load(reader);
 			}			
 		} catch (IOException e) {
-			mod_Script.LOG.severe("Could not open/create config file: " + file.getAbsolutePath());
+			G.LOG.severe("Could not open/create config file: " + file.getAbsolutePath());
 			e.printStackTrace();
 			return false;
 		}
@@ -134,14 +126,14 @@ public final class Config {
 	
 	public static boolean save(String fileName, String table) {
 		BufferedWriter writer = null;
-		CFG_DIR.mkdirs();
-		File file = new File(CFG_DIR, fileName);
+		G.CFG_DIR.mkdirs();
+		File file = new File(G.CFG_DIR, fileName);
 		try {			
 			writer = new BufferedWriter(new FileWriter(file));			
 			properties.get(table).store(writer, table);
 		} 
 		catch (IOException e) {
-			mod_Script.LOG.severe("Could not save config file " + file.getAbsolutePath());
+			G.LOG.severe("Could not save config file " + file.getAbsolutePath());
 			e.printStackTrace();
 			return false;
 		}
@@ -158,7 +150,7 @@ public final class Config {
 	}
 	
 	public static String generateFileName(String mapName) {
-		return mapName + CFG_EXT;
+		return mapName + G.CFG_EXT;
 	}
 	
 	public static boolean autosave(String name) {
@@ -168,7 +160,7 @@ public final class Config {
 
 	
 	public static boolean autosave(String fileName, String table) {
-		if (StringTools.getBoolean(properties.get(table).getProperty(Globals.PROP_AUTOSAVE, "on"))) {
+		if (StringTools.getBoolean(properties.get(table).getProperty(G.PROP_AUTOSAVE, "on"))) {
 			return save(fileName, table);
 		}
 		else {

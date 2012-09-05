@@ -15,7 +15,6 @@ import net.minecraft.src.CommandHandler;
 import net.minecraft.src.ICommand;
 import net.minecraft.src.ICommandSender;
 import net.minecraft.src.ModLoader;
-import net.minecraft.src.mod_Script;
 
 public class CommandAlias extends CommandBase {
 
@@ -44,8 +43,8 @@ public class CommandAlias extends CommandBase {
 				handler = (CommandHandler)(MinecraftServer.getServer().getCommandManager());
 			}
 			else {
-				env.getMc().echo("§cAn unexpected error has occured, I can't run the command, sorry.");
-				mod_Script.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");			
+				env.getMc().echo("ï¿½cAn unexpected error has occured, I can't run the command, sorry.");
+				G.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");			
 				return;
 			}
 			handler.executeCommand(sender, command);			

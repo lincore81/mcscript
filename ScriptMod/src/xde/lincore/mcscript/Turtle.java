@@ -10,19 +10,19 @@ public class Turtle {
 	private int line_stiple;
 	private boolean penDown;
 	private static BindingsMinecraft mc;
-	private Directions direction;
-	private Directions horizDirection;
+	private CardinalDirections direction;
+	private CardinalDirections horizDirection;
 	
 	
 	public Turtle(Voxel position) {
-		this(position, Blocks.Stone, Directions.North);
+		this(position, Blocks.Stone, CardinalDirections.North);
 	}
 	
-	public Turtle(Voxel position, Blocks block, Directions direction) {
+	public Turtle(Voxel position, Blocks block, CardinalDirections direction) {
 		this.block = block;
 		setPosition(position);
 		this.direction = direction;
-		horizDirection = (direction.isHorizontal())? direction : Directions.North;
+		horizDirection = (direction.isHorizontal())? direction : CardinalDirections.North;
 		penDown();
 	}
 	
@@ -44,7 +44,7 @@ public class Turtle {
 	}
 	
 	public Turtle down() {
-		look(Directions.Down);
+		look(CardinalDirections.Down);
 		return this;
 	}
 	
@@ -91,7 +91,7 @@ public class Turtle {
 		return position;
 	}
 	
-	public Directions getDirection() {
+	public CardinalDirections getDirection() {
 		return direction;
 	}
 	
@@ -115,14 +115,14 @@ public class Turtle {
 	}
 	
 	public Turtle look(String direction) {
-		Directions dir = Directions.get(direction);
+		CardinalDirections dir = CardinalDirections.get(direction);
 		if (dir != null) {
 			look(dir);
 		}
 		return this;
 	}
 
-	public Turtle look(Directions direction) {
+	public Turtle look(CardinalDirections direction) {
 		if (direction == null) {
 			throw new RuntimeException("Turtle: I can't look this way.");
 		}
@@ -163,21 +163,21 @@ public class Turtle {
 	}
 	
 	public Turtle raise() {
-		Directions tmp = direction;
+		CardinalDirections tmp = direction;
 		up().forward();
 		look(tmp);
 		return this;
 	}
 	
 	public Turtle raise(int height) {
-		Directions tmp = direction;
+		CardinalDirections tmp = direction;
 		up().forward(height);
 		look(tmp);
 		return this;
 	}
 	
 	public Turtle lower() {
-		Directions tmp = direction;
+		CardinalDirections tmp = direction;
 		down().forward();
 		look(tmp);
 		return this;
@@ -214,7 +214,7 @@ public class Turtle {
 	}
 	
 	public Turtle up() {
-		look(Directions.Up);
+		look(CardinalDirections.Up);
 		return this;
 	}
 	
