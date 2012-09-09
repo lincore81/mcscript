@@ -1,112 +1,97 @@
 package xde.lincore.mcscript.edit;
 
-import java.util.ArrayDeque;
-
-import xde.lincore.mcscript.BindingsMinecraft;
 import xde.lincore.mcscript.BlockData;
-import xde.lincore.mcscript.Blocks;
-import xde.lincore.mcscript.Voxel;
-import xde.lincore.util.undo.UndoStack;
+import xde.lincore.mcscript.IBlock;
+import xde.lincore.mcscript.geom.BoundingBox;
+import xde.lincore.mcscript.geom.Voxel;
+import xde.lincore.mcscript.wrapper.MinecraftWrapper;
+import xde.lincore.util.undo.IUndoHistory;
+import xde.lincore.util.undo.Undoable;
 
-public class EditSession {	
-	public static final int UNDO_LIMIT = 256;
-	private BindingsMinecraft mc;
-	private boolean referredEditing;
-	private boolean isEditing;
-	UndoStack<WorldEdit> history;
-	WorldEdit currentEdit = null;
-		
-	public EditSession(BindingsMinecraft mc, boolean referredEditing) {
+public class EditSession implements IEditSession {
+	private final EditSessionController controller;
+	private MinecraftWrapper mc;
+	private BoundingBox bounds;
+	private WorldEdit worldEdit;
+	private int blockLimit;
+	public static final int NO_BLOCK_LIMIT = -1;
+	
+	protected EditSession(EditSessionController controller, MinecraftWrapper mc, BoundingBox bounds,
+			int blockLimit) {
+		this.controller = controller;
 		this.mc = mc;
-		this.referredEditing = referredEditing;
-		history = new UndoStack<WorldEdit>(UNDO_LIMIT);
+		this.bounds = bounds;
+		this.blockLimit = blockLimit;
+		this.worldEdit = new WorldEdit("", "EditSession", mc.world);
 	}
 	
-	public void begin(String description) {
-		if (isEditing) {
-			throw new IllegalStateException("Already editing: \"" +
-					currentEdit.getDescription() + "\"");
-		}
-		else {
-			currentEdit = new WorldEdit(description, mc.world);
-			isEditing = true;
-			mc.world.startEdit();
-		}
+	@Override
+	public void setBounds(BoundingBox bounds) {
+		this.bounds = bounds;
+
 	}
-	
-	public void finish() {
-		if (!isEditing) {
-			throw new IllegalStateException("No edit to finish.");
-		}
-		else {
-			if (referredEditing) {
-				currentEdit.flush();
-			}
-			history.push(currentEdit);
-			currentEdit = null;
-			mc.world.endEdit();
+
+	@Override
+	public void setBlock(Voxel position, IBlock block) {
+		if (canSetBlock(position)) {		
+			IBlock oldBlock = mc.world.getBlockData(position);
+			worldEdit.add(new BlockEdit(oldBlock, block, position));
 		}
 	}
-	
-	public boolean isEditing() {
-		return isEditing;
+
+	private boolean canSetBlock(Voxel position) {
+		return (bounds == null || blockLimit == NO_BLOCK_LIMIT || 
+				worldEdit.blocks.size() < blockLimit || bounds.contains(position)); 
 	}
-	
-	public void setBlock(Voxel position, Blocks newBlock) {
-		setBlock(position, new BlockData(newBlock.getId(), newBlock.getData()));
+
+	@Override
+	public void flush() {
+		controller.checkIn(this);
+		worldEdit.reset();
 	}
-	
-	public void setBlock(Voxel position, BlockData newBlock) {
-		if (!isEditing) {
-			throw new IllegalStateException("Can only place blocks while editing.");
-		}
-		BlockData oldBlock = mc.world.getBlockData(position);
-		currentEdit.add(new BlockEdit(oldBlock, newBlock, position));
-		if (!referredEditing) {
-			mc.world.setBlock(position, newBlock);
-		}
+
+	@Override
+	public void clear() {
+		worldEdit.clear();
 	}
-	
-	public boolean canUndo() {
-		return history.canUndo();
+
+	@Override
+	public boolean isEmpty() {
+		return worldEdit.blocks.isEmpty();
 	}
-	
-	public boolean canRedo() {
-		return history.canRedo();
-	}	
-	
-	public void undo() {
-		history.undo();
+
+	@Override
+	public WorldEdit getEditData() {
+		return worldEdit;
 	}
-	
-	public void redo() {
-		history.redo();
-	}
-	
-	public String getLastEditDump() {
-		if (history.canUndo()) {
-			return history.peekUndo().getDump();
-		}
-		else return "No edits.";
-	}
-	
-	public int getEditCount() {
-		return history.getSize();
-	}
-	
-	public String getEditDump(int index) {
-		assert index >= 0 && index <= history.top() : "index out of bounds.";
-		return history.get(index).getDump();
-	}
-	
+
+	@Override
 	public String getDump() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(String.format("EditSession (editing=%b, edits=%d, referred=%b):\n",
-				isEditing, history.getSize(), referredEditing));
-		for (int i = 0; i <= history.top(); i++) {			
-			buffer.append((i == history.getStackPointer())? "  >" : "   ");
-			buffer.append(history.getDescriptionOf(i) + "\n");			
-		}
-		return buffer.toString();
+		return worldEdit.getDump();
+	}
+
+	@Override
+	public String getEditor() {
+		return worldEdit.editor;
+	}
+
+	@Override
+	public BoundingBox getBounds() {
+		return bounds;
+	}
+
+	@Override
+	public void setBlockLimit(int limit) {
+		this.blockLimit = limit;
+	}
+
+	@Override
+	public int getBlockLimit() {
+		return blockLimit;
+	}
+
+	@Override
+	public IUndoHistory getHistory() {
+		return controller;
 	}
 }

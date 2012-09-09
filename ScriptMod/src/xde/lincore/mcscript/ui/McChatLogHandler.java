@@ -1,4 +1,4 @@
-package xde.lincore.mcscript;
+package xde.lincore.mcscript.ui;
 
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -9,6 +9,8 @@ import java.util.logging.SimpleFormatter;
 
 import org.bouncycastle.util.Strings;
 
+import xde.lincore.mcscript.ScriptingEnvironment;
+import xde.lincore.mcscript.wrapper.MinecraftWrapper;
 import xde.lincore.util.StringTools;
 
 
@@ -43,7 +45,7 @@ public final class McChatLogHandler extends Handler {
 		
 		String msg = getFormatter().format(record);
 		if (isServerRunning()) {
-			BindingsMinecraft mc = env.getMc();
+			MinecraftWrapper mc = env.getMc();
 			mc.echo(msg);
 			System.out.println(msg);
 		}

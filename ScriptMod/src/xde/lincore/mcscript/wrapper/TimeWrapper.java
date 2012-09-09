@@ -1,15 +1,16 @@
-package xde.lincore.mcscript;
+package xde.lincore.mcscript.wrapper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 
 import org.luaj.vm2.LuaValue;
 
-public class BindingsTime extends BindingsBase {
+import xde.lincore.mcscript.ScriptingEnvironment;
+
+public class TimeWrapper extends WrapperBase {
 	
-	protected BindingsTime(ScriptingEnvironment env) {
+	protected TimeWrapper(ScriptingEnvironment env) {
 		super(env);
-		// TODO Auto-generated constructor stub
 	}
 
 	public void set(long time) {

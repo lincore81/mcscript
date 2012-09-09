@@ -1,0 +1,100 @@
+0.1 - Initial "official" source code release
+============================================
+
+Scripting:
+- run (compiled) scripts with pluggable JSR-223 compliant script engines like Mozilla Rhino, Jython, LuaJ etc.
+	default: rhino for ecma 1.6
+- provide wrapper classes that give access to fundamental minecraft data/methods
+- access to convenient data types like vectors, voxels, a searchable list of blocks etc.
+- named/indexed command line arguments as map/associative array
+	- get argument by position or name
+	- get arg as string, number or boolean with defaults
+	- easy method to check arg criteria
+- globals-object that allows sharing script defined objects between script instances
+- script variables can be written to and read from disk
+- multi-threaded script execution should be theoretically possible without causing problems, as all actual world editing happens in the server thread. However, it is not planned  for the 0.1 milestone.
+- scripts that run for too long will be stopped
+
+chat command interface:
+- there are only two commands, /run to run scripts and /env (environment) for everything else.
+- load/run scripts (optionally with arguments and in specified language)
+- access configuration (set/get/list/remove)
+- set/get/list/remove aliases to commands/scripts
+- set/get/list/remove keys to commands/scripts
+- access file system: ls, cat, cd, mv, touch, mkdir, open file manager, open text editor, get file info
+- get info about available engines, keys, threads, running scripts
+
+block editing:
+- handle block editing in edit session instances
+- edit sessions can check-in all their changes at once, which the controller will apply in the next server thread update
+- edits can be undone/redone up to 256 times (more or less, this will probably change later)
+- scripts auto-magically get a new edit session and check their changes in after they finished successfully
+- the user can define a block editing limit: scripts that exceed this limit will be stopped
+- editing boundary: every block edit outside these bounds will be ignored.
+- turtle graphics with different turtle types:
+	- BabyTurtle: Block based turtle that rotates in 90° angles (cardinal directions, up, down) and can move a number of blocks	forward or backward
+	- VectorTurtle: 2d vector based turtle that can rotate freely around the y axis as well as move forward, backward, up and down
+	- SuperTurtle: 3d vector based turtle that can rotate freely around all axes (roll, pitch, yaw) and move forward, backward, up and down
+- fill a selection or flood fill an area
+- selection/morpher/pattern framework as described below
+
+
+selection/morpher/pattern framework:
+- a Selection class is a list of block positions (Voxels) that objects can iterate over. Some selection types are:
+	- Block (single block)
+	- Column (one x/z column from 0 <= y <= world height)
+	- Chunk	(selects a whole chunk)
+	- Cuboid
+	- Sphere/Ellipsoid
+	- Plane
+	- Diamond
+	- Cylinder
+	- Cone
+	- Pyramid
+	- Multiple (contains one or more of the above)
+	- ScriptableSelection
+- a Morpher class takes in one or more selections and modifies their voxels:
+	- Adder/Subtractor (adds two selections or subtracts one from another)
+	- Logic Connector (and, or, xor, nand, not)
+	- Translator: moves a selection
+	- Rotator
+	- Scaler
+	- Noise
+	- Eroder
+	- Hollower
+	- Builder (draw walls, floor or ceiling)
+	- Mask (allowing/disallowing certain blocks)
+	- ScriptableMorpher
+- a Pattern class takes in a voxel list and fills it with blocks:
+	- Solid (fill with one block)
+	- Copy
+	- ScriptedPattern
+- a Brush can be used by a turtle or the user to draw blocks. It has a shape (selection) and
+	a Pattern that define it's behaviour.
+
+
+
+Todo:
+- undo/redo functionality,
+- add block editing limit
+- ability to merge undos
+- deferred and thread-safe block editing in the server thread
+- scripts can "check-out" an area, giving them exclusive writing access, schedule block edits and check them back in to be executed.
+- stable multi-threaded script execution
+- ability to suspend, resume and kill script-threads
+- notification of script-threads about game events (i.e: you can now edit these blocks)
+- run rc-scripts on server connect
+- ability to bind keys to scripts/commands
+- selection framework, standardized method to set and access user selection from scripts
+- selections/morphers: cuboid, hollow cuboid, plane, sphere/ellipsoid, cylinder, scriptable selection, add, subtract, xor, turtle selection, scale, rotate, translate, magic wand
+- turtles (turtle, vector turtle, super turtle)
+- conditional fill patterns
+- ability to call script functions from outside
+- handle nbt data when editing blocks
+- handle rotation etc. of blocks
+
+wrappers for minecraft:
+- time
+- world/blocks
+- weather
+- player

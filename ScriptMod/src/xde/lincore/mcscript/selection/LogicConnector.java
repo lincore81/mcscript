@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import xde.lincore.mcscript.G;
-import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.geom.Voxel;
 
 
 

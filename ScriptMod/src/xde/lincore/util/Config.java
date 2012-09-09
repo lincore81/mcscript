@@ -94,8 +94,8 @@ public final class Config {
 		else {
 			result = new Properties();
 		}
-		G.CFG_DIR.mkdirs();
-		File file = new File(G.CFG_DIR, fileName);
+		G.DIR_CONFIG.mkdirs();
+		File file = new File(G.DIR_CONFIG, fileName);
 		BufferedReader reader = null;
 		try {
 			if (file.exists() || file.createNewFile()) {
@@ -126,8 +126,8 @@ public final class Config {
 	
 	public static boolean save(String fileName, String table) {
 		BufferedWriter writer = null;
-		G.CFG_DIR.mkdirs();
-		File file = new File(G.CFG_DIR, fileName);
+		G.DIR_CONFIG.mkdirs();
+		File file = new File(G.DIR_CONFIG, fileName);
 		try {			
 			writer = new BufferedWriter(new FileWriter(file));			
 			properties.get(table).store(writer, table);
@@ -150,7 +150,7 @@ public final class Config {
 	}
 	
 	public static String generateFileName(String mapName) {
-		return mapName + G.CFG_EXT;
+		return mapName + G.EXT_CONFIG;
 	}
 	
 	public static boolean autosave(String name) {

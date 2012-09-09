@@ -1,20 +1,24 @@
-package xde.lincore.mcscript;
+package xde.lincore.mcscript.wrapper;
 
+import xde.lincore.mcscript.Blocks;
+import xde.lincore.mcscript.ScriptingEnvironment;
+import xde.lincore.mcscript.geom.Vector3d;
+import xde.lincore.mcscript.geom.Voxel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.ModLoader;
 import net.minecraft.src.MovingObjectPosition;
 import net.minecraft.src.Vec3;
-import net.minecraft.src.mod_Script;
+import net.minecraft.src.mod_McScript;
 
-public class BindingsUser extends BindingsBase {
+public class UserWrapper extends WrapperBase {
 	
-
+	public final InventoryWrapper inv;
 	
-	protected BindingsUser(ScriptingEnvironment env) {
+	protected UserWrapper(ScriptingEnvironment env) {
 		super(env);
-		// TODO Auto-generated constructor stub
+		inv = new InventoryWrapper(env);
 	}
 
 	public String getName() {
@@ -33,26 +37,20 @@ public class BindingsUser extends BindingsBase {
 		return env.getUser().posZ;
 	}
 	
-	public Vector getPosition() {
+	public Vector3d getPosition() {
 		EntityPlayer user = env.getUser();
-		return new Vector(user.posX, user.posY, user.posZ);
+		return new Vector3d(user.posX, user.posY, user.posZ);
 	}
 	
-	public Vector getLookVector() {
+	public Vector3d getLookVector() {
 		EntityPlayer user = env.getUser();		
-		return Vector.fromVec3(user.getLookVec());
+		return Vector3d.fromVec3(user.getLookVec());
 	}
 	
-	public void teleport(Vector position) {
+	public void teleport(Vector3d position) {
 		EntityPlayer user = env.getUser();
 		user.setPositionAndUpdate(position.x, position.y, position.z);
 	}
-	
-	public void holdBlock(Blocks block, int quantity) {
-		EntityPlayer user = env.getUser();
-		int hotbarSlot = user.inventory.currentItem;		
-		user.inventory.setInventorySlotContents(hotbarSlot, block.getMcStack(quantity));
-	}	
 	
 	public void noclip(boolean state) {
 		env.getUser().noClip = state;
@@ -62,11 +60,11 @@ public class BindingsUser extends BindingsBase {
 		return env.getUser().noClip;
 	}
 	
-	public Vector raytrace(double distance) {
+	public Vector3d raytrace(double distance) {
 		MovingObjectPosition hit = env.getUser().rayTrace(distance, 1f);
 //		mod_Script.LOG.info(String.format("raytrace for user %s, hit: %d %d %d, type: %s", 
 //				env.getUser().username, hit.blockX, hit.blockY, hit.blockZ,  hit.typeOfHit.toString()));
-		return new Vector(hit.blockX, hit.blockY, hit.blockZ);
+		return new Vector3d(hit.blockX, hit.blockY, hit.blockZ);
 	}
 	
 	public Voxel getMouseOver() {		

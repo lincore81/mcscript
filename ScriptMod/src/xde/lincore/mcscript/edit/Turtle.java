@@ -1,15 +1,17 @@
-package xde.lincore.mcscript;
+package xde.lincore.mcscript.edit;
+
+import xde.lincore.mcscript.Blocks;
+import xde.lincore.mcscript.CardinalDirections;
+import xde.lincore.mcscript.geom.Voxel;
+import xde.lincore.mcscript.wrapper.MinecraftWrapper;
 
 public class Turtle {
-	static void setMc(BindingsMinecraft mc) {
-		Turtle.mc = mc;
-	}
 	private Blocks block;
 	private Voxel initialPosition;	
 	private Voxel position;
 	private int line_stiple;
 	private boolean penDown;
-	private static BindingsMinecraft mc;
+	private static MinecraftWrapper mc;
 	private CardinalDirections direction;
 	private CardinalDirections horizDirection;
 	
@@ -19,6 +21,7 @@ public class Turtle {
 	}
 	
 	public Turtle(Voxel position, Blocks block, CardinalDirections direction) {
+		mc = MinecraftWrapper.getInstance();
 		this.block = block;
 		setPosition(position);
 		this.direction = direction;

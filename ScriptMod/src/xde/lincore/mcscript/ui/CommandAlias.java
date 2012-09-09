@@ -1,4 +1,4 @@
-package xde.lincore.mcscript;
+package xde.lincore.mcscript.ui;
 
 import java.util.Map;
 import java.util.Set;
@@ -6,6 +6,8 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import xde.lincore.mcscript.G;
+import xde.lincore.mcscript.ScriptingEnvironment;
 import xde.lincore.util.StringTools;
 
 
@@ -20,13 +22,12 @@ public class CommandAlias extends CommandBase {
 
 	private ScriptingEnvironment env;
 	private String name;
-	
-	
-	public static CommandRunScript runCommand;
+	private CommandRunScript runCommand;
 	
 	public CommandAlias(ScriptingEnvironment env, String name) {
 		this.env = env;
 		this.name = name;
+		runCommand = env.modInst.getRunCommand();
 	}
 
 	@Override
@@ -43,7 +44,7 @@ public class CommandAlias extends CommandBase {
 				handler = (CommandHandler)(MinecraftServer.getServer().getCommandManager());
 			}
 			else {
-				env.getMc().echo("�cAn unexpected error has occured, I can't run the command, sorry.");
+				env.getMc().err("An unexpected error has occured, I can't run the command, sorry.");
 				G.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");			
 				return;
 			}

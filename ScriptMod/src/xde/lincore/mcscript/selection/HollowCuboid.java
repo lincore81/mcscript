@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.geom.BoundingBox;
+import xde.lincore.mcscript.geom.Voxel;
 
 
 public class HollowCuboid extends SelectionBase {
@@ -15,7 +16,7 @@ public class HollowCuboid extends SelectionBase {
 	
 	
 	public HollowCuboid(Voxel position, int width, int height, int depth) {
-		bounds = new SelectionBounds(
+		bounds = new BoundingBox(
 				position.x, position.x + width  - 1,
 				position.y, position.y + height - 1,
 				position.z, position.z + depth  - 1);				

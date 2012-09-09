@@ -2,12 +2,13 @@ package xde.lincore.mcscript.selection;
 
 import java.util.Iterator;
 
-import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.geom.BoundingBox;
+import xde.lincore.mcscript.geom.Voxel;
 
 
 public abstract class SelectionBase implements ISelection{
 
-	protected SelectionBounds bounds;
+	protected BoundingBox bounds;
 	protected int volume;
 
 	@Override
@@ -31,7 +32,7 @@ public abstract class SelectionBase implements ISelection{
 	}
 
 	@Override
-	public SelectionBounds getBounds() {
+	public BoundingBox getBounds() {
 		return bounds;
 	}
 	

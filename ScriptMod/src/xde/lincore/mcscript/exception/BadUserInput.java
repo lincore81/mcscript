@@ -1,4 +1,4 @@
-package xde.lincore.mcscript;
+package xde.lincore.mcscript.exception;
 
 public class BadUserInput extends RuntimeException {
 

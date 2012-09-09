@@ -1,26 +1,29 @@
-package xde.lincore.mcscript;
+package xde.lincore.mcscript.edit;
+
+import xde.lincore.mcscript.Blocks;
+import xde.lincore.mcscript.geom.Vector3d;
+import xde.lincore.mcscript.geom.Voxel;
+import xde.lincore.mcscript.wrapper.MinecraftWrapper;
 
 public class VectorTurtle {
-	static void setMc(BindingsMinecraft mc) {
-		VectorTurtle.mc = mc;
-	}
 	
 	private Blocks block;
-	private Vector initialPosition;
-	private Vector position;
+	private Vector3d initialPosition;
+	private Vector3d position;
 	private Voxel blockPosition;
 	private int line_stiple;
-	private boolean penDown;
-	private static BindingsMinecraft mc;
-	private Vector heading;
+	private boolean penDown;	
+	private Vector3d heading;
+	private IEditSession edit;
 	
 	
-	public VectorTurtle(Vector position) {
-		this(position, Blocks.LightGreenWool, 0);
+	public VectorTurtle(Vector3d position, IEditSession edit) {
+		this(position, Blocks.EmeraldBlock, 0, edit);
 	}
 	
-	public VectorTurtle(Vector position, Blocks block, int angle) {
+	public VectorTurtle(Vector3d position, Blocks block, int angle, IEditSession edit) {		
 		this.block = block;
+		this.edit = edit;
 		setPosition(position);
 		penDown();		
 		look(angle);
@@ -44,11 +47,9 @@ public class VectorTurtle {
 	}
 	
 	private void draw(double distance, boolean forward) {
-		if (!mc.world.canEdit()) throw new IllegalStateException("Turtle: Can't draw now, the " +
-				"world is not ready for that.");
+		 
 		double moved = 0d;
 		double stepLength = 1d;
-		mc.world.startEdit();		
 			while (moved <= distance) {
 				if (forward) {
 					position = position.add(heading.multiply(stepLength));
@@ -58,7 +59,7 @@ public class VectorTurtle {
 				}
 				Voxel newBlock = position.toVoxel();
 				if (penDown && !blockPosition.equals(newBlock)) {
-					mc.world.setBlock(blockPosition, block);
+					edit.setBlock(blockPosition, block);
 					blockPosition = newBlock;
 				}
 				if (moved < distance && moved + stepLength > distance) {
@@ -67,8 +68,7 @@ public class VectorTurtle {
 				else {
 					moved += stepLength;
 				}
-			}			
-		mc.world.endEdit();
+			}
 		if (!penDown) blockPosition = position.toVoxel();
 	}
 	
@@ -90,26 +90,24 @@ public class VectorTurtle {
 		return this;
 	}
 	
-	public Vector getPosition() {
+	public Vector3d getPosition() {
 		return position;
 	}
 	
-	public Vector getHeading() {
+	public Vector3d getHeading() {
 		return heading;
 	}
 	
-	public void setHeading(Vector heading) {
+	public void snap() {
+		this.position = blockPosition.toVector().add(0.5d, 0.5d, 0.5d);
+	}
+	
+	public void setHeading(Vector3d heading) {
 		this.heading = heading;
 	}
 	
 	public boolean isPenDown() {
 		return penDown;
-	}
-	
-	private boolean isValidPosition(Vector position) {
-		return !(position.x >= 30000000d || position.x <= -30000000d ||
-				 position.z >= 30000000d || position.z <= -30000000d ||
-				 position.y < 0d && position.y > mc.world.getMaxHeight());
 	}
 	
 	public VectorTurtle left(int degrees) {
@@ -122,7 +120,7 @@ public class VectorTurtle {
 	}
 	
 	public VectorTurtle look(int degrees) {		
-		heading = Vector.fromAngleXZ(degrees);
+		heading = Vector3d.fromAngleXZ(degrees);
 		return this;
 	}
 	
@@ -145,16 +143,16 @@ public class VectorTurtle {
 	}
 	
 	public VectorTurtle raise(double amount) {
-		Vector temp = heading;
-		heading = Vector.UP;
+		Vector3d temp = heading;
+		heading = Vector3d.UP;
 		draw(amount, true);
 		heading = temp;
 		return this;
 	}
 	
 	public VectorTurtle lower(double amount) {
-		Vector temp = heading;
-		heading = Vector.DOWN;
+		Vector3d temp = heading;
+		heading = Vector3d.DOWN;
 		draw(amount, true);
 		heading = temp;
 		return this;
@@ -169,7 +167,7 @@ public class VectorTurtle {
 		return right(degrees);
 	}
 	
-	public VectorTurtle setPosition(Vector position) {
+	public VectorTurtle setPosition(Vector3d position) {
 		this.position 	= position;
 		initialPosition = position;
 		blockPosition 	= position.toVoxel();
@@ -181,7 +179,7 @@ public class VectorTurtle {
 		return this;
 	}
 	
-	public VectorTurtle translate(Vector translation) {
+	public VectorTurtle translate(Vector3d translation) {
 		position.add(translation);
 		return this;
 	}

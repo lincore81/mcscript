@@ -6,7 +6,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.geom.BoundingBox;
+import xde.lincore.mcscript.geom.Voxel;
 
 
 public class Cuboid extends SelectionBase {
@@ -16,7 +17,7 @@ public class Cuboid extends SelectionBase {
 	}
 	
 	public Cuboid(Voxel position, int width, int height, int depth) {
-		bounds = new SelectionBounds(
+		bounds = new BoundingBox(
 				position.x, position.x + width  - 1,
 				position.y, position.y + height - 1,
 				position.z, position.z + depth  - 1);
@@ -39,7 +40,7 @@ public class Cuboid extends SelectionBase {
 	}
 
 	@Override
-	public SelectionBounds getBounds() {
+	public BoundingBox getBounds() {
 		return bounds;
 	}
 

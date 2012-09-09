@@ -5,7 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.geom.BoundingBox;
+import xde.lincore.mcscript.geom.Voxel;
 
 import net.minecraft.src.AxisAlignedBB;
 
@@ -15,7 +16,7 @@ public interface ISelection {
 	public int getHeight();
 	public int getDepth();
 	
-	public SelectionBounds getBounds();
+	public BoundingBox getBounds();
 	
 	public boolean contains(Voxel v);
 	

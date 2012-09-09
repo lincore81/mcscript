@@ -1,14 +1,16 @@
-package xde.lincore.mcscript;
+package xde.lincore.mcscript.wrapper;
 
+import xde.lincore.mcscript.ScriptingEnvironment;
+import xde.lincore.mcscript.geom.Voxel;
 import xde.lincore.mcscript.selection.Cuboid;
 import xde.lincore.mcscript.selection.HollowCuboid;
 import xde.lincore.mcscript.selection.ISelection;
 import xde.lincore.mcscript.selection.LogicConnector;
 import xde.lincore.mcscript.selection.Subtractor;
 
-public class BindingsTypes extends BindingsBase {
+public class TypesWrapper extends WrapperBase {
 
-	protected BindingsTypes(ScriptingEnvironment env) {
+	protected TypesWrapper(ScriptingEnvironment env) {
 		super(env);
 	}
 	

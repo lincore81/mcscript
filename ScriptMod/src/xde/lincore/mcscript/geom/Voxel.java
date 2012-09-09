@@ -1,4 +1,4 @@
-package xde.lincore.mcscript;
+package xde.lincore.mcscript.geom;
 
 import net.minecraft.src.MathHelper;
 import net.minecraft.src.Vec3;
@@ -29,7 +29,7 @@ public final class Voxel implements Comparable<Voxel>{
 		this.z = other.z;
 	}
 	
-	public Voxel(Vector vec) {
+	public Voxel(Vector3d vec) {
 		this.x = MathHelper.floor_double(vec.x);
 		this.y = MathHelper.floor_double(vec.y);
 		this.z = MathHelper.floor_double(vec.z);
@@ -167,14 +167,17 @@ public final class Voxel implements Comparable<Voxel>{
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null || !(obj instanceof Voxel)) {
+		if (obj == null || !(obj instanceof Voxel)) {			
 			return false;
-		}
-		
-		return equals((Voxel)obj);
+		}		
+		return equalsVoxel((Voxel)obj);
 	}
 	
-	public boolean equals(Voxel other) {
+	public boolean equalsVoxel(Voxel other) {
 		return !(this.x != other.x || this.y != other.y || this.z != other.z);
+	}
+
+	public Vector3d toVector() {
+		return new Vector3d(this.x, this.y, this.z);
 	}
 }

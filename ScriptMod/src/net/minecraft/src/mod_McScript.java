@@ -17,14 +17,14 @@ import java.util.logging.Level;
 
 import org.lwjgl.input.Keyboard;
 
-import xde.lincore.mcscript.BindingsMinecraft;
-import xde.lincore.mcscript.BindingsTime;
-import xde.lincore.mcscript.CommandAlias;
-import xde.lincore.mcscript.CommandRunScript;
-import xde.lincore.mcscript.CommandScriptEnv;
 import xde.lincore.mcscript.G;
-import xde.lincore.mcscript.McChatLogHandler;
 import xde.lincore.mcscript.ScriptingEnvironment;
+import xde.lincore.mcscript.ui.CommandAlias;
+import xde.lincore.mcscript.ui.CommandRunScript;
+import xde.lincore.mcscript.ui.CommandScriptEnv;
+import xde.lincore.mcscript.ui.McChatLogHandler;
+import xde.lincore.mcscript.wrapper.MinecraftWrapper;
+import xde.lincore.mcscript.wrapper.TimeWrapper;
 import xde.lincore.util.Config;
 import xde.lincore.util.StringTools;
 import xde.lincore.util.Text;
@@ -33,14 +33,14 @@ import xde.lincore.util.Text;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 
-public final class mod_Script extends BaseMod {
+public final class mod_McScript extends BaseMod {
 
-	
+	private CommandRunScript runCommand;	
 	private ScriptingEnvironment env;
 
 	@Override
 	public String getVersion() {
-		return G.VERSION + " (" + G.BUILD_DATE + ")";
+		return G.MOD_VERSION + " (" + G.MOD_BUILD_DATE + ")";
 	}
 
 	@Override
@@ -51,62 +51,69 @@ public final class mod_Script extends BaseMod {
 	@Override
 	public void load() {
 		G.LOG.setLevel(Level.ALL);
-		env = new ScriptingEnvironment(this);
+		env = ScriptingEnvironment.createInstance(this);		
 		G.LOG.addHandler(new McChatLogHandler(env));
-				
-		CommandRunScript runCommand = new CommandRunScript(env); 
-		CommandAlias.runCommand = runCommand;
-		ModLoader.addCommand(runCommand);
-		ModLoader.addCommand(new CommandScriptEnv(this, env));
-		
-		ModLoader.registerKey(this, new KeyBinding(G.KEYBIND_TOGGLE_CONSOLE, Keyboard.KEY_F12), false);
+		setupHooks();
 		setupFiles();
+	}
+	
+	public CommandRunScript getRunCommand() {
+		return runCommand;
 	}
 
 	
+	private void setupHooks() {		
+		runCommand = new CommandRunScript(env);
+		ModLoader.addCommand(runCommand);
+		ModLoader.addCommand(new CommandScriptEnv(this, env));
+		ModLoader.setInGameHook(this, true, true);		
+		ModLoader.registerKey(this, new KeyBinding(G.BIND_TOGGLE_CONSOLE, Keyboard.KEY_F12), false);
+	}
+	
 	private void setupFiles() {
-		G.MOD_DIR.mkdirs();
-		G.LOG.fine("ScriptMod directory: " + G.MOD_DIR.getAbsolutePath());
-		Config.createMap(G.CFG_MAIN, getDefaultProperties());
+		G.DIR_MOD.mkdirs();
+		G.DIR_SCRIPTS.mkdir();
+		G.DIR_CACHE.mkdir();
+		Config.createMap(G.CFG_MAIN, setupDefaultProperties());
 		Config.load(G.CFG_MAIN);
 	}
 	
-	public Properties getDefaultProperties() {
+	public Properties setupDefaultProperties() {
 		Properties result = new Properties(); 
 		result.setProperty(G.PROP_AUTOSAVE, "yes");
 		result.setProperty(G.PROP_ENCODING, Text.DEFAULT_CHARSET.name());
+		result.setProperty(G.PROP_TOOL_FILEMGR, "auto");
+		result.setProperty(G.PROP_TOOL_EDITOR, "auto");
+		result.setProperty(G.PROP_PATH, ".");
 		String cwd = null;
 		try {
-			cwd = new File(G.MOD_DIR, "scripts/").getCanonicalPath();
+			cwd = G.DIR_SCRIPTS.getCanonicalPath();
 		} catch (IOException e) {
 			e.printStackTrace();
-			cwd = new File(G.MOD_DIR, "scripts/").getAbsolutePath();
-		}
+			throw new RuntimeException(e);
+		}		
 		result.setProperty(G.PROP_CWD, cwd);
 		return result;
 	}
 	
 
 	@Override
-	public boolean onTickInGame(float var1, Minecraft var2) {
-		return super.onTickInGame(var1, var2);
+	public boolean onTickInGame(float tick, Minecraft mcInstance) {
+		env.update(tick);
+		return true;
 	}
 
 	@Override
 	public void clientConnect(NetClientHandler var1) {
-		env.onClientConnect();
-		System.out.println("Client connect!");
+		env.onClientConnect();		
 	}
 
 	@Override
 	public void clientDisconnect(NetClientHandler var1) {
-		System.out.println("Client disconnect!");
+		env.onClientDisconnect();
 	}
 
 	@Override
-	public void keyboardEvent(KeyBinding bind) {
-		if (bind.keyDescription.equals(G.KEYBIND_TOGGLE_CONSOLE)) {
-			System.out.println("Toggle console!");
-		}
+	public void keyboardEvent(KeyBinding bind) {		
 	}
 }

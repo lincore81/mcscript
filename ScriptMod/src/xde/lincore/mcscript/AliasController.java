@@ -4,6 +4,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import xde.lincore.mcscript.ui.CommandAlias;
+import xde.lincore.mcscript.ui.CommandRunScript;
+import xde.lincore.mcscript.wrapper.MinecraftWrapper;
 import xde.lincore.util.Config;
 
 
@@ -14,12 +17,12 @@ import net.minecraft.src.ICommand;
 import net.minecraft.src.ModLoader;
 
 public class AliasController {
-	private BindingsMinecraft mc;
+	private MinecraftWrapper mc;
 	private ScriptingEnvironment env;
 	
-	public AliasController(BindingsMinecraft mc, ScriptingEnvironment env) {
-		this.mc = mc;
+	public AliasController(ScriptingEnvironment env) {
 		this.env = env;
+		this.mc = env.getMc();
 	}
 	
 	private boolean commandExists(String name) {
@@ -53,7 +56,7 @@ public class AliasController {
 	
 	private boolean registerAlias(String name, String script) {
 		if (commandExists(name) && !Config.contains(G.CFG_ALIAS, name)) { // built-in command?
-			mc.echo("�cThere already is a command with the name \"" +
+			mc.err("There already is a command with the name \"" +
 					name + "\". Please pick a different one.");
 			return false;
 		}
@@ -62,7 +65,7 @@ public class AliasController {
 			handler = (CommandHandler)(MinecraftServer.getServer().getCommandManager());
 		}
 		else {
-			mc.echo("�cAn unexpected error has occured, I can't set the alias, sorry.");
+			mc.err("An unexpected error has occured, I can't set the alias, sorry.");
 			G.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");			
 			return false;
 		}
@@ -87,7 +90,7 @@ public class AliasController {
 					handler = (CommandHandler)(MinecraftServer.getServer().getCommandManager());
 				}
 				else {
-					mc.echo("�cAn unexpected error has occured, I can't remove the alias, sorry.");
+					mc.err("An unexpected error has occured, I can't remove the alias, sorry.");
 					G.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");			
 					return false;
 				}
@@ -122,7 +125,7 @@ public class AliasController {
 				
 			}
 		}
-		mc.echo("The alias \"" + name + "\" doesn't exist.");	
+		mc.err("The alias \"" + name + "\" doesn't exist.");	
 		return false;
 	}
 	

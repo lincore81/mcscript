@@ -1,7 +1,7 @@
 package xde.lincore.mcscript.selection;
 
-import xde.lincore.mcscript.Vector;
-import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.geom.Vector3d;
+import xde.lincore.mcscript.geom.Voxel;
 
 public class Plane { //extends BlockSelectionBase {
 
@@ -25,7 +25,6 @@ public class Plane { //extends BlockSelectionBase {
 //	
 //	@Override
 //	public boolean contains(Voxel v) {
-//		// TODO Auto-generated method stub
 //		return false;
 //	}
 //

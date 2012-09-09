@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,7 +21,11 @@ import javax.script.ScriptEngineManager;
 
 import org.python.google.common.io.Files;
 
+import xde.lincore.mcscript.edit.EditSessionController;
+import xde.lincore.mcscript.exception.BadUserInput;
+import xde.lincore.mcscript.wrapper.MinecraftWrapper;
 import xde.lincore.util.Config;
+import xde.lincore.util.StringTools;
 import xde.lincore.util.Text;
 
 
@@ -31,48 +37,68 @@ import net.minecraft.src.EntityPlayerMP;
 import net.minecraft.src.ICommand;
 import net.minecraft.src.ModLoader;
 import net.minecraft.src.PlayerNotFoundException;
-import net.minecraft.src.mod_Script;
+import net.minecraft.src.mod_McScript;
 
 public final class ScriptingEnvironment {
 
-	public static final String DEFAULT_SCRIPT_ENGINE = "js";
-	public static final String FILE_ALIASES_CFG = "alias.cfg";
-	public static final File SCRIPTS_DIR = new File(G.MOD_DIR, "scripts/");
-	public static final File CACHE_DIR = new File(G.MOD_DIR, "cache/");
+	private static ScriptingEnvironment instance;
+	private static EntityPlayer currentUser;
+	
+	public final AliasController aliases;
+	public final FileController files;
+	public final KeyController keys;
+	
+	private EditSessionController editSessionController;
 	
 	private ScriptEngineManager manager;
-	private static EntityPlayer currentUser;
+	
 	private ScriptEngine currentEngine = null;
 	private ScriptEngine defaultEngine;
 	//private ExecutorService executor;
-	private BindingsMinecraft mc;
-	private mod_Script modInst;
+	private MinecraftWrapper mc;
+	public final mod_McScript modInst;
 	
-	public AliasController aliases;
 	private ScriptGlobals globals;
-	private Exception lastException;
+	private Exception lastScriptException;
+	private boolean isIngame;
 	
-	public ScriptingEnvironment(mod_Script modInst) {
-		this.modInst = modInst;
-		manager = new ScriptEngineManager();
-		defaultEngine = manager.getEngineByName(DEFAULT_SCRIPT_ENGINE);
-		mc = new BindingsMinecraft(this);
+	public static ScriptingEnvironment createInstance(mod_McScript modInst) {
+		if (instance != null) {
+			throw new IllegalStateException("Instance already exists!");
+		}
+		else {
+			instance = new ScriptingEnvironment(modInst);
+		}		
+		return instance;
+	}
+	
+	public static ScriptingEnvironment getInstance() {
+		return instance;
+	}
+	
+	private ScriptingEnvironment(mod_McScript modInst) {
+		this.modInst 	= modInst;
+		manager 		= new ScriptEngineManager();
+		defaultEngine 	= manager.getEngineByName(G.DEFAULT_SCRIPT_ENGINE);
+		mc 				= MinecraftWrapper.createInstance(this);
+		editSessionController = new EditSessionController(mc);
 		//executor = Executors.newCachedThreadPool();
 		
 		if (defaultEngine == null) {
-			throw new IllegalArgumentException("Could not find the default scripting engine \"" +
-					DEFAULT_SCRIPT_ENGINE + "\".");
+			throw new RuntimeException("Could not find the default scripting engine \"" +
+					G.DEFAULT_SCRIPT_ENGINE + "\".");
 		}
 		
-		aliases = new AliasController(mc, this);
+		files	= new FileController(this);
+		aliases = new AliasController(this);
+		keys = new KeyController(this);
 		globals = new ScriptGlobals();
 	}
 	
 	
-	public BindingsMinecraft getMc() {
-		return mc;
+	public static MinecraftServer getServer() {
+		return MinecraftServer.getServer();
 	}
-	
 	
 	public static EntityPlayer getUser() {
 		if (currentUser == null) {
@@ -80,30 +106,39 @@ public final class ScriptingEnvironment {
 		}
 		return currentUser;
 	}
+	
+	public EditSessionController getEditSessionController() {
+		return editSessionController;
+	}
+	
+	
+	public void doFile(String filename, String engineName, Map<String, String> args, String userName) {
+		currentUser = getScriptUser(userName);
+		File scriptfile = new File(G.DIR_SCRIPTS, filename);
+		String script = files.readScriptFile(scriptfile);
+		if (script == null) return;
+		ScriptEngine engine = null;
+		if (engineName != null) {
+			engine = findEngine(engineName);
+		}
+		else {
+			String extension = files.getFileExtension(filename);
+			if (extension != null) {
+				engine = manager.getEngineByExtension(extension);
+			}
+			if (engine == null) {
+				mc.err("Could not determine which engine to use by file extension. Please specify the " +
+						"engine you want to use.");
+			}
+		}		
+		
+		Runnable runner = new ScriptRunner(engine, script, filename, args, this);		
+		runner.run();
+		//executor.execute(runner);
+	}
 
 
 	
-	
-	public ScriptEngine getCurrentEngine() {
-		return (currentEngine != null)? currentEngine : defaultEngine;
-	}
-	
-	public ScriptEngine getDefaultEngine() {
-		return defaultEngine;
-	}
-
-	public EntityPlayer getScriptUser(String userName) {
-	    {
-	        EntityPlayerMP result = MinecraftServer.getServer().getConfigurationManager().
-	        		getPlayerForUsername(userName);
-	        if (result != null) {
-	            return result;
-	        }
-	        else {
-	        	throw new PlayerNotFoundException();
-	        }
-	    }
-	}
 	
 	public void eval(String script, String engineName, String userName) {
 		currentUser = getScriptUser(userName);
@@ -118,70 +153,6 @@ public final class ScriptingEnvironment {
 		Runnable runner = new ScriptRunner(engine, script, null, null, this);
 		runner.run();
 		//executor.execute(runner);
-	}
-	
-	public void doFile(String filename, String engineName, Map<String, String> args, String userName) {
-		currentUser = getScriptUser(userName);
-		File scriptfile = new File(SCRIPTS_DIR, filename);
-		String script = readScriptFile(scriptfile);
-		if (script == null) return;
-		ScriptEngine engine = null;
-		if (engineName != null) {
-			engine = findEngine(engineName);
-		}
-		else {
-			String extension = getFileExtension(filename);
-			if (extension != null) {
-				engine = manager.getEngineByExtension(extension);
-			}
-			if (engine == null) {
-				mc.echo("§eCould not determine which engine to use by file extension. Please specify the " +
-						"engine you want to use.");
-			}
-		}		
-		
-		Runnable runner = new ScriptRunner(engine, script, filename, args, this);		
-		runner.run();
-		//executor.execute(runner);
-	}
-	
-	
-	
-	public String readScriptFile(File scriptfile) {
-		Text result = new Text();
-		String charset = Config.get(G.CFG_MAIN, G.PROP_ENCODING);
-		try {
-			result.readFile(scriptfile, charset);
-		} catch (FileNotFoundException e) {
-			mc.echo("§6File not found: " + scriptfile.toString());
-			return null;
-		} catch (IOException e) {
-			mc.echo("§6An error occured while trying to access the file " + scriptfile.toString());
-			mc.echo(e.getMessage());
-			e.printStackTrace();
-			return null;
-		} catch (IllegalArgumentException e) {
-			Config.remove(G.CFG_MAIN, G.PROP_ENCODING);
-			throw new BadUserInput("§6Invalid or unsupported file encoding: \"" + 
-					charset + "\". " + G.PROP_ENCODING + 
-					" has been reset to " + Text.DEFAULT_CHARSET.name());
-		}
-		return result.toString();
-	}
-
-
-	public boolean stopThread(int id) {
-		ThreadGroup grp = Thread.currentThread().getThreadGroup();
-		int threadCount = grp.activeCount();
-		Thread[] threads = new Thread[threadCount];
-		grp.enumerate(threads);		
-		for (int i = 0; i < threadCount; i++) {			
-			if (threads[i].getId() == id) {
-				threads[i].stop();
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	public ScriptEngine findEngine(String engineName) {
@@ -201,8 +172,8 @@ public final class ScriptingEnvironment {
 							break; // check other engine names for ambiguouty
 						}
 						else {
-							mc.echo(engineName + " is ambiguous. Please use a distinct identifier for the " +
-									"engine you would like to use.");
+							mc.echo(engineName + " is ambiguous. Please use a distinct identifier " +
+									"for the engine you would like to use.");
 							return null;
 						}
 					}
@@ -215,39 +186,83 @@ public final class ScriptingEnvironment {
 			return result;
 		}
 	}
-	
-	protected ScriptEngineManager getManager() {
-		return manager;
+
+	public ScriptEngine getCurrentEngine() {
+		return (currentEngine != null)? currentEngine : defaultEngine;
 	}
 	
-	public String getFileExtension(String fileName) {
-		if (fileName.length() == 0 || fileName.endsWith(".")) return null; // there's no extension to get
-		
-		for (int i = fileName.length() - 1; i >= 0; i--) { // look for a '.' and return everything after it.
-			if (fileName.charAt(i) == '.') {
-				return fileName.substring(i + 1);
+	
+	
+	public ScriptEngine getDefaultEngine() {
+		return defaultEngine;
+	}
+	
+	
+	
+	public ScriptGlobals getGlobals() {
+		return globals;
+	}
+	
+	public Exception getLastScriptException() {
+		return lastScriptException;
+	}	
+	
+	
+	public MinecraftWrapper getMc() {
+		return mc;
+	}
+
+	public EntityPlayer getScriptUser(String userName) {
+	    {
+	        EntityPlayerMP result = MinecraftServer.getServer().getConfigurationManager().
+	        		getPlayerForUsername(userName);
+	        if (result != null) {
+	            return result;
+	        }
+	        else {
+	        	throw new PlayerNotFoundException();
+	        }
+	    }
+	}	
+	
+	public void setLastException(Exception lastException) {
+		this.lastScriptException = lastException;
+	}
+	
+	public boolean stopThread(int id) {
+		ThreadGroup grp = Thread.currentThread().getThreadGroup();
+		int threadCount = grp.activeCount();
+		Thread[] threads = new Thread[threadCount];
+		grp.enumerate(threads);		
+		for (int i = 0; i < threadCount; i++) {			
+			if (threads[i].getId() == id) {
+				threads[i].stop();
+				return true;
 			}
 		}
-		
-		return null; // no extension found
+		return false;
 	}
-	
+
+
+	public ScriptEngineManager getManager() {
+		return manager;
+	}
+
+
 	public void onClientConnect() {
+		isIngame = true;
 		aliases.loadAliases();
 	}
 
 
-	public ScriptGlobals getGlobals() {
-		return globals;
+	public void onClientDisconnect() {
+		isIngame = false;
 	}
-
-
-	public Exception getLastException() {
-		return lastException;
-	}
-
-
-	public void setLastException(Exception lastException) {
-		this.lastException = lastException;
+	
+	
+	public void update(float tick) {
+		if (!isIngame) return;
+		keys.update();
+		editSessionController.update();
 	}
 }

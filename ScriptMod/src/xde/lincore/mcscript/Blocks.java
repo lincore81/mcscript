@@ -4,7 +4,7 @@ import net.minecraft.src.Block;
 import net.minecraft.src.ItemStack;
 import xde.lincore.util.Config;
 
-public enum Blocks {
+public enum Blocks implements IStackable, IBlock {
 	Air("Air", 0),
 	Stone("Stone", 1),
 	Grass("Grass", 2),
@@ -178,6 +178,8 @@ public enum Blocks {
 	SpruceWoodStairs("Spruce Wood Stairs", 134),
 	BirchWoodStairs("Birch Wood Stairs", 135),
 	JungleWoodStairs("Jungle Wood Stairs", 136),
+	
+	// 1.4?
 	CommandBlock("Command Block", 137),
 	BeaconBlock("Beacon Block", 138),
 	CobblestoneWall("Cobblestone Wall", 139),
@@ -187,12 +189,12 @@ public enum Blocks {
 	WoodenButton("Wooden Button", 143),
 	;
 	
-	private int id, data;
+	private int id, meta;
 	private String name;
 	
 	private Blocks(String name, int id, int damage) {
 		this.id = id;
-		this.data = damage;
+		this.meta = damage;
 		this.name = name;
 	}
 	
@@ -218,24 +220,41 @@ public enum Blocks {
 	
 	public static Blocks findById(int id, int damage) {
 		for (Blocks b: Blocks.values()) {
-			if (b.id == id && b.data == damage) {
+			if (b.id == id && b.meta == damage) {
 				return b;
 			}
 		}
 		return null;
 	}
 	
+	public BlockData getBlockData() {
+		return new BlockData(id, meta);
+	}
+	
+	@Override
 	public int getId() {
 		return id;
 	}
 
 	
-	public int getData() {
-		return data;
+	@Override
+	public int getMeta() {
+		return meta;
 	}
 	
+	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public boolean hasMeta() {
+		return meta != 0;
+	}
+	
+	@Override
+	public boolean hasNbtData() {
+		return false;
 	}
 	
 	/**
@@ -257,13 +276,14 @@ public enum Blocks {
 		}
 	}
 	
-	public ItemStack getMcStack(int quantity) {
-		return new ItemStack(getMcBlock(), quantity, data);
+	@Override
+	public ItemStack getItemStack(int quantity) {
+		return new ItemStack(getMcBlock(), quantity, meta);
 	}
 	
 	public String toString() {
-		if (data > 0) {
-			return String.format("%s (%2d:%2d)", name, id, data);
+		if (meta > 0) {
+			return String.format("%s (%2d:%2d)", name, id, meta);
 		}
 		else {
 			return String.format("%s (%2d)", name, id);

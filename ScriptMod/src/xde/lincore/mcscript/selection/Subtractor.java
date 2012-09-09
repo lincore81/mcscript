@@ -2,7 +2,7 @@ package xde.lincore.mcscript.selection;
 
 import java.util.ArrayList;
 
-import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.geom.Voxel;
 
 
 public class Subtractor extends SelectionBase {

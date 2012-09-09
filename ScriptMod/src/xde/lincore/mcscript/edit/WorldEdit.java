@@ -1,25 +1,39 @@
 package xde.lincore.mcscript.edit;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
-import xde.lincore.mcscript.BindingsWorld;
+import xde.lincore.mcscript.wrapper.WorldWrapper;
 import xde.lincore.util.undo.Undoable;
 
 
 class WorldEdit implements Undoable {
 
-	ArrayList<BlockEdit> blocks;
+	Set<BlockEdit> blocks;
 	String description;
-	BindingsWorld world;
+	String editor;
+	WorldWrapper world;
 	
-	public WorldEdit(String description, BindingsWorld world) {
+	public WorldEdit(String description, String editor, WorldWrapper world) {
+		this.editor = editor;
 		this.description = description;
-		blocks = new ArrayList<BlockEdit>();
+		blocks = new HashSet<BlockEdit>();
 		this.world = world;
 	}
 	
+	protected WorldEdit(WorldEdit other) {		
+		this.editor 		= other.editor;
+		this.description 	= other.description;
+		this.world 			= other.world;
+		this.blocks 		= other.blocks;
+	}
+	
 	public void add(BlockEdit edit) {
-		blocks.add(edit);
+		if (!blocks.add(edit)) {
+			blocks.remove(edit);
+			blocks.add(edit);
+		}
 	}
 	
 	@Override
@@ -45,6 +59,14 @@ class WorldEdit implements Undoable {
 		flush();
 	}
 	
+	public void clear() {
+		blocks.clear();
+	}	
+	
+	public void reset() {
+		blocks = new HashSet<BlockEdit>();
+	}
+	
 	public String getDump() {
 		StringBuffer buffer = new StringBuffer(blocks.size() * 50 + 30);
 		buffer.append(toString() + "\n");
@@ -58,4 +80,13 @@ class WorldEdit implements Undoable {
 	public String toString() {
 		return description + " (" + blocks.size() + " blocks)";
 	}
+	
+	public WorldEdit mergeWith(WorldEdit other) {
+		for (BlockEdit edit: other.blocks) {
+			add(edit);
+		}
+		return this;
+	}
+
+
 }

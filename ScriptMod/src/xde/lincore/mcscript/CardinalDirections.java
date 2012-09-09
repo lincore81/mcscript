@@ -1,5 +1,8 @@
 package xde.lincore.mcscript;
 
+import xde.lincore.mcscript.geom.Vector3d;
+import xde.lincore.mcscript.geom.Voxel;
+
 public enum CardinalDirections {
 	North(Voxel.NORTH),
 	East(Voxel.EAST),
@@ -27,8 +30,8 @@ public enum CardinalDirections {
 		return move;
 	}
 	
-	public Vector getVector() {
-		return new Vector(move);
+	public Vector3d getVector() {
+		return new Vector3d(move);
 	}
 	
 	public CardinalDirections turnLeft() {

@@ -1,5 +1,12 @@
-package xde.lincore.mcscript;
+package xde.lincore.mcscript.wrapper;
 
+import xde.lincore.mcscript.BlockData;
+import xde.lincore.mcscript.Blocks;
+import xde.lincore.mcscript.G;
+import xde.lincore.mcscript.IBlock;
+import xde.lincore.mcscript.ScriptingEnvironment;
+import xde.lincore.mcscript.geom.Vector3d;
+import xde.lincore.mcscript.geom.Voxel;
 import xde.lincore.mcscript.selection.ISelection;
 import xde.lincore.util.StringTools;
 import net.minecraft.client.Minecraft;
@@ -12,9 +19,9 @@ import net.minecraft.src.MovingObjectPosition;
 import net.minecraft.src.Vec3;
 import net.minecraft.src.World;
 
-public class BindingsWorld extends BindingsBase {
+public class WorldWrapper extends WrapperBase {
 
-	protected BindingsWorld(ScriptingEnvironment env) {
+	protected WorldWrapper(ScriptingEnvironment env) {
 		super(env);
 	}
 
@@ -32,7 +39,7 @@ public class BindingsWorld extends BindingsBase {
 	}
 
 	public void fillSelection(ISelection selection, Blocks block) {
-		fillSelection(selection, block.getId(), block.getData());
+		fillSelection(selection, block.getId(), block.getMeta());
 	}
 
 	public Blocks getBlock(Voxel v) {
@@ -75,13 +82,19 @@ public class BindingsWorld extends BindingsBase {
 		EntityPlayer user = env.getUser();
 		return user.worldObj.getWorldInfo().getSeed();
 	}
+	
+	private boolean isValidPosition(Voxel position) {
+		return !(position.x >= 30000000 || position.x <= -30000000 ||
+				 position.z >= 30000000 || position.z <= -30000000 ||
+				 position.y < 0 && position.y > getMaxHeight());
+	}
 
-	public Vector raytrace(Vector position, Vector direction, double distance) {
+	public Vector3d raytrace(Vector3d position, Vector3d direction, double distance) {
 		EntityPlayer user = env.getUser();
-		Vector endVector = position.add(direction.multiply(distance));
+		Vector3d endVector = position.add(direction.multiply(distance));
 		MovingObjectPosition result = user.worldObj.rayTraceBlocks_do_do(
 				position.toVec3(), endVector.toVec3(), true, true);
-		return new Vector(result.hitVec.xCoord, result.hitVec.yCoord,
+		return new Vector3d(result.hitVec.xCoord, result.hitVec.yCoord,
 				result.hitVec.zCoord);
 
 		// EntityPlayer user = env.getCurrentUser();
@@ -120,7 +133,11 @@ public class BindingsWorld extends BindingsBase {
 	}
 
 	public boolean setBlock(Voxel v, Blocks block) {
-		return setBlock(v.x, v.y, v.z, block.getId(), block.getData());
+		return setBlock(v.x, v.y, v.z, block.getId(), block.getMeta());
+	}
+	
+	public boolean setBlock(Voxel v, IBlock block) {
+		return setBlock(v.x, v.y, v.z, block.getId(), block.getMeta());
 	}
 
 	public boolean setBlock(Voxel v, int id, int metadata) {
@@ -190,7 +207,7 @@ public class BindingsWorld extends BindingsBase {
 	}
 
 	public void setBlock(Voxel position, BlockData block) {
-		setBlock(position, block.getId(), block.getData());
+		setBlock(position, block.getId(), block.getMeta());
 	}
 	
 	public BlockData getBlockData(Voxel position) {

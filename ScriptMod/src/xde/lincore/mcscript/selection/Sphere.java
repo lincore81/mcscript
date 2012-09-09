@@ -3,7 +3,7 @@ package xde.lincore.mcscript.selection;
 import java.util.ArrayList;
 import java.util.List;
 
-import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.geom.Voxel;
 
 
 public class Sphere extends SelectionBase {
@@ -26,7 +26,6 @@ public class Sphere extends SelectionBase {
 	@Override
 	public ArrayList<Voxel> getVoxels() {
 		double r2 = radius * radius;
-		// TODO Auto-generated method stub
 		return null;
 	}
 

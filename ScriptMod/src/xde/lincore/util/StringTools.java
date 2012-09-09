@@ -23,8 +23,8 @@ public final class StringTools {
 	public static Integer getInteger(String string) {		
 		Integer result = null;
 		try {
-			if (string.trim().matches("[+-]?0[xX][0-9A-Fa-f]+")) {
-				String hexstring = string.replaceFirst("0[xX]", "");				
+			if (string.trim().matches("[+-]?(0[xX])?[0-9A-Fa-f]+")) {
+				String hexstring = string.replaceFirst("0[xX]", "");		
 				result = Integer.valueOf(hexstring, 16);
 			}
 			else if (string.trim().matches("[+-]?0[bB][01]+")) {

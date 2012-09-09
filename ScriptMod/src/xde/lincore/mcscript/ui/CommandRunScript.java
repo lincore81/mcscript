@@ -1,4 +1,4 @@
-package xde.lincore.mcscript;
+package xde.lincore.mcscript.ui;
 
 import java.io.ObjectInputStream.GetField;
 import java.util.Arrays;
@@ -11,11 +11,12 @@ import java.util.regex.Pattern;
 import net.minecraft.src.CommandBase;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.ICommandSender;
-import net.minecraft.src.mod_Script;
+import net.minecraft.src.mod_McScript;
 
 import org.bouncycastle.util.Strings;
 import org.luaj.vm2.LuaNil;
 
+import xde.lincore.mcscript.ScriptingEnvironment;
 import xde.lincore.util.StringTools;
 
 
@@ -54,7 +55,7 @@ public final class CommandRunScript extends CommandBase {
 	public String getCommandUsage(ICommandSender par1iCommandSender) {
 		String run = getCommandName();
 		String result =
-				"§f\n    /" + run + " ['-'<engine>] <expression>\n" +
+				"ï¿½f\n    /" + run + " ['-'<engine>] <expression>\n" +
 				"    /" + run + " ['-'<engine>] '$'<file> [':' <arguments>]\n";		
 		return result;
 	}
@@ -103,6 +104,6 @@ public final class CommandRunScript extends CommandBase {
 			}
 
 		}
-		env.getMc().echo("§6Syntax error:§r\n\t" + input);
+		env.getMc().echo("ï¿½6Syntax error:ï¿½r\n\t" + input);
 	}
 }
