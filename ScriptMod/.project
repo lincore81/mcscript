@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>ScriptMod</name>
+	<name>mcscript</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -19,11 +19,6 @@
 			<name>ClientBin</name>
 			<type>2</type>
 			<locationURI>WORKSPACE_LOC/Client/bin</locationURI>
-		</link>
-		<link>
-			<name>mods_script</name>
-			<type>2</type>
-			<locationURI>PARENT-1-WORKSPACE_LOC/jars/mods/mcscript</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

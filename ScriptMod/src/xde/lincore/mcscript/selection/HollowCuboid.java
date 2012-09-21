@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import xde.lincore.mcscript.geom.BoundingBox;
-import xde.lincore.mcscript.geom.Voxel;
+import xde.lincore.mcscript.BoundingBox;
+import xde.lincore.mcscript.Voxel;
 
 
 public class HollowCuboid extends SelectionBase {

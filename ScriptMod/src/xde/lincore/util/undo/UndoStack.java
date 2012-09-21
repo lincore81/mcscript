@@ -36,6 +36,10 @@ public class UndoStack<T extends Undoable> implements IUndoHistory<T> {
 		checkLimit();
 	}
 	
+
+	/* (non-Javadoc)
+	 * @see xde.lincore.util.undo.IUndoHistory#clear()
+	 */
 	public void clear() {
 		history.clear();
 		undoPointer = -1;

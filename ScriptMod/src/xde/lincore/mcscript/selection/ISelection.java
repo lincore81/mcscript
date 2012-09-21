@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import xde.lincore.mcscript.geom.BoundingBox;
-import xde.lincore.mcscript.geom.Voxel;
+import xde.lincore.mcscript.BoundingBox;
+import xde.lincore.mcscript.Voxel;
 
 import net.minecraft.src.AxisAlignedBB;
 

@@ -4,29 +4,33 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import xde.lincore.mcscript.wrapper.WorldWrapper;
+import xde.lincore.mcscript.minecraft.WorldWrapper;
 import xde.lincore.util.undo.Undoable;
 
-
+/**
+ * 
+ * 
+ *
+ */
 class WorldEdit implements Undoable {
 
-	Set<BlockEdit> blocks;
-	String description;
-	String editor;
-	WorldWrapper world;
+	private Set<BlockEdit> blocks;
+	private String description;
+	private String editor;
+	private WorldWrapper world;
 	
-	public WorldEdit(String description, String editor, WorldWrapper world) {
-		this.editor = editor;
-		this.description = description;
+	public WorldEdit(String editor, WorldWrapper world) {
+		this.editor = editor;		
 		blocks = new HashSet<BlockEdit>();
 		this.world = world;
 	}
 	
 	protected WorldEdit(WorldEdit other) {		
-		this.editor 		= other.editor;
-		this.description 	= other.description;
-		this.world 			= other.world;
-		this.blocks 		= other.blocks;
+		this(other.editor, other.world);
+	}
+	
+	public Set<BlockEdit> getBlocks() {
+		return blocks;
 	}
 	
 	public void add(BlockEdit edit) {
@@ -78,7 +82,8 @@ class WorldEdit implements Undoable {
 	
 	@Override
 	public String toString() {
-		return description + " (" + blocks.size() + " blocks)";
+		String description_ = (description != null)? description : super.toString();		
+		return description_ + ", edited by " + editor + " (" + blocks.size() + " blocks)";
 	}
 	
 	public WorldEdit mergeWith(WorldEdit other) {
@@ -86,6 +91,16 @@ class WorldEdit implements Undoable {
 			add(edit);
 		}
 		return this;
+	}
+
+	@Override
+	public String getEditor() {
+		return editor;
+	}
+
+	@Override
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 

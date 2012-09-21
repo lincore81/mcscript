@@ -3,7 +3,7 @@ package xde.lincore.mcscript.selection;
 import java.util.ArrayList;
 import java.util.List;
 
-import xde.lincore.mcscript.geom.Voxel;
+import xde.lincore.mcscript.Voxel;
 
 
 public class Sphere extends SelectionBase {

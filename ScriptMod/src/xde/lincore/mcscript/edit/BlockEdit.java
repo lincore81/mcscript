@@ -2,8 +2,8 @@ package xde.lincore.mcscript.edit;
 
 import xde.lincore.mcscript.BlockData;
 import xde.lincore.mcscript.IBlock;
-import xde.lincore.mcscript.geom.Voxel;
-import xde.lincore.mcscript.wrapper.WorldWrapper;
+import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.minecraft.WorldWrapper;
 import xde.lincore.util.undo.Undoable;
 
 

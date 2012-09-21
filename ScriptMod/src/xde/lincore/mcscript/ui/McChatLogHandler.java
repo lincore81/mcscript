@@ -9,8 +9,8 @@ import java.util.logging.SimpleFormatter;
 
 import org.bouncycastle.util.Strings;
 
-import xde.lincore.mcscript.ScriptingEnvironment;
-import xde.lincore.mcscript.wrapper.MinecraftWrapper;
+import xde.lincore.mcscript.env.ScriptEnvironment;
+import xde.lincore.mcscript.minecraft.MinecraftWrapper;
 import xde.lincore.util.StringTools;
 
 
@@ -21,10 +21,10 @@ import net.minecraft.src.StringUtils;
 public final class McChatLogHandler extends Handler {
 
 	private static long pointZero = System.currentTimeMillis();
-	private ScriptingEnvironment env;
+	private ScriptEnvironment env;
 
 	
-	public McChatLogHandler(ScriptingEnvironment env) {
+	public McChatLogHandler(ScriptEnvironment env) {
 		super();
 		this.env = env;		
 		setFormatter(new SimpleFormatter());
@@ -44,9 +44,8 @@ public final class McChatLogHandler extends Handler {
 		if (!isLoggable(record)) return;
 		
 		String msg = getFormatter().format(record);
-		if (isServerRunning()) {
-			MinecraftWrapper mc = env.getMc();
-			mc.echo(msg);
+		if (isServerRunning()) {			
+			env.chat.echo(msg);
 			System.out.println(msg);
 		}
 		else {

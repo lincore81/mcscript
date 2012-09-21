@@ -2,110 +2,121 @@ package xde.lincore.mcscript.edit;
 
 import xde.lincore.mcscript.Blocks;
 import xde.lincore.mcscript.CardinalDirections;
-import xde.lincore.mcscript.geom.Voxel;
-import xde.lincore.mcscript.wrapper.MinecraftWrapper;
+import xde.lincore.mcscript.IBlock;
+import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.edit.turtlespeak.SimpleTurtleDialect;
+import xde.lincore.mcscript.edit.turtlespeak.SyntaxError;
+import xde.lincore.mcscript.edit.turtlespeak.TurtleSpeakParser;
+import xde.lincore.mcscript.env.ScriptEnvironment;
+import xde.lincore.mcscript.minecraft.MinecraftWrapper;
 
-public class Turtle {
-	private Blocks block;
-	private Voxel initialPosition;	
-	private Voxel position;
-	private int line_stiple;
-	private boolean penDown;
-	private static MinecraftWrapper mc;
-	private CardinalDirections direction;
-	private CardinalDirections horizDirection;
+public class Turtle implements ITurtle {
 	
+	private IBlock 					block;
+	private Voxel 					initialPosition;	
+	private Voxel 					currentPosition;	
+	private boolean 				isPenDown;	
+	private CardinalDirections 		direction;
+	private CardinalDirections 		lastHorizDirection;
+	
+	private TurtleSpeakParser parser;
+	private SimpleTurtleDialect dialect;
+	
+	
+	public Turtle(Voxel position, IBlock block, CardinalDirections direction) {		
+		this.block = block;
+		setBlockPosition(position);
+		this.direction = direction;
+		lastHorizDirection = (direction.isHorizontal())? direction : CardinalDirections.North;
+		penDown();
+	}
 	
 	public Turtle(Voxel position) {
 		this(position, Blocks.Stone, CardinalDirections.North);
 	}
 	
-	public Turtle(Voxel position, Blocks block, CardinalDirections direction) {
-		mc = MinecraftWrapper.getInstance();
-		this.block = block;
-		setPosition(position);
-		this.direction = direction;
-		horizDirection = (direction.isHorizontal())? direction : CardinalDirections.North;
-		penDown();
-	}
 	
-	public Turtle backward() {
-		return backward(1);
-	}
-	
+
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#backward(int) EditSession@741854be
+	 */
+	@Override
 	public Turtle backward(int times) {
 		draw(times, false);
 		return this;
 	}
 	
-	public Turtle bk() {
-		return backward();
-	}
-	
-	public Turtle bk(int times) {
-		return backward(times);
-	}
-	
+
 	public Turtle down() {
 		look(CardinalDirections.Down);
 		return this;
 	}
 	
-	private void draw(int times, boolean forward) {
-		if (times == 0) return;
-		if (!mc.world.canEdit()) throw new IllegalStateException("Turtle: Can't draw now, the " +
-				"world is not ready for me, yet.");
-		mc.world.startEdit();
-		for (int i = 0; i < times; i++) {
-			if (!isValidPosition(position)) continue;
-			
-			if (penDown) { 
-				mc.world.setBlock(position, block);
-			}
-			if (forward) {
-				position = position.add(direction.getVoxel());
-			}
-			else {
-				position = position.sub(direction.getVoxel());
-			}
-		}
-		mc.world.endEdit();
-	}
-	
-	public Turtle fd() {
-		return forward();
-	}
-	
-	
-	public Turtle fd(int times) {
-		return forward(times);
-	}
-	
-	public Turtle forward() {
-		return forward(1);
-	}
-	
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#forward(int)
+	 */
+	@Override
 	public Turtle forward(int times) {
 		draw(times, true);
 		return this;
 	}
 	
-	public Voxel getPosition() {
-		return position;
+	public IBlock getBlock() {
+		return block;
 	}
 	
 	public CardinalDirections getDirection() {
 		return direction;
 	}
 	
-	public boolean isPenDown() {
-		return penDown;
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#getPosition()
+	 */
+	@Override
+	public Voxel getBlockPosition() {
+		return currentPosition;
 	}
 	
-	private boolean isValidPosition(Voxel position) {
-		return !(position.x >= 30000000 || position.x <= -30000000 ||
-				 position.z >= 30000000 || position.z <= -30000000 ||
-				 position.y < 0 && position.y > mc.world.getMaxHeight());
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#getX()
+	 */
+	@Override
+	public int getX() {
+		return currentPosition.x;
+	}
+	
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#getY()
+	 */
+	@Override
+	public int getY() {
+		return currentPosition.y;
+	}
+	
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#getZ()
+	 */
+	@Override
+	public int getZ() {
+		return currentPosition.z;
+	}
+	
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#isPenDown()
+	 */
+	@Override
+	public boolean isPenDown() {
+		return isPenDown;
+	}
+
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#left()
+	 */
+	@Override
+	public Turtle left(int amount) {
+		for (int i = 0; i < amount; i++)
+			look(direction.turnLeft());
+		return this;
 	}
 	
 	public Turtle left() {
@@ -113,18 +124,6 @@ public class Turtle {
 		return this;
 	}
 	
-	public Turtle lt() {
-		return left();
-	}
-	
-	public Turtle look(String direction) {
-		CardinalDirections dir = CardinalDirections.get(direction);
-		if (dir != null) {
-			look(dir);
-		}
-		return this;
-	}
-
 	public Turtle look(CardinalDirections direction) {
 		if (direction == null) {
 			throw new RuntimeException("Turtle: I can't look this way.");
@@ -142,82 +141,106 @@ public class Turtle {
 		return this;
 	}
 	
-	public Turtle lookForward() {
-		this.direction = horizDirection;
+	public Turtle look(String direction) {
+		CardinalDirections dir = CardinalDirections.get(direction);
+		if (dir != null) {
+			look(dir);
+		}
 		return this;
 	}
 	
-	public Turtle penDown() {
-		penDown = true;
-		return this;
-	}
-	
-	public Turtle pd() {
-		return penDown();
-	}
 
-	public Turtle penUp() {
-		penDown = false;
+	public Turtle lookForward() {
+		this.direction = lastHorizDirection;
 		return this;
 	}	
 	
-	public Turtle pu() {
-		return penUp();
+
+	
+	public Turtle lower() {
+		return goDown(1);
 	}
 	
-	public Turtle raise() {
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#lower(int)
+	 */
+	@Override
+	public Turtle goDown(int blocks) {
 		CardinalDirections tmp = direction;
-		up().forward();
+		down().forward(blocks);
 		look(tmp);
 		return this;
 	}
 	
-	public Turtle raise(int height) {
+	
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#parse(java.lang.String)
+	 */
+	@Override
+	public void parse(String program) {
+		if (parser == null) setupParser();
+		try {
+			parser.parse(program);
+			parser.eval();
+		} catch (SyntaxError e) {			
+			ScriptEnvironment.getInstance().chat.err(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	private void setupParser() {
+		dialect = new SimpleTurtleDialect(this);
+		parser = new TurtleSpeakParser(dialect);
+	}
+	
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#penDown()
+	 */
+	@Override
+	public Turtle penDown() {
+		isPenDown = true;
+		return this;
+	}
+
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#penUp()
+	 */
+	@Override
+	public Turtle penUp() {
+		isPenDown = false;
+		return this;
+	}
+	
+	public Turtle raise() {
+		CardinalDirections tmp = direction;
+		up().forward(1);
+		look(tmp);
+		return this;
+	}
+	
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#raise(int)
+	 */
+	@Override
+	public Turtle goUp(int height) {
 		CardinalDirections tmp = direction;
 		up().forward(height);
 		look(tmp);
 		return this;
 	}
 	
-	public Turtle lower() {
-		CardinalDirections tmp = direction;
-		down().forward();
-		look(tmp);
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#right()
+	 */
+	@Override
+	public Turtle right(int amount) {		
+		for (int i = 0; i < amount; i++)
+			look(direction.turnRight());
 		return this;
 	}
-
-	public Turtle right() {		
+	
+	public Turtle right() {
 		look(direction.turnRight());
-		return this;
-	}
-	
-	public Turtle rt() {
-		return right();
-	}
-	
-	public Turtle setPosition(Voxel position) {
-		this.position = position;		
-		initialPosition = position;
-		return this;
-	}
-	
-	public Turtle togglePen() {
-		penDown = !penDown;
-		return this;
-	}
-	
-	public Turtle translate(Voxel translation) {
-		position.add(translation);
-		return this;
-	}
-	
-	public Turtle turnAround() {
-		look(direction.turnAround());
-		return this;
-	}
-	
-	public Turtle up() {
-		look(CardinalDirections.Up);
 		return this;
 	}
 	
@@ -225,24 +248,77 @@ public class Turtle {
 		this.block = block;
 	}
 	
-	public Blocks getBlock() {
-		return block;
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#setPosition(xde.lincore.mcscript.geom.Voxel)
+	 */
+	@Override
+	public Turtle setBlockPosition(Voxel position) {
+		this.currentPosition = position;		
+		initialPosition = position;
+		return this;
 	}
 	
-	public int getX() {
-		return position.x;
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#togglePen()
+	 */
+	@Override
+	public Turtle togglePen() {
+		isPenDown = !isPenDown;
+		return this;
 	}
 	
-	public int getY() {
-		return position.y;
+	public Turtle translate(Voxel translation) {
+		currentPosition.add(translation);
+		return this;
 	}
 	
-	public int getZ() {
-		return position.z;
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#turnAround()
+	 */
+	@Override
+	public Turtle turnAround() {
+		look(direction.turnAround());
+		return this;
 	}
 	
-	public void parse(String commands) {
-		
+
+	public Turtle up() {
+		look(CardinalDirections.Up);
+		return this;
+	}
+	
+	private void draw(int times, boolean forward) {
+		IEditSession editSession = ScriptEnvironment.getInstance().scripts.getScript().getEditSession();
+		if (times == 0) return;	
+		for (int i = 0; i < times; i++) {
+			if (!isValidPosition(currentPosition)) continue;
+			
+			if (isPenDown) { 
+				editSession.setBlock(currentPosition, block);
+			}
+			if (forward) {
+				currentPosition = currentPosition.add(direction.getVoxel());
+			}
+			else {
+				currentPosition = currentPosition.sub(direction.getVoxel());
+			}
+		}
+	}
+	
+	private boolean isValidPosition(Voxel position) {
+		int worldHeight = ScriptEnvironment.getInstance().scripts.getScript().
+				getMinecraftWrapper().world.getMaxHeight();
+		return !(position.x >= 30000000 || position.x <= -30000000 ||
+				 position.z >= 30000000 || position.z <= -30000000 ||
+				 position.y < 0 && position.y > worldHeight);
+	}
+
+	/* (non-Javadoc)
+	 * @see xde.lincore.mcscript.edit.turtle.ITurtle2#reset()
+	 */
+	@Override
+	public void reset() {
+		currentPosition = initialPosition.clone();		
 	}
 }
 

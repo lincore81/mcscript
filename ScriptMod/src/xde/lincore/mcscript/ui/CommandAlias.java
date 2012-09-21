@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import xde.lincore.mcscript.G;
-import xde.lincore.mcscript.ScriptingEnvironment;
+import xde.lincore.mcscript.env.ScriptEnvironment;
 import xde.lincore.util.StringTools;
 
 
@@ -20,11 +20,11 @@ import net.minecraft.src.ModLoader;
 
 public class CommandAlias extends CommandBase {
 
-	private ScriptingEnvironment env;
+	private ScriptEnvironment env;
 	private String name;
 	private CommandRunScript runCommand;
 	
-	public CommandAlias(ScriptingEnvironment env, String name) {
+	public CommandAlias(ScriptEnvironment env, String name) {
 		this.env = env;
 		this.name = name;
 		runCommand = env.modInst.getRunCommand();
@@ -44,7 +44,7 @@ public class CommandAlias extends CommandBase {
 				handler = (CommandHandler)(MinecraftServer.getServer().getCommandManager());
 			}
 			else {
-				env.getMc().err("An unexpected error has occured, I can't run the command, sorry.");
+				env.chat.err("An unexpected error has occured, I can't run the command, sorry.");
 				G.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");			
 				return;
 			}

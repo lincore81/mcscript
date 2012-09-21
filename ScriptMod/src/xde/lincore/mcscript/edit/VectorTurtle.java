@@ -1,9 +1,9 @@
 package xde.lincore.mcscript.edit;
 
 import xde.lincore.mcscript.Blocks;
-import xde.lincore.mcscript.geom.Vector3d;
-import xde.lincore.mcscript.geom.Voxel;
-import xde.lincore.mcscript.wrapper.MinecraftWrapper;
+import xde.lincore.mcscript.Vector3d;
+import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.minecraft.MinecraftWrapper;
 
 public class VectorTurtle {
 	

@@ -2,8 +2,8 @@ package xde.lincore.mcscript.selection;
 
 import java.util.Iterator;
 
-import xde.lincore.mcscript.geom.BoundingBox;
-import xde.lincore.mcscript.geom.Voxel;
+import xde.lincore.mcscript.BoundingBox;
+import xde.lincore.mcscript.Voxel;
 
 
 public abstract class SelectionBase implements ISelection{

@@ -1,7 +1,7 @@
 package xde.lincore.mcscript.selection;
 
-import xde.lincore.mcscript.geom.Vector3d;
-import xde.lincore.mcscript.geom.Voxel;
+import xde.lincore.mcscript.Vector3d;
+import xde.lincore.mcscript.Voxel;
 
 public class Plane { //extends BlockSelectionBase {
 

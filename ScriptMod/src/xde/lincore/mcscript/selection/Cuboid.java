@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import xde.lincore.mcscript.geom.BoundingBox;
-import xde.lincore.mcscript.geom.Voxel;
+import xde.lincore.mcscript.BoundingBox;
+import xde.lincore.mcscript.Voxel;
 
 
 public class Cuboid extends SelectionBase {

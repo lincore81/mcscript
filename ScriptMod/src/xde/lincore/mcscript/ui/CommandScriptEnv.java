@@ -30,9 +30,9 @@ import javax.script.ScriptEngineManager;
 import org.bouncycastle.util.Strings;
 
 import xde.lincore.mcscript.G;
-import xde.lincore.mcscript.ScriptingEnvironment;
-import xde.lincore.mcscript.exception.BadUserInput;
-import xde.lincore.mcscript.wrapper.MinecraftWrapper;
+import xde.lincore.mcscript.env.ScriptEnvironment;
+import xde.lincore.mcscript.minecraft.MinecraftWrapper;
+import xde.lincore.mcscript.ui.BadUserInputException;
 import xde.lincore.util.Config;
 import xde.lincore.util.StringTools;
 import xde.lincore.util.Text;
@@ -54,14 +54,13 @@ public final class CommandScriptEnv extends CommandBase {
 	 */
 	
 	
-	private ScriptingEnvironment env;
+	private ScriptEnvironment env;
 	private mod_McScript modInst;
 	
-	private ICommandSender sender;
-	private MinecraftWrapper mc;
+	private ICommandSender sender;	
 	private Deque<String> tokens;
 	
-	public CommandScriptEnv(mod_McScript modInst, ScriptingEnvironment env) {
+	public CommandScriptEnv(mod_McScript modInst, ScriptEnvironment env) {
 		this.env = env;
 		this.modInst = modInst;
 	}
@@ -78,8 +77,8 @@ public final class CommandScriptEnv extends CommandBase {
 	}
 
 	@Override
-	public void processCommand(ICommandSender sender, String[] arguments) {		
-		this.mc = env.getMc();
+	public void processCommand(ICommandSender sender, String[] arguments) {	
+		
 		this.sender = sender;
 		this.tokens = new ArrayDeque<String>(Arrays.asList(arguments));
 		
@@ -110,14 +109,14 @@ public final class CommandScriptEnv extends CommandBase {
 					handleKeys();
 					break;
 				default:
-					throw new BadUserInput("Invalid argument: " + token);
+					throw new BadUserInputException("Invalid argument: " + token);
 			}
 		}
-		catch (BadUserInput e) {
-			mc.err(e.getMessage());
+		catch (BadUserInputException e) {
+			env.chat.err(e.getMessage());
 		}
 		
-		mc = null;
+		
 		sender = null;
 		tokens = null;
 	}
@@ -142,7 +141,7 @@ public final class CommandScriptEnv extends CommandBase {
 				doKeyFind();
 				break;
 			default:
-				throw new BadUserInput("Invalid argument: " + token);
+				throw new BadUserInputException("Invalid argument: " + token);
 		}
 	}
 
@@ -160,7 +159,7 @@ public final class CommandScriptEnv extends CommandBase {
 				doAliasList();
 				break;
 			default:
-				throw new BadUserInput("Invalid argument: " + token);
+				throw new BadUserInputException("Invalid argument: " + token);
 		}
 	}
 
@@ -190,7 +189,7 @@ public final class CommandScriptEnv extends CommandBase {
 				doConfigRemove();
 				break;
 			default:
-				throw new BadUserInput("Invalid argument: " + token);
+				throw new BadUserInputException("Invalid argument: " + token);
 		}
 	}
 
@@ -208,13 +207,13 @@ public final class CommandScriptEnv extends CommandBase {
 				doFilesList();
 				break;
 			case Cwd:
-				mc.echo(env.files.getCwdString());
+				env.chat.echo(env.files.getCwdString());
 				break;			
 			case Cat:
 				doFilesCat();
 				break;
 			default:
-				throw new BadUserInput("Invalid argument: " + token);
+				throw new BadUserInputException("Invalid argument: " + token);
 		}
 	}
 	
@@ -244,24 +243,24 @@ public final class CommandScriptEnv extends CommandBase {
 					doInfoShowFile(token.substring(1));
 				}
 				else {
-					throw new BadUserInput("Invalid argument: " + token);
+					throw new BadUserInputException("Invalid argument: " + token);
 				}
 		}
 	}
 
 	
 	private void doAliasList() {
-		mc.echo("§oRegistered Aliases:");
+		env.chat.echo("§oRegistered Aliases:");
 		Map<Object, Object> sorted = env.aliases.getSortedMap();
 		for (Map.Entry entry: sorted.entrySet()) {
 			String substr = (String)(entry.getValue());
 			if (substr.length() > 60) {
 				substr = substr.substring(0, 58) + "...";
 			}
-			mc.echo("§e* " + (String)(entry.getKey()) + ":§r " + substr); 
+			env.chat.echo("§e* " + (String)(entry.getKey()) + ":§r " + substr); 
 		}
 		if (env.aliases.getAliases().isEmpty()) {
-			mc.echo("     - none -");
+			env.chat.echo("     - none -");
 		}
 	}
 
@@ -278,10 +277,10 @@ public final class CommandScriptEnv extends CommandBase {
 		String token = StringTools.join(tokens).trim();
 		String[] pair = token.split("\\s*=\\s*", 2);		
 		if (pair.length != 2) {
-			throw new BadUserInput("Bad syntax. Write <KEY>'='<VALUE>.");
+			throw new BadUserInputException("Bad syntax. Write <KEY>'='<VALUE>.");
 		}
 		env.aliases.setAlias(pair[0], pair[1]);
-		mc.echo("Ok.");
+		env.chat.echo("Ok.");
 	}
 	
 
@@ -291,10 +290,10 @@ public final class CommandScriptEnv extends CommandBase {
 		String propName = StringTools.join(tokens, " ");
 		String propValue = Config.get(G.CFG_MAIN, propName);
 		if (propValue != null) {
-			mc.echo(propValue);
+			env.chat.echo(propValue);
 		}
 		else {
-			mc.echo("\"" + propName + "\" doesn't exist.");
+			env.chat.echo("\"" + propName + "\" doesn't exist.");
 		}		
 	}
 
@@ -303,21 +302,21 @@ public final class CommandScriptEnv extends CommandBase {
 		String cfg;
 		if (tokens.isEmpty()) {
 			cfg = G.CFG_MAIN;
-			mc.echo("§oMod Config:");
+			env.chat.echo("§oMod Config:");
 		}
 		else {
 			cfg = tokens.pop();
 			if (Config.getMap(cfg.toLowerCase()) == null) {
-				throw new BadUserInput("The config table \"" + cfg + "\" doesn't exist.");
+				throw new BadUserInputException("The config table \"" + cfg + "\" doesn't exist.");
 			}
-			mc.echo("§oConfig table \"" + cfg + "\":");
+			env.chat.echo("§oConfig table \"" + cfg + "\":");
 		}
 		
 		Map<Object, Object> sorted = Config.getSortedMap(cfg);
 		for (Map.Entry entry: sorted.entrySet()) {
 			String key = (String)(entry.getKey());
 			String value = (String)(entry.getValue());
-			mc.echo("    \"§e" + key + "§r\" = \"§e" + value + "§r\"");
+			env.chat.echo("    \"§e" + key + "§r\" = \"§e" + value + "§r\"");
 		}
 		
 	}
@@ -325,7 +324,7 @@ public final class CommandScriptEnv extends CommandBase {
 
 	private void doConfigReload() {
 		boolean success = Config.load(G.CFG_MAIN);
-		mc.echo(success? "Ok." : "Properties were NOT reloaded.");
+		env.chat.echo(success? "Ok." : "Properties were NOT reloaded.");
 		
 	}
 	
@@ -335,11 +334,11 @@ public final class CommandScriptEnv extends CommandBase {
 
 		String propName = StringTools.join(tokens, " ");			
 		if (Config.remove(G.CFG_MAIN, propName)) {
-			mc.echo("Ok.");
-			if (!Config.autosave(G.CFG_MAIN)) mc.err("Autosave failed!");
+			env.chat.echo("Ok.");
+			if (!Config.autosave(G.CFG_MAIN)) env.chat.err("Autosave failed!");
 		}
 		else {
-			mc.echo("There is no property by the name of \"" + propName + "\".\n" +
+			env.chat.echo("There is no property by the name of \"" + propName + "\".\n" +
 					"Nothing has been removed.");
 		}		
 	}
@@ -347,13 +346,13 @@ public final class CommandScriptEnv extends CommandBase {
 	
 	private void doConfigReset() {
 		Config.clearMap(G.CFG_MAIN, modInst.setupDefaultProperties());	
-		if (!Config.autosave(G.CFG_MAIN)) mc.echo("§c§oAutosave failed!");		
+		if (!Config.autosave(G.CFG_MAIN)) env.chat.echo("§c§oAutosave failed!");		
 	}
 	
 
 	private void doConfigSave() {
 		boolean success = Config.save(G.CFG_MAIN);
-		mc.echo(success? "Ok." : "Properties were NOT saved.");		
+		env.chat.echo(success? "Ok." : "Properties were NOT saved.");		
 	}
 
 	
@@ -362,20 +361,20 @@ public final class CommandScriptEnv extends CommandBase {
 		String mapString = StringTools.join(tokens, " ");
 		
 		if (!StringTools.isValidMap(mapString, ",", "=")) {
-			throw new BadUserInput("Please set properties like this:\n" +
+			throw new BadUserInputException("Please set properties like this:\n" +
 					"§f<name>§r = §f<value>§r (; §f<name2>§r = §f<value2>§r; ... " +
 					"§f<nameN>§r = §f<valueN>)§r");
 		}
 		Map<String, String> newProps = StringTools.getMap(mapString, ",", "=");
 		if (newProps == null) {
-			throw new BadUserInput("Please set properties like this:\n" +
+			throw new BadUserInputException("Please set properties like this:\n" +
 					"§o§f<name> = <value> (; <name2>§r = <value2>; ... " +
 					"<nameN> = <valueN>)");
 		}
 		else {
 			Config.setMultiple(G.CFG_MAIN, newProps);			
-			mc.echo("Ok.");
-			if (!Config.autosave(G.CFG_MAIN)) mc.echo("§c§oAutosave failed!");
+			env.chat.echo("Ok.");
+			if (!Config.autosave(G.CFG_MAIN)) env.chat.echo("§c§oAutosave failed!");
 		}
 	}
 
@@ -394,7 +393,7 @@ public final class CommandScriptEnv extends CommandBase {
 		}
 		catch (IOException e) {
 			e.printStackTrace();
-			mc.err("Could not resolve path: " + filename);
+			env.chat.err("Could not resolve path: " + filename);
 			return;
 		}
 		
@@ -403,13 +402,13 @@ public final class CommandScriptEnv extends CommandBase {
 		try {
 			contents.readFile(file, charset);
 		} catch (FileNotFoundException e) {
-			throw new BadUserInput("File not found: " + file.toString());
+			throw new BadUserInputException("File not found: " + file.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new BadUserInput("Could not read the file " + file.toString(), e);
+			throw new BadUserInputException("Could not read the file " + file.toString(), e);
 		} catch (IllegalArgumentException e) {
 			Config.remove(G.CFG_MAIN, G.PROP_ENCODING);
-			throw new BadUserInput("Invalid or unsupported file encoding: \"" + 
+			throw new BadUserInputException("Invalid or unsupported file encoding: \"" + 
 					charset + "\". " + G.PROP_ENCODING + 
 					" has been reset to " + Text.DEFAULT_CHARSET.name());
 		}
@@ -421,7 +420,7 @@ public final class CommandScriptEnv extends CommandBase {
 		int i = 1;
 		int w = String.valueOf(contents.getLineCount()).length();
 		for (String line : contents.lines()) {
-			mc.format("§e%0" + String.valueOf(w) + "d:§r %s", i, line);
+			env.chat.format("§e%0" + String.valueOf(w) + "d:§r %s", i, line);
 			i++;
 		}
 	}
@@ -434,44 +433,44 @@ public final class CommandScriptEnv extends CommandBase {
 		}
 		catch (IOException e) {
 			e.printStackTrace();
-			mc.err("Could not resolve path: " + dirParam);
+			env.chat.err("Could not resolve path: " + dirParam);
 			return;
 		}
 		
 		try {
-			mc.echo("§o" + dir.getCanonicalPath() + ":");			
+			env.chat.echo("§o" + dir.getCanonicalPath() + ":");			
 		} catch (IOException e) {
 			e.printStackTrace();
 			G.LOG.warning("Could not get canonical path for " + dir.getAbsolutePath());
-			mc.echo("§o" + dir.getAbsolutePath() + ":");
+			env.chat.echo("§o" + dir.getAbsolutePath() + ":");
 		}	
 		
 		File[] contents = dir.listFiles();		
 		if (contents == null) {
-			throw new BadUserInput("Is not a valid directory: " + dir.getAbsolutePath());
+			throw new BadUserInputException("Is not a valid directory: " + dir.getAbsolutePath());
 		}
 		for (File entry: contents) {
 			if (entry.isDirectory()) {
-				mc.echo("  §9" + entry.getName() + System.getProperty("file.separator", "/"));
+				env.chat.echo("  §9" + entry.getName() + System.getProperty("file.separator", "/"));
 			}
 			else {
-				mc.echo("  " + entry.getName());
+				env.chat.echo("  " + entry.getName());
 			}
 		}
 	}
 
 	private void doInfoAproposKeys() {
-		mc.echo("§oKeys:");
+		env.chat.echo("§oKeys:");
 		while (tokens.size() > 0) {
 			for (Keys k: Keys.apropos(tokens.pollFirst())) {
-				mc.echo(k);				
+				env.chat.echo(k);				
 			}
 		}
 	}
 	
 	private void doInfoDumpKeys() {
-		mc.echo("§oKeys:");
-		mc.echo(Keys.getDump());
+		env.chat.echo("§oKeys:");
+		env.chat.echo(Keys.getDump());
 	}
 
 	/** Show more detailed information about an available script engine.
@@ -483,11 +482,11 @@ public final class CommandScriptEnv extends CommandBase {
 		String engineName = tokens.pollFirst();
 		ScriptEngine engine;
 		if (Keywords.Default.matches(engineName)) {			
-			mc.echo("§oThe default script engine is:");
+			env.chat.echo("§oThe default script engine is:");
 			engine = env.getDefaultEngine();
 		}
 		else if (Keywords.Current.matches(engineName)) {			
-			mc.echo("§oThe currently used script engine is:");
+			env.chat.echo("§oThe currently used script engine is:");
 			engine = env.getCurrentEngine();
 		}
 		else {
@@ -495,7 +494,7 @@ public final class CommandScriptEnv extends CommandBase {
 		}
 		
 		if (engine == null) {
-			throw new BadUserInput("There is no script engine with such a name.");
+			throw new BadUserInputException("There is no script engine with such a name.");
 		}
 		else {
 			ScriptEngineFactory fac = engine.getFactory();
@@ -505,9 +504,9 @@ public final class CommandScriptEnv extends CommandBase {
 			
 			
 			doInfoShowEngine(fac);
-			mc.echo("  Mimes: " + mimes);
-			mc.echo("  Compilable? " + compilable);
-			mc.echo("  Invocable? " + compilable);
+			env.chat.echo("  Mimes: " + mimes);
+			env.chat.echo("  Compilable? " + compilable);
+			env.chat.echo("  Invocable? " + compilable);
 		}
 	}
 
@@ -515,7 +514,7 @@ public final class CommandScriptEnv extends CommandBase {
 	private void doInfoEnginesList() {
 		ScriptEngineManager mgr = env.getManager();
 		List<ScriptEngineFactory> facs = mgr.getEngineFactories();			
-		mc.echo("§oAvailable script engines:");
+		env.chat.echo("§oAvailable script engines:");
 		for (ScriptEngineFactory f: facs) {				
 			doInfoShowEngine(f);
 		}
@@ -525,10 +524,10 @@ public final class CommandScriptEnv extends CommandBase {
 	private void doInfoShowEngine(ScriptEngineFactory factory) {
 		String extensions = StringTools.join(factory.getExtensions(), ", ");
 		String aliases = StringTools.join(factory.getNames(), ", ");				
-		mc.echo("§e* " + factory.getEngineName() + " for " + factory.getLanguageName() + " " + 
+		env.chat.echo("§e* " + factory.getEngineName() + " for " + factory.getLanguageName() + " " + 
 				factory.getLanguageVersion());
-		mc.echo("  Aliases: " + aliases);
-		mc.echo("  Extensions: " + extensions);
+		env.chat.echo("  Aliases: " + aliases);
+		env.chat.echo("  Extensions: " + extensions);
 	}
 
 	
@@ -538,11 +537,11 @@ public final class CommandScriptEnv extends CommandBase {
 		try {
 			contents.readFile(file);
 		} catch (FileNotFoundException e) {
-			mc.echo("File not found: " + file.toString());
+			env.chat.echo("File not found: " + file.toString());
 			return;
 		} catch (IOException e) {
-			mc.echo("An error occured while trying to access the file " + file.toString());
-			mc.echo(e.getMessage());
+			env.chat.echo("An error occured while trying to access the file " + file.toString());
+			env.chat.echo(e.getMessage());
 			e.printStackTrace();
 			return;
 		}
@@ -550,11 +549,11 @@ public final class CommandScriptEnv extends CommandBase {
 				env.files.getFileExtension(file.toString()));
 		String lang = (engine != null) ? engine.getFactory().getLanguageName() : "unknown";
 		
-		mc.echo("§o" + file.getAbsolutePath() + ":");	
-		mc.echo("§eFile Size: §r" + String.valueOf(file.length()));
-		mc.echo("§eLines: §r" + String.valueOf(contents.getLineCount()));
-		mc.echo("§eLine Terminator: §r" + contents.getFancyLineTerminator());
-		mc.echo("§eScript Language: §r" + lang);
+		env.chat.echo("§o" + file.getAbsolutePath() + ":");	
+		env.chat.echo("§eFile Size: §r" + String.valueOf(file.length()));
+		env.chat.echo("§eLines: §r" + String.valueOf(contents.getLineCount()));
+		env.chat.echo("§eLine Terminator: §r" + contents.getFancyLineTerminator());
+		env.chat.echo("§eScript Language: §r" + lang);
 	}
 
 	
@@ -563,10 +562,10 @@ public final class CommandScriptEnv extends CommandBase {
 		int threadCount = grp.activeCount();
 		Thread[] threads = new Thread[threadCount];
 		grp.enumerate(threads);
-		mc.echo("§oActive Threads:");
+		env.chat.echo("§oActive Threads:");
 		for (int i = 0; i < threadCount; i++) {			
 			Thread t = threads[i];
-			mc.echo(String.format("§e%s:§r  id=%d pri=%d", t.getName(), t.getId(), t.getPriority()));
+			env.chat.echo(String.format("§e%s:§r  id=%d pri=%d", t.getName(), t.getId(), t.getPriority()));
 		}
 	}
 	
@@ -576,9 +575,9 @@ public final class CommandScriptEnv extends CommandBase {
 		String keyStr = StringTools.join(tokens).trim();
 		Keys key = Keys.find(keyStr);
 		if (key != null) {
-			mc.echo("§oKey found:§r\n" + key.toString());
+			env.chat.echo("§oKey found:§r\n" + key.toString());
 		} else {
-			mc.echo("§oThere is no such key.");
+			env.chat.echo("§oThere is no such key.");
 		}
 	}
 	
@@ -600,16 +599,16 @@ public final class CommandScriptEnv extends CommandBase {
 		assertArgCount(1, "Missing argument: key");
 		String token = StringTools.join(tokens).trim();
 		if (env.keys.isGameKey(token)) {
-			throw new BadUserInput("That key was bound by the game and is probably " +
+			throw new BadUserInputException("That key was bound by the game and is probably " +
 					"important. I wouldn't dare to remove it.");
 		}
 		boolean success = env.keys.removeKey(token);
 		if (!success) {
-			mc.err("Could not remove the key " + Keys.find(token) + ". Maybe you never bound it?");
+			env.chat.err("Could not remove the key " + Keys.find(token) + ". Maybe you never bound it?");
 		}
 		else {
 			env.keys.saveConfig();
-			mc.echo("Ok.");
+			env.chat.echo("Ok.");
 		}
 	}	
 	
@@ -618,17 +617,17 @@ public final class CommandScriptEnv extends CommandBase {
 		String token = StringTools.join(tokens).trim();
 		String[] pair = token.split("\\s*=\\s*", 2);		
 		if (pair.length != 2) {
-			throw new BadUserInput("Bad syntax. Write <KEY>'='<VALUE>.");
+			throw new BadUserInputException("Bad syntax. Write <KEY>'='<VALUE>.");
 		}
 		if (env.keys.isGameKey(pair[0])) {
-			throw new BadUserInput("That key was bound by the game and is probably " +
+			throw new BadUserInputException("That key was bound by the game and is probably " +
 					"important. Rebind it in the menu, then try again.");
 		}
 		if (env.keys.setKey(pair[0], pair[1])) {
 			env.keys.saveConfig();
-			mc.echo("Ok.");
+			env.chat.echo("Ok.");
 		} else {
-			mc.err("Could not set key: " + pair[0] + ".");
+			env.chat.err("Could not set key: " + pair[0] + ".");
 		}
 	}
 	
@@ -640,17 +639,17 @@ public final class CommandScriptEnv extends CommandBase {
 		threadId = StringTools.getInteger(idStr);
 		
 		if (threadId == null) {
-			mc.echo("Bad argument: \"" + idStr + "\". " +
+			env.chat.echo("Bad argument: \"" + idStr + "\". " +
 					"Please specify the id of the thread you want to kill.");			
 			return;
 		}
 		
 		boolean success = env.stopThread(threadId);
 		if (success) {
-			mc.echo("Ok.");
+			env.chat.echo("Ok.");
 		}
 		else {
-			mc.echo("Could not kill the thread with id=\"" + idStr + "\".");
+			env.chat.echo("Could not kill the thread with id=\"" + idStr + "\".");
 		}
 	}
 	
@@ -660,13 +659,13 @@ public final class CommandScriptEnv extends CommandBase {
 		try {
 			dir = env.files.resolvePath(dirParam);
 		} catch (IOException e1) {			
-			mc.err("Could not resolve path: " + dirParam);
+			env.chat.err("Could not resolve path: " + dirParam);
 			e1.printStackTrace();
 			return;
 		}
 		 
 		if (!dir.isDirectory()) {
-			env.getMc().err("Can't do: \"" + dir + "\" is not a directory.");
+			env.chat.err("Can't do: \"" + dir + "\" is not a directory.");
 			return;
 		}
 		String filemanager = Config.get(G.CFG_MAIN, G.PROP_TOOL_FILEMGR);
@@ -680,13 +679,13 @@ public final class CommandScriptEnv extends CommandBase {
 					Runtime.getRuntime().exec(new String[]{filemanager, dir.getCanonicalPath()});
 				}
 			} catch (IOException e) {
-				env.getMc().err("Could not start file manager: " + filemanager +
+				env.chat.err("Could not start file manager: " + filemanager +
 						"\n" + e.getMessage());
 				e.printStackTrace();
 			}
 		}
 		else {
-			env.getMc().err("No file manager set. Please set " + G.PROP_TOOL_FILEMGR + " first.");
+			env.chat.err("No file manager set. Please set " + G.PROP_TOOL_FILEMGR + " first.");
 		}
 	}
 	
@@ -696,13 +695,13 @@ public final class CommandScriptEnv extends CommandBase {
 		try {
 			dir = env.files.resolvePath(dirParam);
 		} catch (IOException e1) {			
-			mc.err("Could not resolve path: " + dirParam);
+			env.chat.err("Could not resolve path: " + dirParam);
 			e1.printStackTrace();
 			return;
 		}
 		 
 		if (dir.isDirectory()) {
-			env.getMc().err("Can't do: \"" + dir + "\" is not a file.");
+			env.chat.err("Can't do: \"" + dir + "\" is not a file.");
 			return;
 		}
 		String editor = Config.get(G.CFG_MAIN, G.PROP_TOOL_EDITOR);
@@ -716,13 +715,13 @@ public final class CommandScriptEnv extends CommandBase {
 					Runtime.getRuntime().exec(new String[]{editor, dir.getCanonicalPath()});
 				}
 			} catch (IOException e) {
-				env.getMc().err("Could not start text editor: " + editor +
+				env.chat.err("Could not start text editor: " + editor +
 						"\n" + e.getMessage());
 				e.printStackTrace();
 			}
 		}
 		else {
-			env.getMc().err("No text editor set. Please set " + G.PROP_TOOL_EDITOR + " first.");
+			env.chat.err("No text editor set. Please set " + G.PROP_TOOL_EDITOR + " first.");
 		}
 	}
 
@@ -731,19 +730,19 @@ public final class CommandScriptEnv extends CommandBase {
 		Keys key = Keys.find(keyStr);
 		String action = env.keys.getAction(key);
 		if (key == null) {
-			mc.err(keyStr + ": There is no such key.");
+			env.chat.err(keyStr + ": There is no such key.");
 		}
 		else if (action == null) {
-			mc.err(key.getName() + " is not bound.");
+			env.chat.err(key.getName() + " is not bound.");
 		}
 		else {
-			mc.format("§e%s§r: %s", key.getName(), action);
+			env.chat.format("§e%s§r: %s", key.getName(), action);
 		}
 	}
 
 	private void assertArgCount(int size, String errorMsg) {
 		if (tokens.size() < size) {
-			throw new BadUserInput(errorMsg);
+			throw new BadUserInputException(errorMsg);
 		}
 	}
 }

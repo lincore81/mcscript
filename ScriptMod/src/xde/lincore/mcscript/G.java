@@ -14,8 +14,8 @@ import net.minecraft.src.mod_McScript;
  */
 public final class G {
 	public static final String	MOD_NAME				= "mcscript";
-	public static final String	MOD_VERSION				= "0.03";
-	public static final String	MOD_BUILD_DATE			= "2012-09-06";
+	public static final String	MOD_VERSION				= "0.04";
+	public static final String	MOD_BUILD_DATE			= "2012-09-21";
 
 	public static final Logger	LOG						= Logger.getLogger(MOD_NAME);
 	
@@ -33,8 +33,7 @@ public final class G {
 	public static final String	PATH_ALIAS_WORLD_DIR	= "^\\*";
 
 	public static final String	EXT_CONFIG				= ".cfg";
-	public static final String	EXT_COMPILED			= ".cpd";
-
+	
 	// Property key names:
 	public static final String 	PROP_PROMPT				= "prompt";
 	public static final String	PROP_CWD				= "file.cwd";
@@ -51,6 +50,11 @@ public final class G {
 	public static final String	CFG_KEYS				= "keys";
 
 	public static final String	DEFAULT_SCRIPT_ENGINE	= "rhino";
+	
+	public static final String	CMD_SCRIPT_ENV			= "env";
+	public static final String 	CMD_RUN_SCRIPT			= "run";
+	
+	public static final String 	CMD_PREFIX				= "/";
 
 	private G() {}
 }

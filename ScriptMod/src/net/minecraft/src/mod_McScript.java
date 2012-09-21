@@ -18,13 +18,13 @@ import java.util.logging.Level;
 import org.lwjgl.input.Keyboard;
 
 import xde.lincore.mcscript.G;
-import xde.lincore.mcscript.ScriptingEnvironment;
+import xde.lincore.mcscript.env.ScriptEnvironment;
+import xde.lincore.mcscript.minecraft.MinecraftWrapper;
+import xde.lincore.mcscript.minecraft.TimeWrapper;
 import xde.lincore.mcscript.ui.CommandAlias;
 import xde.lincore.mcscript.ui.CommandRunScript;
 import xde.lincore.mcscript.ui.CommandScriptEnv;
 import xde.lincore.mcscript.ui.McChatLogHandler;
-import xde.lincore.mcscript.wrapper.MinecraftWrapper;
-import xde.lincore.mcscript.wrapper.TimeWrapper;
 import xde.lincore.util.Config;
 import xde.lincore.util.StringTools;
 import xde.lincore.util.Text;
@@ -36,7 +36,7 @@ import net.minecraft.server.MinecraftServer;
 public final class mod_McScript extends BaseMod {
 
 	private CommandRunScript runCommand;	
-	private ScriptingEnvironment env;
+	private ScriptEnvironment env;
 
 	@Override
 	public String getVersion() {
@@ -51,7 +51,7 @@ public final class mod_McScript extends BaseMod {
 	@Override
 	public void load() {
 		G.LOG.setLevel(Level.ALL);
-		env = ScriptingEnvironment.createInstance(this);		
+		env = ScriptEnvironment.createInstance(this);		
 		G.LOG.addHandler(new McChatLogHandler(env));
 		setupHooks();
 		setupFiles();

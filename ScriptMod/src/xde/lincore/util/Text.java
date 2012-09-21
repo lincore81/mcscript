@@ -273,6 +273,9 @@ public class Text {
 		return String.format("1:%d", index + 1);
 	}
 
+	/**
+	 * Return the actual text string.
+	 */
 	@Override
 	public String toString() {
 		return text;

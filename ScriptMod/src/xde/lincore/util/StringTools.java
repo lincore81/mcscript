@@ -226,6 +226,28 @@ public final class StringTools {
 		return results;
 	}
 
-	private StringTools() {		
+
+	/**
+	 * Repeat a String {@code repeat} times to form a new String.
+	 * @param 	string 	The String to repeat or null.
+	 * @param 	times 	How often to repeat {@code string}. Must not be negative.
+	 * @return	A new String consisting of the original {@code string} repeated,
+	 * 			an empty String ({@code ""}) if {@code times} equals {@code 0} or {@code "null"} if 
+	 * 			{@code string} is {@code null}.
+	 * @throws 	NegativeArraySizeException (unchecked) thrown if {@code times} is negative.
+	 */
+	public static String repeat(String string, int times) throws NegativeArraySizeException {
+		switch (times) {
+			case 0:
+				return "";
+			case 1:
+				return string;
+			default:
+				return new String(new char[times]).replace("\0", string);
+		}
 	}
+	
+	
+
+	private StringTools() {}
 }
