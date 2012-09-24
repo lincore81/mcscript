@@ -107,7 +107,6 @@ public final class CommandRunScript extends CommandBase {
 				arguments = StringTools.getMap(argsList, OP_DELIMITER, OP_ASSIGNMENT);
 				arguments.put("0", filename);
 			}
-			final String errorMsg = null;
 			try {
 				env.runScriptFile(filename, language, arguments);
 			} catch (final FileNotFoundException e) {
@@ -118,14 +117,14 @@ public final class CommandRunScript extends CommandBase {
 				env.chat.echo(e.getMessage());
 				e.printStackTrace();
 			} catch (final IllegalArgumentException e) {
-				handleCharsetException(e);
+				handleCharsetExceptions(e);
 			}
 			return true;
 		}
 		return false;
 	}
 
-	private void handleCharsetException(final IllegalArgumentException e) {
+	private void handleCharsetExceptions(final IllegalArgumentException e) {
 		if (e instanceof IllegalCharsetNameException || e instanceof UnsupportedCharsetException) {
 			final String removeCommandSyntaxString = G.CMD_PREFIX + G.CMD_SCRIPT_ENV + " " +
 					Keywords.getPathString(Keywords.Config, Keywords.Remove) + " " +

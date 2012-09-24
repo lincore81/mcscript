@@ -82,8 +82,8 @@ class WorldEdit implements Undoable {
 	
 	@Override
 	public String toString() {
-		String description_ = (description != null)? description : super.toString();		
-		return description_ + ", edited by " + editor + " (" + blocks.size() + " blocks)";
+		//String description_ = (description != null)? description : super.toString();		
+		return "edited by " + editor + " (" + blocks.size() + " blocks)";
 	}
 	
 	public WorldEdit mergeWith(WorldEdit other) {

@@ -6,6 +6,7 @@ import java.util.Map;
 public class ThreadedScriptController implements IScriptController {
 	private Map<Long, Script> scripts;
 	private ScriptEnvironment env;
+	private Script lastScript;
 	
 	protected ThreadedScriptController(ScriptEnvironment env) {
 		this.env = env;
@@ -28,7 +29,12 @@ public class ThreadedScriptController implements IScriptController {
 	@Override
 	public boolean removeScript() {
 		long threadId = getThreadId();
-		return scripts.remove(threadId) != null;
+		lastScript = scripts.get(threadId);
+		return scripts.remove(threadId) != null;		
+	}
+	
+	public Script getLastScript() {
+		return lastScript;
 	}
 	
 	@Override

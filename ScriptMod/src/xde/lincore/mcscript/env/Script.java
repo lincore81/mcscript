@@ -5,14 +5,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Map;
 
+import javax.script.Bindings;
 import javax.script.Compilable;
 import javax.script.CompiledScript;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-import javax.security.auth.callback.UnsupportedCallbackException;
-
-import net.minecraft.src.EntityPlayer;
 
 import xde.lincore.mcscript.G;
 import xde.lincore.mcscript.edit.EditSessionController;
@@ -22,73 +22,89 @@ import xde.lincore.util.Config;
 import xde.lincore.util.Text;
 
 public final class Script {
-	
+
 	public static final File NO_FILE = null;
 	public static final String NO_SOURCE = null;
 
 	private String source;
-	
+
 	private CompiledScript binary = null;
 
 	private File file = null;
-	
+
 	private ScriptEngine engine;
-	
+
 	private Object returnValue = null;
-	
+
 	private ScriptRunner runner;
-	
-	private MinecraftWrapper mcWrapper;
-	
+
+	private final MinecraftWrapper mcWrapper;
+
 	private IEditSession editSession;
-		
+
 	private ScriptArguments arguments;
-	
-	private ScriptGlobals globals;
-	
-	private ScriptEnvironment env;
-	
-	
-	public Script(String source, File file, ScriptEngine engine, ScriptArguments arguments, 
-			ScriptGlobals globals, MinecraftWrapper mcWrapper, ScriptEnvironment env) {
+
+	private final ScriptGlobals globals;
+
+	private final EditSessionController editController;
+
+	private Bindings bindings;
+
+
+
+	public Script(final String source, final File file, final ScriptEngine engine, final ScriptArguments arguments,
+			final ScriptGlobals globals, final MinecraftWrapper mcWrapper, final EditSessionController editController) {
 		this.source 	= source;
 		this.file 		= file;
 		this.engine 	= engine;
 		this.arguments 	= arguments;
 		this.mcWrapper  = mcWrapper;
 		this.globals 	= globals;
-		this.env		= env;
+		this.editController = editController;
 	}
-	
+
 	public boolean compile() throws ScriptException {
-		if (isCompilable()) {		
-			Compilable cengine = (Compilable)engine;
+		if (isCompilable()) {
+			final Compilable cengine = (Compilable)engine;
 			binary = cengine.compile(source);
 			return true;
 		} else {
 			return false;
 		}
 	}
-		
-	public void eval() throws ScriptException {
-		EditSessionController editSessionController = env.getEditSessionController();
-		editSession = editSessionController.checkOut(getEditorString(), mcWrapper.world);
-		
-		engine.put("mc",	  mcWrapper);
-		engine.put("args", 	  arguments);
-		engine.put("edit", 	  editSession);
-		engine.put("globals", globals);		
-		
-		if (isCompiled()) {
-			returnValue = binary.eval();
-		} else {
-			returnValue = engine.eval(source);
+
+	public String dumpBindings() {
+		final StringBuffer buffer = new StringBuffer();
+		for (final Map.Entry<String, Object> e: bindings.entrySet()) {
+			buffer.append(e.getKey() + ": " + e.getValue().toString() + "\n");
 		}
-		editSessionController.checkIn(editSession);
+		return buffer.toString();
 	}
-	
+
+	public void eval() throws ScriptException {
+		editSession = editController.checkOut(getEditorString(), mcWrapper.world);
+		if (bindings == null) {
+			bindings = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
+		}
+		bindings.put("mc",	    mcWrapper);
+		bindings.put("args", 	arguments);
+		bindings.put("edit", 	editSession);
+		bindings.put("globals", globals);
+
+		if (isCompiled()) {
+			returnValue = binary.eval(bindings);
+		} else {
+			returnValue = engine.eval(source, bindings);
+		}
+		editController.checkIn(editSession);
+	}
+
 	public ScriptArguments getArguments() {
 		return arguments;
+	}
+
+	public Bindings getBindings() {
+		return bindings;
 	}
 
 	public IEditSession getEditSession() {
@@ -102,7 +118,7 @@ public final class Script {
 	public File getFile() {
 		return file;
 	}
-	
+
 	public String getFilename() {
 		return file.getName();
 	}
@@ -114,19 +130,19 @@ public final class Script {
 	public Object getReturnValue() {
 		return returnValue;
 	}
-	
+
 	public String getSource() {
 		return source;
 	}
-	
+
 	public boolean hasReturnValue() {
 		return returnValue != null;
 	}
-	
+
 	public boolean isCompilable() {
 		return engine instanceof Compilable;
 	}
-	
+
 	public boolean isCompiled() {
 		return binary != null;
 	}
@@ -135,49 +151,41 @@ public final class Script {
 		return file != null;
 	}
 
-	/**
-	 * Load the text file containing the script source at the given location.
-	 * All common line endings are detected automatically. The charset to use is
-	 * set in the configuration (config/main.cfg or /env config), the default is UTF-8.
-	 *  
-	 * @param 	file The location of the file to load.
-	 * 
-	 * @throws 	IOException Will throw {@link FileNotFoundException} if no such file exists or 
-	 * 			IOException if other io-related errors happen. 
-	 * 			Can also throw {@link IllegalArgumentException} if the charset name in the
-	 * 			configuration is illegal ({@link IllegalCharsetNameException}) 
-	 * 			or denotes an unsupported charset ({@link UnsupportedCharsetException}).
-	 */
-	public void load(File file) throws FileNotFoundException, IOException, IllegalArgumentException {
-		Text fileContents = new Text();
-		String charset = Config.get(G.CFG_MAIN, G.PROP_ENCODING);
-		fileContents.readFile(file, charset);
-		source = fileContents.toString();
-		this.file = file;
-	}
-	
 	public void load() throws FileNotFoundException, IOException, IllegalArgumentException {
 		load(file);
 	}
 
-	public void setArguments(ScriptArguments arguments) {
-		this.arguments = arguments;
-	}
-
-	public void setEngine(ScriptEngine engine) {
-		this.engine = engine;
+	/**
+	 * Load the text file containing the script source at the given location.
+	 * All common line endings are detected automatically. The charset to use is
+	 * set in the configuration (config/main.cfg or /env config), the default is UTF-8.
+	 *
+	 * @param 	file The location of the file to load.
+	 *
+	 * @throws 	IOException Will throw {@link FileNotFoundException} if no such file exists or
+	 * 			IOException if other io-related errors happen.
+	 * 			Can also throw {@link IllegalArgumentException} if the charset name in the
+	 * 			configuration is illegal ({@link IllegalCharsetNameException})
+	 * 			or denotes an unsupported charset ({@link UnsupportedCharsetException}).
+	 */
+	public void load(final File file) throws FileNotFoundException, IOException, IllegalArgumentException {
+		final Text fileContents = new Text();
+		final String charset = Config.get(G.CFG_MAIN, G.PROP_ENCODING);
+		fileContents.readFile(file, charset);
+		source = fileContents.toString();
+		this.file = file;
 	}
 
 //	public void setReturnValue(Object obj) {
 //		this.returnValue = obj;
 //	}
 
-	public void setSource(String source) {
-		this.source = source;		
+	public void setArguments(final ScriptArguments arguments) {
+		this.arguments = arguments;
 	}
 
-	protected void setScriptRunner(ScriptRunner runner) {
-		this.runner = runner;
+	public void setBindings(final Bindings bindings) {
+		this.bindings = bindings;
 	}
 
 //	public void setMinecraftWrapper(MinecraftWrapper mcWrapper) {
@@ -187,7 +195,19 @@ public final class Script {
 //	public void setEditSession(IEditSession editSession) {
 //		this.editSession = editSession;
 //	}
-	
+
+	public void setEngine(final ScriptEngine engine) {
+		this.engine = engine;
+	}
+
+	public void setSource(final String source) {
+		this.source = source;
+	}
+
+	protected void setScriptRunner(final ScriptRunner runner) {
+		this.runner = runner;
+	}
+
 	private String getEditorString() {
 		if (isScriptFile()) {
 			return getFilename();

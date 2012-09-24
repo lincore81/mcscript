@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.script.Bindings;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
@@ -46,18 +48,18 @@ public final class ScriptEnvironment {
 	private EntityPlayer currentUser;
 	private MinecraftWrapper mcWrapper;
 	
+	private Bindings cuiBindings;
+	private Bindings fileBindings;
+	
 	public final AliasController aliases;
 	public final FileController files;
 	public final KeyController keys;
 	public final ChatIoController chat;
 	public final IScriptController scripts;
+	public final EngineController engines;
 	
 	private EditSessionController editSessionController;
 	
-	private ScriptEngineManager manager;
-	
-	private ScriptEngine currentEngine = null;
-	private ScriptEngine defaultEngine;
 	//private ExecutorService executor;	
 	public final mod_McScript modInst;
 	
@@ -80,23 +82,18 @@ public final class ScriptEnvironment {
 	}
 	
 	private ScriptEnvironment(mod_McScript modInst) {
-		this.modInst 	= modInst;
-		manager 		= new ScriptEngineManager();
+		this.modInst 	= modInst;		
 		editSessionController = new EditSessionController(this);
-		defaultEngine 	= manager.getEngineByName(G.DEFAULT_SCRIPT_ENGINE);		
+		
 		//executor = Executors.newCachedThreadPool();
-		
-		if (defaultEngine == null) {
-			throw new RuntimeException("Could not find the default scripting engine \"" +
-					G.DEFAULT_SCRIPT_ENGINE + "\".");
-		}
-		
+				
 		scripts = new ThreadedScriptController(this);		
 		chat 	= new ChatIoController(this);
 		files	= new FileController(this);
 		aliases = new AliasController(this);
 		keys 	= new KeyController(this);
 		globals = new ScriptGlobals();		
+		engines = new EngineController();
 	}
 	
 	
@@ -108,6 +105,22 @@ public final class ScriptEnvironment {
 		return currentUser;
 	}
 	
+	public Bindings getCuiBindings() {
+		return cuiBindings;
+	}
+	
+	public Bindings getFileBindings() {
+		return fileBindings;
+	}
+	
+	public void setCuiBindings(Bindings bindings) {
+		cuiBindings = bindings;
+	}
+	
+	public void setFileBindings(Bindings bindings) {
+		fileBindings = bindings;
+	}
+	
 	public EditSessionController getEditSessionController() {
 		return editSessionController;
 	}
@@ -116,81 +129,29 @@ public final class ScriptEnvironment {
 	
 	public void runScriptFile(String fileName, String engineName, Map<String, String> args) 
 			throws FileNotFoundException, IOException {
-		ScriptEngine engine;
-		if (engineName != null) {
-			engine = findEngine(engineName);
-		} else {
-			engine = getCurrentEngine();
-		}
+		ScriptEngine engine = engines.getEngine(engineName);
 		
 		File file = files.resolvePath(fileName);
 		files.assertIsValidFile(file);
 		
 		Script script = new Script(Script.NO_SOURCE, file, engine, new ScriptArguments(args), 
-				globals, mcWrapper, this);
+				globals, mcWrapper, editSessionController);
 		script.load();
 		ScriptRunner runner = new ScriptRunner(script, this);
-		runner.run();
+		runner.run();		
 		//executor.execute(runner);
 	}
 	
-	public void runScript(String source, String engineName, Map<String, String> args) {
-		ScriptEngine engine;
-		if (engineName != null) {
-			engine = findEngine(engineName);
-		} else {
-			engine = getCurrentEngine();
-		}
-		
+	public void runScript(String source, String engineName, Map<String, String> args) {		 
+		ScriptEngine engine = engines.getEngine(engineName);		
 		Script script = new Script(source, Script.NO_FILE, engine, new ScriptArguments(args), 
-				globals, mcWrapper, this);
-		ScriptRunner runner = new ScriptRunner(script, this);
-		runner.run();
+				globals, mcWrapper, editSessionController);
+		ScriptRunner runner = new ScriptRunner(script, this);		
+		runner.run();		
 		//executor.execute(runner);
 	}
 	
-	public ScriptEngine findEngine(String engineName) {
-		ScriptEngine result = manager.getEngineByName(engineName);
-		if (result != null) {
-			return result;
-		}
-		else {
-			for (ScriptEngineFactory f: manager.getEngineFactories()) {			
-				ArrayList<String> names = new ArrayList<String>();
-				names.add(f.getEngineName());
-				names.addAll(f.getNames());
-				for (String n: names) {
-					if (n.toLowerCase().startsWith(engineName.toLowerCase())) {
-						if (result == null) {
-							result = f.getScriptEngine();
-							break; // check other engine names for ambiguouty (sp?)
-						}
-						else {
-							throw new IllegalArgumentException(
-									engineName + " is ambiguous. Please use a distinct identifier " +
-									"for the engine you would like to use.");							
-						}
-					}
-				}
-			}
-			if (result == null) {
-				throw new IllegalArgumentException(
-						engineName + " does not denote an available script engine.");
-			} else {
-				return result;
-			}
-		}
-	}
 
-	public ScriptEngine getCurrentEngine() {
-		return (currentEngine != null)? currentEngine : defaultEngine;
-	}
-	
-	
-	
-	public ScriptEngine getDefaultEngine() {
-		return defaultEngine;
-	}
 	
 	
 	
@@ -203,18 +164,18 @@ public final class ScriptEnvironment {
 	}	
 	
 
-	public EntityPlayer getScriptUser(String userName) {
-	    {
-	        EntityPlayerMP result = MinecraftServer.getServer().getConfigurationManager().
-	        		getPlayerForUsername(userName);
-	        if (result != null) {
-	            return result;
-	        }
-	        else {
-	        	throw new PlayerNotFoundException();
-	        }
-	    }
-	}
+//	public EntityPlayer getScriptUser(String userName) {
+//	    {
+//	        EntityPlayerMP result = MinecraftServer.getServer().getConfigurationManager().
+//	        		getPlayerForUsername(userName);
+//	        if (result != null) {
+//	            return result;
+//	        }
+//	        else {
+//	        	throw new PlayerNotFoundException();
+//	        }
+//	    }
+//	}
 	
 	public void setLastScriptException(Exception lastException) {
 		this.lastScriptException = lastException;
@@ -234,10 +195,6 @@ public final class ScriptEnvironment {
 		return false;
 	}
 
-
-	public ScriptEngineManager getManager() {
-		return manager;
-	}
 
 
 	public void onClientConnect() {

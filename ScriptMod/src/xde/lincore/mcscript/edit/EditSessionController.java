@@ -51,8 +51,8 @@ public class EditSessionController extends UndoStack<WorldEdit> {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(String.format("EditSession (edits=%d):\n", getSize()));
 		for (int i = 0; i <= top(); i++) {			
-			buffer.append((i == getStackPointer())? "  >" : "   ");
-			buffer.append(get(i).getEditor() + ": " + getDescriptionOf(i) + "\n");			
+			buffer.append((i == getStackPointer())? "§e" : "");
+			buffer.append("#" + String.valueOf(i + 1) + ": " + get(i).getEditor() + "\n§r");
 		}
 		return buffer.toString();
 	}

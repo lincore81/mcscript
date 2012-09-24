@@ -177,7 +177,7 @@ public final class Voxel implements Comparable<Voxel>{
 		return !(this.x != other.x || this.y != other.y || this.z != other.z);
 	}
 
-	public Vector3d toVector() {
+	public Vector3d toVector3d() {
 		return new Vector3d(this.x, this.y, this.z);
 	}
 }

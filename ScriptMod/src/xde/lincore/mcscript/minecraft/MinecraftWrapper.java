@@ -46,6 +46,10 @@ public class MinecraftWrapper {
 		world 	= new WorldWrapper(env, this);		
 	}
 	
+	public void abort(String reason) {
+		throw new ScriptError(reason);
+	}
+	
 	public void echo(Object obj) {
 		env.chat.echo(obj);
 	}
@@ -56,8 +60,7 @@ public class MinecraftWrapper {
 	
 	public void format(String format, Object... args) {
 		env.chat.format(format, args);
-	}	
-	
+	}
 	
 	public Exception getLastException() {
 		return env.getLastScriptException();

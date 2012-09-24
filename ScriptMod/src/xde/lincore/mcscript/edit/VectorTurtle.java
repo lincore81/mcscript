@@ -3,6 +3,12 @@ package xde.lincore.mcscript.edit;
 import xde.lincore.mcscript.Blocks;
 import xde.lincore.mcscript.Vector3d;
 import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.edit.turtlespeak.ITurtleDialect;
+import xde.lincore.mcscript.edit.turtlespeak.SimpleTurtleDialect;
+import xde.lincore.mcscript.edit.turtlespeak.SyntaxError;
+import xde.lincore.mcscript.edit.turtlespeak.TurtleSpeakParser;
+import xde.lincore.mcscript.edit.turtlespeak.VectorTurtleDialect;
+import xde.lincore.mcscript.env.ScriptEnvironment;
 import xde.lincore.mcscript.minecraft.MinecraftWrapper;
 
 public class VectorTurtle {
@@ -14,23 +20,18 @@ public class VectorTurtle {
 	private int line_stiple;
 	private boolean penDown;	
 	private Vector3d heading;
-	private IEditSession edit;
+	private TurtleSpeakParser parser;
 	
 	
-	public VectorTurtle(Vector3d position, IEditSession edit) {
-		this(position, Blocks.EmeraldBlock, 0, edit);
+	public VectorTurtle(Vector3d position) {
+		this(position, Blocks.Stone, 0);
 	}
 	
-	public VectorTurtle(Vector3d position, Blocks block, int angle, IEditSession edit) {		
+	public VectorTurtle(Vector3d position, Blocks block, int angle) {		
 		this.block = block;
-		this.edit = edit;
 		setPosition(position);
-		penDown();		
+		penDown();
 		look(angle);
-	}
-	
-	public VectorTurtle backward() {
-		return backward(1d);
 	}
 	
 	public VectorTurtle backward(double distance) {
@@ -38,16 +39,9 @@ public class VectorTurtle {
 		return this;
 	}
 	
-	public VectorTurtle bk() {
-		return backward();
-	}
-	
-	public VectorTurtle bk(double distance) {
-		return backward(distance);
-	}
-	
+
 	private void draw(double distance, boolean forward) {
-		 
+		IEditSession edit = ScriptEnvironment.getInstance().scripts.getScript().getEditSession();		
 		double moved = 0d;
 		double stepLength = 1d;
 			while (moved <= distance) {
@@ -72,19 +66,6 @@ public class VectorTurtle {
 		if (!penDown) blockPosition = position.toVoxel();
 	}
 	
-	public VectorTurtle fd() {
-		return forward();
-	}
-	
-	
-	public VectorTurtle fd(double distance) {
-		return forward(distance);
-	}
-	
-	public VectorTurtle forward() {
-		return forward(1d);
-	}
-	
 	public VectorTurtle forward(double distance) {
 		draw(distance, true);
 		return this;
@@ -99,7 +80,7 @@ public class VectorTurtle {
 	}
 	
 	public void snap() {
-		this.position = blockPosition.toVector().add(0.5d, 0.5d, 0.5d);
+		this.position = blockPosition.toVector3d().add(0.5d, 0.5d, 0.5d);
 	}
 	
 	public void setHeading(Vector3d heading) {
@@ -113,10 +94,6 @@ public class VectorTurtle {
 	public VectorTurtle left(int degrees) {
 		heading = heading.rotateXZ(degrees);
 		return this;
-	}
-	
-	public VectorTurtle lt(int degrees) {
-		return left(degrees);
 	}
 	
 	public VectorTurtle look(int degrees) {		
@@ -163,10 +140,7 @@ public class VectorTurtle {
 		return this;
 	}
 	
-	public VectorTurtle rt(int degrees) {
-		return right(degrees);
-	}
-	
+		
 	public VectorTurtle setPosition(Vector3d position) {
 		this.position 	= position;
 		initialPosition = position;
@@ -207,5 +181,25 @@ public class VectorTurtle {
 	
 	public double getZ() {
 		return position.z;
+	}
+
+	public void reset() {
+		position = initialPosition;		
+	}
+	
+	public void parse(String program) {
+		if (parser == null) setupParser();
+		try {
+			parser.parse(program);
+			parser.eval();
+		} catch (SyntaxError e) {			
+			ScriptEnvironment.getInstance().chat.err(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	private void setupParser() {
+		ITurtleDialect dialect = new VectorTurtleDialect(this);
+		parser = new TurtleSpeakParser(dialect);
 	}
 }

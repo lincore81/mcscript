@@ -48,9 +48,12 @@ import net.minecraft.src.mod_McScript;
 public final class CommandScriptEnv extends CommandBase {
 
 	/*
-	 * TODO 	Break up the class into pluggable "Commandlets" that do the actual work.
-	 * 			Commandlets can subscribe to keyword "Paths", like /env cfg set and are called
-	 * 			when the path matches their criteria.
+	 * Suggestion:
+	 * Break up the class into pluggable "Commandlets" that do the actual work.
+	 * Commandlets can subscribe to keyword "Paths", like /env cfg set and are called
+	 * when the path matches their criteria.
+	 * Don't know if it's worth the trouble, though.
+	 * ~lincore81
 	 */
 	
 	
@@ -477,20 +480,23 @@ public final class CommandScriptEnv extends CommandBase {
 	 */
 	private void doInfoEngineShow() {
 		assertArgCount(1, "Missing argument.");
-
-		ScriptEngineManager mgr = env.getManager();
+		
 		String engineName = tokens.pollFirst();
 		ScriptEngine engine;
-		if (Keywords.Default.matches(engineName)) {			
-			env.chat.echo("§oThe default script engine is:");
-			engine = env.getDefaultEngine();
-		}
-		else if (Keywords.Current.matches(engineName)) {			
-			env.chat.echo("§oThe currently used script engine is:");
-			engine = env.getCurrentEngine();
-		}
-		else {
-			engine = env.findEngine(engineName);
+		try {
+			if (Keywords.Default.matches(engineName)) {			
+				env.chat.echo("§oThe default script engine is:");
+				engine = env.engines.getDefaultEngine();
+			}
+			else if (Keywords.Current.matches(engineName)) {			
+				env.chat.echo("§oThe currently used script engine is:");
+				engine = env.engines.getCurrentEngine();
+			}
+			else {
+				engine = env.engines.getEngine(engineName);
+			}
+		} catch (IllegalArgumentException e) {
+			throw new BadUserInputException(e);
 		}
 		
 		if (engine == null) {
@@ -512,7 +518,7 @@ public final class CommandScriptEnv extends CommandBase {
 
 	
 	private void doInfoEnginesList() {
-		ScriptEngineManager mgr = env.getManager();
+		ScriptEngineManager mgr = env.engines.getManager();
 		List<ScriptEngineFactory> facs = mgr.getEngineFactories();			
 		env.chat.echo("§oAvailable script engines:");
 		for (ScriptEngineFactory f: facs) {				
@@ -545,7 +551,7 @@ public final class CommandScriptEnv extends CommandBase {
 			e.printStackTrace();
 			return;
 		}
-		ScriptEngine engine = env.getManager().getEngineByExtension(
+		ScriptEngine engine = env.engines.getManager().getEngineByExtension(
 				env.files.getFileExtension(file.toString()));
 		String lang = (engine != null) ? engine.getFactory().getLanguageName() : "unknown";
 		
