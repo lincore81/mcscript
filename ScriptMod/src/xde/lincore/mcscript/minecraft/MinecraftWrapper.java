@@ -1,7 +1,12 @@
 package xde.lincore.mcscript.minecraft;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collection;
 
 import javax.script.Bindings;
@@ -16,6 +21,7 @@ import org.luaj.vm2.lib.VarArgFunction;
 import org.luaj.vm2.lib.ZeroArgFunction;
 
 import xde.lincore.mcscript.Blocks;
+import xde.lincore.mcscript.G;
 import xde.lincore.mcscript.Items;
 import xde.lincore.mcscript.Vector3d;
 import xde.lincore.mcscript.Voxel;
@@ -23,8 +29,11 @@ import xde.lincore.mcscript.edit.EditSessionController;
 import xde.lincore.mcscript.edit.IEditSession;
 import xde.lincore.mcscript.edit.Turtle;
 import xde.lincore.mcscript.edit.VectorTurtle;
+import xde.lincore.mcscript.env.Script;
 import xde.lincore.mcscript.env.ScriptRunner;
 import xde.lincore.mcscript.env.ScriptEnvironment;
+import xde.lincore.util.Config;
+import xde.lincore.util.Text;
 
 
 import net.minecraft.client.Minecraft;
@@ -107,7 +116,23 @@ public class MinecraftWrapper {
 		return Items.findById(id, meta);
 	}
 	
-	
+	public String loadTextFile(String filename) throws IOException {		
+		Script script = env.scripts.getScript();
+		if (script == null) {
+			throw new IllegalStateException("This method must be called from within a script.");
+		}		
+		File scriptDir;
+		if (script.isScriptFile()) {
+			scriptDir = script.getFile().getParentFile();
+		} else {
+			scriptDir = env.files.getCwd();
+		}
+		File file = new File(scriptDir, filename);
+		Text textfile = new Text();
+		String charset = Config.get(G.CFG_MAIN, G.PROP_ENCODING);
+		textfile.readFile(file, charset);
+		return textfile.toString();
+	}
 	
 
 	public void sleep(long milliseconds) {

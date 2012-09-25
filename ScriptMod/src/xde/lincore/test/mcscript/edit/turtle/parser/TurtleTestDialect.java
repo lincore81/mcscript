@@ -1,4 +1,4 @@
-package xde.lincore.test.mcscript.edit.turtle;
+package xde.lincore.test.mcscript.edit.turtle.parser;
 
 import java.util.Set;
 

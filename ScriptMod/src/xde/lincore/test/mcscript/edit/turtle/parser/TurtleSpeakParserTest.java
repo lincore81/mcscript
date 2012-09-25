@@ -8,7 +8,6 @@ import org.junit.Test;
 import xde.lincore.mcscript.edit.turtlespeak.ITurtleDialect;
 import xde.lincore.mcscript.edit.turtlespeak.SyntaxError;
 import xde.lincore.mcscript.edit.turtlespeak.TurtleSpeakParser;
-import xde.lincore.test.mcscript.edit.turtle.TurtleTestDialect;
 
 public class TurtleSpeakParserTest {
 

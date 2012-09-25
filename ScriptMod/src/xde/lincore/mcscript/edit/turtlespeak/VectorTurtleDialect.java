@@ -43,7 +43,7 @@ public class VectorTurtleDialect extends CommonTurtleSpeak {
 			keywords.add(new TsKeyword(PU, 		"penup", 	"pu|penup", 	false));
 			keywords.add(new TsKeyword(PD, 		"pendown", 	"pd|pendown", 	false));
 			keywords.add(new TsKeyword(RSET, 	"reset", 	"reset", 		false));
-			keywords.add(new TsKeyword(MEM,		"remember", "re|mem|remem", false));
+			keywords.add(new TsKeyword(MEM,		"remember", "remember|rem|mem", false));
 		}
 
 

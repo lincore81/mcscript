@@ -24,6 +24,7 @@ public class SimpleTurtleDialect extends CommonTurtleSpeak {
 	private static final int PD  	= 0x22;
 	
 	private static final int RSET	= 0xf1;
+	private static final int MEM	= 0xf2;
 
 	
 	@Override
@@ -44,6 +45,7 @@ public class SimpleTurtleDialect extends CommonTurtleSpeak {
 		keywords.add(new TsKeyword(PU, 		"penup", 	"pu|penup", 	false));
 		keywords.add(new TsKeyword(PD, 		"pendown", 	"pd|pendown", 	false));
 		keywords.add(new TsKeyword(RSET, 	"reset", 	"reset", 		false));
+		keywords.add(new TsKeyword(MEM,		"remember", "remember|rem|mem", false));
 	}
 
 
@@ -83,6 +85,8 @@ public class SimpleTurtleDialect extends CommonTurtleSpeak {
 			case RSET:
 				turtle.reset();
 				break;
+			case MEM:
+				turtle.setBlockPosition(turtle.getBlockPosition());
 		}
 		return super.onStatement(command); // returns a block to execute or null
 	}
