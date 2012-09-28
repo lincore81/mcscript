@@ -1,0 +1,2 @@
+mcscript
+Copyright (c)2012 Dominik 'lincore' Rosehnal

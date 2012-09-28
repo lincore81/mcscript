@@ -1,9 +1,7 @@
 package xde.lincore.mcscript.ui;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import net.minecraft.src.KeyBinding;
 
@@ -39,7 +37,7 @@ public enum Keys {
 	KeyDOWN(Keyboard.KEY_DOWN, "Down"),
 	KeyE(Keyboard.KEY_E, "E"),
 	KeyEND(Keyboard.KEY_END, "End"),
-	KeyEQUALS(Keyboard.KEY_EQUALS, "Equals", "eq|="),	
+	KeyEQUALS(Keyboard.KEY_EQUALS, "Equals", "eq|="),
 	KeyEsc(Keyboard.KEY_ESCAPE, "Escape", "esc(ape)?"),
 	KeyF(Keyboard.KEY_F, "F"),
 	KeyF1(Keyboard.KEY_F1, "F1"),
@@ -95,7 +93,7 @@ public enum Keys {
 	KeyNumpadDIVIDE(Keyboard.KEY_DIVIDE, "Divide (numpad", "num(pad)?\\s(/|div(ide)?)"),
 	KeyNUMPADENTER(Keyboard.KEY_NUMPADENTER, "Enter (numpad)", "num(pad)?\\s?(ent(er)?|ret(urn)?)"),
 	KeyNUMPADEQUALS(Keyboard.KEY_NUMPADEQUALS, "Equals (numpad)", "num(pad)?\\s?(=|eq(uals)?)"),
-	KeySUBTRACT(Keyboard.KEY_SUBTRACT, "Subtract (numpad)", 
+	KeySUBTRACT(Keyboard.KEY_SUBTRACT, "Subtract (numpad)",
 			"sub(tract)?|num(pad)?\\s(-|min(us)?|sub(tract)?)"), /* Home on arrow keypad */
 	KeyO(Keyboard.KEY_O, "O"),
 	KeyP(Keyboard.KEY_P, "P"),
@@ -116,7 +114,7 @@ public enum Keys {
 	KeySEMICOLON(Keyboard.KEY_SEMICOLON, "Semicolon", ";"),
 	KeySLASH(Keyboard.KEY_SLASH, "Slash", "/"), /* right Alt */
 	KeySPACE(Keyboard.KEY_SPACE, "Space"), /* Pause */
-	
+
 	KeySYSRQ(Keyboard.KEY_SYSRQ, "SYSRQ"), /* UpArrow on arrow keypad */
 	KeyT(Keyboard.KEY_T, "T"), /* PgUp on arrow keypad */
 	KeyTAB(Keyboard.KEY_TAB, "Tab", "tabulator"), /* LeftArrow on arrow keypad */
@@ -133,93 +131,99 @@ public enum Keys {
 	private int keycode;
 	private String name;
 	private String regex;
-	
-	private Keys(int keycode, String name) {
+
+	private Keys(final int keycode, final String name) {
 		this(keycode, name, null);
 	}
-	
-	private Keys(int keycode, String name, String regex) {
+
+	private Keys(final int keycode, final String name, final String regex) {
 		this.keycode = keycode;
 		this.name = name;
 		if (regex != null) {
 			this.regex = "(?i)" + regex;
 		}
 	}
-	
-	public static List<Keys> apropos(String str) {
-		List<Keys> result = new ArrayList<Keys>();
-		String lname = str.toLowerCase();
-		for (Keys k: Keys.values()) {
-			boolean match = k.name.toLowerCase().contains(lname);			
-			if (!match && k.regex != null) {				
+
+	public static List<Keys> apropos(final String str) {
+		final List<Keys> result = new ArrayList<Keys>();
+		final String lname = str.toLowerCase();
+		for (final Keys k: Keys.values()) {
+			boolean match = k.name.toLowerCase().contains(lname);
+			if (!match && k.regex != null) {
 				match = str.matches(k.regex);
 			}
-			if (match) result.add(k);
+			if (match) {
+				result.add(k);
+			}
 		}
 		return result;
 	}
-	
-	public static Keys find(String name) {
+
+	public static Keys find(final String name) {
 		if (name.matches("#[0-9A-Fa-f]+")) {
-			String codeStr = name.substring(1);
+			final String codeStr = name.substring(1);
 			System.out.println(codeStr);
-			Integer keycode = StringTools.getInteger(codeStr);
+			final Integer keycode = StringTools.getInteger(codeStr);
 			return (keycode != null)? findByKeycode(keycode) : null;
 		}
-		for (Keys k: Keys.values()) {
+		for (final Keys k: Keys.values()) {
 			boolean match = k.name.equalsIgnoreCase(name);
 			if (!match && k.regex != null) {
 				match = name.matches(k.regex);
 			}
-			if (match) return k;
+			if (match) {
+				return k;
+			}
 		}
 		return null;
 	}
-	
-	public static Keys findByKeycode(int keycode) {
-		for (Keys k: Keys.values()) {
-			if (k.keycode == keycode) return k;				
+
+	public static Keys findByKeycode(final int keycode) {
+		for (final Keys k: Keys.values()) {
+			if (k.keycode == keycode) {
+				return k;
+			}
 		}
 		return null;
 	}
-	
+
 	public static String getDump() {
-		StringBuilder result = new StringBuilder();
-		for (Keys k: Keys.values()) {
+		final StringBuilder result = new StringBuilder();
+		for (final Keys k: Keys.values()) {
 			result.append(k.toString() + "\n");
 		}
 		return result.toString();
 	}
-	
-	public KeyBinding bind(String description) {
+
+	public KeyBinding bind(final String description) {
 		return new KeyBinding(description, keycode);
 	}
-	
+
 	public KeyBinding unbind() {
-		KeyBinding b = getKeyBinding();
+		final KeyBinding b = getKeyBinding();
 		if (b == null) {
-			return null;		
+			return null;
 		} else {
-			KeyBinding.keybindArray.remove(b);		
+			KeyBinding.keybindArray.remove(b);
 			return (KeyBinding)(KeyBinding.hash.removeObject(keycode));
 		}
 	}
-	
+
 	public boolean isBound() {
 		return getKeyBinding() != null;
 	}
-	
+
 	public KeyBinding getKeyBinding() {
 		return (KeyBinding)(KeyBinding.hash.lookup(keycode));
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "0x" + Integer.toHexString(keycode).toUpperCase() + ": " + name; 
+		return "0x" + Integer.toHexString(keycode).toUpperCase() + ": " + name;
 	}
 
 	public int getKeycode() {

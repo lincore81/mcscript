@@ -1,8 +1,6 @@
 package xde.lincore.util.undo;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
 public class UndoStack<T extends Undoable> implements IUndoHistory<T> {
@@ -10,36 +8,37 @@ public class UndoStack<T extends Undoable> implements IUndoHistory<T> {
 	protected List<T> history;
 	protected int undoPointer;
 	protected int limit = 0;
-	
-	
-	
+
+
+
 	public UndoStack() {
 		history = new ArrayList<T>();
 		undoPointer = -1;
 	}
-	
-	public UndoStack(int limit) {
+
+	public UndoStack(final int limit) {
 		this();
 		assert limit >= 0 : "The limit must not be negative!";
 		this.limit = limit;
 	}
-	
+
 	/**
 	 * Push an Undoable to the top of the stack.
 	 * @param edit The Undoable to push, must not be null.
 	 */
-	public void push(T edit) {
+	public void push(final T edit) {
 		assert edit != null;
-		discardRedos();		
-		history.add(edit);		
+		discardRedos();
+		history.add(edit);
 		undoPointer = top();
 		checkLimit();
 	}
-	
+
 
 	/* (non-Javadoc)
 	 * @see xde.lincore.util.undo.IUndoHistory#clear()
 	 */
+	@Override
 	public void clear() {
 		history.clear();
 		undoPointer = -1;
@@ -52,7 +51,7 @@ public class UndoStack<T extends Undoable> implements IUndoHistory<T> {
 	public boolean canUndo() {
 		return undoPointer >= 0;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see xde.lincore.util.undo.IUndoHistory#canRedo()
 	 */
@@ -60,7 +59,7 @@ public class UndoStack<T extends Undoable> implements IUndoHistory<T> {
 	public boolean canRedo() {
 		return undoPointer < top();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see xde.lincore.util.undo.IUndoHistory#getUndoCount()
 	 */
@@ -68,21 +67,21 @@ public class UndoStack<T extends Undoable> implements IUndoHistory<T> {
 	public int getUndoCount() {
 		return undoPointer + 1;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see xde.lincore.util.undo.IUndoHistory#getRedoCount()
 	 */
 	@Override
 	public int getRedoCount() {
 		return top() - undoPointer;
-	}	
-	
+	}
+
 	/* (non-Javadoc)
 	 * @see xde.lincore.util.undo.IUndoHistory#undo()
 	 */
 	@Override
 	public T undo() {
-		T result = peekUndo();
+		final T result = peekUndo();
 		undoPointer--;
 		result.undo();
 		return result;
@@ -94,7 +93,7 @@ public class UndoStack<T extends Undoable> implements IUndoHistory<T> {
 	 */
 	@Override
 	public T redo() {
-		T result = peekRedo();
+		final T result = peekRedo();
 		undoPointer++;
 		result.redo();
 		return result;
@@ -112,7 +111,7 @@ public class UndoStack<T extends Undoable> implements IUndoHistory<T> {
 			throw new IllegalStateException("Nothing to undo.");
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see xde.lincore.util.undo.IUndoHistory#peekRedo()
 	 */
@@ -132,30 +131,30 @@ public class UndoStack<T extends Undoable> implements IUndoHistory<T> {
 			history.remove(top());
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see xde.lincore.util.undo.IUndoHistory#getUndoDescription()
 	 */
 	@Override
 	public String getUndoDescription() {
-		T t = peekUndo();
+		final T t = peekUndo();
 		return t.getDescription();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see xde.lincore.util.undo.IUndoHistory#getRedoDescription()
 	 */
 	@Override
 	public String getRedoDescription() {
-		T t = peekRedo();
+		final T t = peekRedo();
 		return t.getDescription();
 	}
-	
-	public String getDescriptionOf(int index) {
+
+	public String getDescriptionOf(final int index) {
 		return history.get(index).getDescription();
 	}
 
-	public T get(int index) {
+	public T get(final int index) {
 		return history.get(index);
 	}
 
@@ -167,11 +166,11 @@ public class UndoStack<T extends Undoable> implements IUndoHistory<T> {
 		return limit;
 	}
 
-	public void setLimit(int limit) {
+	public void setLimit(final int limit) {
 		this.limit = limit;
 		checkLimit();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see xde.lincore.util.undo.IUndoHistory#getSize()
 	 */

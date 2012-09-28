@@ -7,20 +7,20 @@ import xde.lincore.mcscript.Voxel;
 
 public class Subtractor extends SelectionBase {
 
-	private ISelection minuend, subtrahend;
+	private final ISelection minuend, subtrahend;
 	private ArrayList<Voxel> voxels;
-	
-	public Subtractor(ISelection minuend, ISelection subtrahend) {
+
+	public Subtractor(final ISelection minuend, final ISelection subtrahend) {
 		this.minuend = minuend;
 		this.subtrahend = subtrahend;
 		bounds = minuend.getBounds();
 		setVoxels();
 		volume = voxels.size();
 	}
-	
+
 	private void setVoxels() {
 		voxels = new ArrayList<Voxel>();
-		for (Voxel v: minuend.getVoxels()) {
+		for (final Voxel v: minuend.getVoxels()) {
 			if (!subtrahend.contains(v)) {
 				voxels.add(v);
 			}
@@ -28,7 +28,7 @@ public class Subtractor extends SelectionBase {
 	}
 
 	@Override
-	public boolean contains(Voxel v) {
+	public boolean contains(final Voxel v) {
 		return voxels.contains(v);
 	}
 

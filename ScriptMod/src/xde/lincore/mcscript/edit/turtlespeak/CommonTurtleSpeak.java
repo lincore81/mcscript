@@ -2,8 +2,6 @@ package xde.lincore.mcscript.edit.turtlespeak;
 
 import java.util.Set;
 
-import xde.lincore.util.UniqueId;
-
 public abstract class CommonTurtleSpeak implements ITurtleDialect {
 
 	public static final int REPEAT = -0xFF;

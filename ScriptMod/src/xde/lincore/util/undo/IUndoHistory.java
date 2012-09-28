@@ -23,7 +23,7 @@ public interface IUndoHistory<T extends Undoable> {
 	 * Get the number of redoable edits.
 	 */
 	public abstract int getRedoCount();
-	
+
 	/**
 	 * Discard all undo/redo data.
 	 */

@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 public enum TsArgumentTypes {
 	Float("<real number>"),
-	Integer("<integer>");	
+	Integer("<integer>");
 
 	public final String name;
 
@@ -20,8 +20,8 @@ public enum TsArgumentTypes {
 		}
 		return result.toString().trim();
 	}
-	
-	public boolean matches(TsToken token) {
+
+	public boolean matches(final TsToken token) {
 		switch (this) {
 			case Float:
 				return token.type == TsTokenType.Float || token.type == TsTokenType.Integer;

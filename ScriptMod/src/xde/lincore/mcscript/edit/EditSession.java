@@ -1,50 +1,45 @@
 package xde.lincore.mcscript.edit;
 
-import xde.lincore.mcscript.BlockData;
 import xde.lincore.mcscript.BoundingBox;
 import xde.lincore.mcscript.IBlock;
 import xde.lincore.mcscript.Voxel;
-import xde.lincore.mcscript.env.ScriptRunner;
-import xde.lincore.mcscript.env.ScriptEnvironment;
-import xde.lincore.mcscript.minecraft.MinecraftWrapper;
 import xde.lincore.mcscript.minecraft.WorldWrapper;
 import xde.lincore.util.undo.IUndoHistory;
-import xde.lincore.util.undo.Undoable;
 
 public class EditSession implements IEditSession {
-	private final EditSessionController controller;	
+	private final EditSessionController controller;
 	private BoundingBox bounds;
 	private WorldEdit worldEdit;
-	private WorldWrapper world;
-	private int blockLimit;	
+	private final WorldWrapper world;
+	private int blockLimit;
 	public static final int NO_BLOCK_LIMIT = -1;
-	
-	protected EditSession(String editor, BoundingBox bounds,
-			int blockLimit, EditSessionController controller, WorldWrapper world) {
-		
+
+	protected EditSession(final String editor, final BoundingBox bounds,
+			final int blockLimit, final EditSessionController controller, final WorldWrapper world) {
+
 		this.world = world;
 		this.controller = controller;
 		this.bounds = bounds;
 		this.blockLimit = blockLimit;
-		this.worldEdit = new WorldEdit(editor, world);
+		worldEdit = new WorldEdit(editor, world);
 	}
-	
+
 	@Override
-	public void setBounds(BoundingBox bounds) {
+	public void setBounds(final BoundingBox bounds) {
 		this.bounds = bounds;
 	}
 
 	@Override
-	public void setBlock(Voxel position, IBlock block) {
-		if (canSetBlock(position)) {		
-			IBlock oldBlock = world.getBlockData(position);
+	public void setBlock(final Voxel position, final IBlock block) {
+		if (canSetBlock(position)) {
+			final IBlock oldBlock = world.getBlockData(position);
 			worldEdit.add(new BlockEdit(oldBlock, block, position));
 		}
 	}
 
-	private boolean canSetBlock(Voxel position) {
-		return (bounds == null || blockLimit == NO_BLOCK_LIMIT || 
-				worldEdit.getBlocks().size() < blockLimit || bounds.contains(position)); 
+	private boolean canSetBlock(final Voxel position) {
+		return (bounds == null || blockLimit == NO_BLOCK_LIMIT ||
+				worldEdit.getBlocks().size() < blockLimit || bounds.contains(position));
 	}
 
 	@Override
@@ -52,9 +47,9 @@ public class EditSession implements IEditSession {
 		controller.checkIn(this);
 		worldEdit = new WorldEdit(worldEdit.getEditor(), world);
 	}
-	
+
 	@Override
-	public void flush(String description) {
+	public void flush(final String description) {
 		worldEdit.setDescription(description);
 		flush();
 	}
@@ -90,8 +85,8 @@ public class EditSession implements IEditSession {
 	}
 
 	@Override
-	public void setBlockLimit(int limit) {
-		this.blockLimit = limit;
+	public void setBlockLimit(final int limit) {
+		blockLimit = limit;
 	}
 
 	@Override
@@ -105,9 +100,9 @@ public class EditSession implements IEditSession {
 	}
 
 	@Override
-	public void setDescription(String description) {
+	public void setDescription(final String description) {
 		worldEdit.setDescription(description);
-		
+
 	}
 
 	@Override

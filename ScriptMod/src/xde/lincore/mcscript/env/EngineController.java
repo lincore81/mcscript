@@ -12,16 +12,16 @@ import xde.lincore.mcscript.G;
 
 public final class EngineController {
 	public static final String DEFAULT_ENGINE = null;
-	
-	private ScriptEngine defaultEngine;		
-	private ScriptEngine currentEngine;		
+
+	private ScriptEngine defaultEngine;
+	private ScriptEngine currentEngine;
 	private HashMap<String, ScriptEngine> enginePool;
 	private ScriptEngineManager manager;
-	
+
 	public EngineController() {
 		reset();
 	}
-	
+
 	public void reset() {
 		manager = new ScriptEngineManager();
 		defaultEngine = manager.getEngineByName(G.DEFAULT_SCRIPT_ENGINE);
@@ -33,50 +33,50 @@ public final class EngineController {
 		enginePool = new HashMap<String, ScriptEngine>();
 		enginePool.put(defaultEngine.getFactory().getEngineName(), defaultEngine);
 	}
-	
+
 	public ScriptEngine getDefaultEngine() {
 		return defaultEngine;
 	}
-	
+
 	public ScriptEngine getCurrentEngine() {
 		return currentEngine;
-	}	
-	
-	public void setCurrentEngine(String identifier) {
+	}
+
+	public void setCurrentEngine(final String identifier) {
 		currentEngine = getEngine(identifier);
 	}
-	
-	public ScriptEngine getEngine(String identifier) {
+
+	public ScriptEngine getEngine(final String identifier) {
 		if (identifier == null) {
 			return currentEngine;
 		}
-		String engineName = findEngineName(identifier);
-		if (engineName == null) {		
+		final String engineName = findEngineName(identifier);
+		if (engineName == null) {
 			throw new IllegalArgumentException(
 					identifier + " does not denote an available script engine.");
 		} else {
 			if (enginePool.containsKey(engineName)) {
 				return enginePool.get(engineName);
 			} else{
-				ScriptEngine result = manager.getEngineByName(engineName);
-				enginePool.put(engineName, result);			
+				final ScriptEngine result = manager.getEngineByName(engineName);
+				enginePool.put(engineName, result);
 				return result;
 			}
 		}
 	}
-	
+
 	public ScriptEngineManager getManager() {
 		return manager;
 	}
 
-	public String findEngineName(String identifier){
-		String _identifier = identifier.toLowerCase();
-		String result = null;		
-		for (ScriptEngineFactory f: manager.getEngineFactories()) {
-			ArrayList<String> names = new ArrayList<String>();
+	public String findEngineName(final String identifier){
+		final String _identifier = identifier.toLowerCase();
+		String result = null;
+		for (final ScriptEngineFactory f: manager.getEngineFactories()) {
+			final ArrayList<String> names = new ArrayList<String>();
 			names.add(f.getEngineName());
-			names.addAll(f.getNames());			
-			for (String name: names) {
+			names.addAll(f.getNames());
+			for (final String name: names) {
 				if (name.toLowerCase().startsWith(_identifier)) {
 					if (result == null) {
 						result = f.getNames().get(0);
@@ -89,16 +89,16 @@ public final class EngineController {
 					}
 				}
 			}
-		}		
+		}
 		return result;
 	}
-	
+
 	public String dumpPool() {
-		StringBuffer buffer = new StringBuffer();
-		for (Map.Entry<String, ScriptEngine> e: enginePool.entrySet()) {
+		final StringBuffer buffer = new StringBuffer();
+		for (final Map.Entry<String, ScriptEngine> e: enginePool.entrySet()) {
 			buffer.append(e.getKey() + ": " + e.getValue().toString() + "\n");
 		}
 		return buffer.toString();
 	}
-	
+
 }

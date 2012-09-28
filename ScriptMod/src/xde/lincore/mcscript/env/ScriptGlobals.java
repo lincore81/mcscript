@@ -3,49 +3,51 @@ package xde.lincore.mcscript.env;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import xde.lincore.util.StringTools;
-
 public final class ScriptGlobals implements Serializable {
 
-	private HashMap<String, Object> vars;
-	
+	/**
+	 *
+	 */
+	private static final long	serialVersionUID	= -6422223408376680006L;
+	private final HashMap<String, Object> vars;
+
 	protected ScriptGlobals() {
 		vars = new HashMap<String, Object>();
-	}	
+	}
 
-	public void set(String key, Object value) {
+	public void set(final String key, final Object value) {
 		vars.put(key, value);
 	}
-	
-	public Object get(String key) {
+
+	public Object get(final String key) {
 		return vars.get(key);
 	}
-	
-	public Object get(String key, Object def) {
-		Object value = vars.get(key);
-		return (value != null)? value : def;
+
+	public Object get(final String key, final Object defaultValue) {
+		final Object value = vars.get(key);
+		return (value != null)? value : defaultValue;
 	}
-	
-	public double getNumber(String key, double defaultValue) {
-		Object value = vars.get(key);
-		if (value != null) {
+
+	public double getNumber(final String key, final double defaultValue) {
+		final Object value = vars.get(key);
+		if (value != null && value instanceof Number) {
 			try {
 				return (Double)value;
 			}
-			catch (ClassCastException e) {
+			catch (final ClassCastException e) {
 				e.printStackTrace();
 				return defaultValue;
 			}
 		}
 		return defaultValue;
 	}
-	
-	public boolean contains(String key) {
+
+	public boolean contains(final String key) {
 		return vars.containsKey(key);
 	}
-	
-	public boolean equals(String key, Object obj) {
-		Object value = vars.get(key);
+
+	public boolean equals(final String key, final Object obj) {
+		final Object value = vars.get(key);
 		if (value == null) {
 			return obj == null;
 		}

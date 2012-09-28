@@ -1,144 +1,128 @@
 package xde.lincore.mcscript.minecraft;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.Collection;
-
-import javax.script.Bindings;
-import javax.script.ScriptEngine;
-
-import org.luaj.vm2.LuaBoolean;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Varargs;
-import org.luaj.vm2.lib.OneArgFunction;
-import org.luaj.vm2.lib.VarArgFunction;
-import org.luaj.vm2.lib.ZeroArgFunction;
 
 import xde.lincore.mcscript.Blocks;
 import xde.lincore.mcscript.G;
 import xde.lincore.mcscript.Items;
-import xde.lincore.mcscript.Vector3d;
-import xde.lincore.mcscript.Voxel;
-import xde.lincore.mcscript.edit.EditSessionController;
-import xde.lincore.mcscript.edit.IEditSession;
-import xde.lincore.mcscript.edit.Turtle;
-import xde.lincore.mcscript.edit.VectorTurtle;
 import xde.lincore.mcscript.env.Script;
-import xde.lincore.mcscript.env.ScriptRunner;
 import xde.lincore.mcscript.env.ScriptEnvironment;
 import xde.lincore.util.Config;
 import xde.lincore.util.Text;
-
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.src.ModLoader;
-import net.minecraft.src.Vec3;
-import net.minecraft.src.mod_McScript;
 
 public class MinecraftWrapper {
 	public final ScriptEnvironment env;
 	public final TimeWrapper time;
 	public final UserWrapper user;
 	public final WorldWrapper world;
-	
-	public MinecraftWrapper(ScriptEnvironment env) {
+
+	public MinecraftWrapper(final ScriptEnvironment env) {
 		this.env = env;
 		user 	= new UserWrapper(env, this);
 		time 	= new TimeWrapper(env, this);
-		world 	= new WorldWrapper(env, this);		
+		world 	= new WorldWrapper(env, this);
 	}
-	
-	public void abort(String reason) {
+
+	public void abort(final String reason) {
 		throw new ScriptError(reason);
 	}
-	
-	public void echo(Object obj) {
+
+	public void echo(final Object obj) {
 		env.chat.echo(obj);
 	}
-	
-	public void err(Object obj) {
+
+	public void err(final Object obj) {
 		env.chat.err(obj);
 	}
-	
-	public void format(String format, Object... args) {
+
+	public void format(final String format, final Object... args) {
 		env.chat.format(format, args);
 	}
-	
+
 	public Exception getLastException() {
 		return env.getLastScriptException();
 	}
-	
+
 	public StackTraceElement[] getStackTrace() {
-		Exception e = env.getLastScriptException();
-		
+		final Exception e = env.getLastScriptException();
+
 		if (e != null) {
 			return e.getStackTrace();
 		}
-		
+
 		return new StackTraceElement[0];
 	}
-	
+
 	public void printStackTrace() {
-		StackTraceElement[] trace = getStackTrace();
+		final StackTraceElement[] trace = getStackTrace();
 		for (int i = 0; i < trace.length; i++) {
 			env.chat.err(trace[i]);
 		}
 	}
-	
-	public Blocks block(String name) {
+
+	public Blocks block(final String name) {
 		return Blocks.find(name);
 	}
-	
-	public Blocks block(int id) {
+
+	public Blocks block(final int id) {
 		return Blocks.findById(id);
 	}
-	
-	public Blocks block(int id, int meta) {
+
+	public Blocks block(final int id, final int meta) {
 		return Blocks.findById(id, meta);
 	}
-	
-	public Items item(String name) {
+
+	public Items item(final String name) {
 		return Items.find(name);
 	}
-	
-	public Items item(int id) {
+
+	public Items item(final int id) {
 		return Items.findById(id, 0);
 	}
-	
-	public Items item(int id, int meta) {
+
+	public Items item(final int id, final int meta) {
 		return Items.findById(id, meta);
 	}
-	
-	public String loadTextFile(String filename) throws IOException {		
-		Script script = env.scripts.getScript();
+
+	public String loadTextFile(final String filename) throws IOException {
+		final Script script = env.scripts.getScript();
 		if (script == null) {
 			throw new IllegalStateException("This method must be called from within a script.");
-		}		
+		}
 		File scriptDir;
 		if (script.isScriptFile()) {
 			scriptDir = script.getFile().getParentFile();
 		} else {
 			scriptDir = env.files.getCwd();
 		}
-		File file = new File(scriptDir, filename);
-		Text textfile = new Text();
-		String charset = Config.get(G.CFG_MAIN, G.PROP_ENCODING);
+		final File file = new File(scriptDir, filename);
+		final Text textfile = new Text();
+		final String charset = Config.get(G.CFG_MAIN, G.PROP_ENCODING);
 		textfile.readFile(file, charset);
 		return textfile.toString();
 	}
 	
+	public File getFile(final String filename) throws IOException {
+		File file = new File(filename);
+		if (file.isAbsolute()) return file;
+		
+		final Script script = env.scripts.getScript();
+		
+		if (script.isScriptFile()) {
+			file = new File(script.getFile().getParentFile(), filename);			
+		}
+		else {
+			return new File(env.files.getCwd(), filename);
+		}
+		return file;
+	}
 
-	public void sleep(long milliseconds) {
+
+	public void sleep(final long milliseconds) {
 		try {
 			Thread.sleep(milliseconds);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			e.printStackTrace();
 		}
 	}

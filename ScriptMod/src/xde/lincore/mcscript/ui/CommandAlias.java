@@ -1,30 +1,20 @@
 package xde.lincore.mcscript.ui;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.src.CommandBase;
+import net.minecraft.src.CommandHandler;
+import net.minecraft.src.ICommandSender;
 import xde.lincore.mcscript.G;
 import xde.lincore.mcscript.env.ScriptEnvironment;
 import xde.lincore.util.StringTools;
 
-
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.src.CommandBase;
-import net.minecraft.src.CommandHandler;
-import net.minecraft.src.ICommand;
-import net.minecraft.src.ICommandSender;
-import net.minecraft.src.ModLoader;
-
 public class CommandAlias extends CommandBase {
 
-	private ScriptEnvironment env;
-	private String name;
-	private CommandRunScript runCommand;
-	
-	public CommandAlias(ScriptEnvironment env, String name) {
+	private final ScriptEnvironment env;
+	private final String name;
+	private final CommandRunScript runCommand;
+
+	public CommandAlias(final ScriptEnvironment env, final String name) {
 		this.env = env;
 		this.name = name;
 		runCommand = env.modInst.getRunCommand();
@@ -36,8 +26,8 @@ public class CommandAlias extends CommandBase {
 	}
 
 	@Override
-	public void processCommand(ICommandSender sender, String[] args) {		
-		String command = StringTools.insertArgs(env.aliases.getAlias(name), args);
+	public void processCommand(final ICommandSender sender, final String[] args) {
+		final String command = StringTools.insertArgs(env.aliases.getAlias(name), args);
 		if (command.startsWith("/")) {
 			CommandHandler handler;
 			if (MinecraftServer.getServer().getCommandManager() instanceof CommandHandler) {
@@ -45,13 +35,13 @@ public class CommandAlias extends CommandBase {
 			}
 			else {
 				env.chat.err("An unexpected error has occured, I can't run the command, sorry.");
-				G.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");			
+				G.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");
 				return;
 			}
-			handler.executeCommand(sender, command);			
+			handler.executeCommand(sender, command);
 		}
-		else {		
-			String[] newargs = command.split(" ");
+		else {
+			final String[] newargs = command.split(" ");
 			System.out.println(command);
 			runCommand.processCommand(sender, newargs);
 		}

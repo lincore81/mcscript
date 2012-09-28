@@ -4,27 +4,26 @@ import java.io.File;
 import java.util.logging.Logger;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.src.mod_McScript;
 
 /**
  * Static class containing constants.
- * 
+ *
  * @author lincore
- * 
+ *
  */
 public final class G {
 	public static final String	MOD_NAME				= "mcscript";
-	public static final String	MOD_VERSION				= "0.04";
-	public static final String	MOD_BUILD_DATE			= "2012-09-21";
+	public static final String	MOD_VERSION				= "0.041";
+	public static final String	MOD_BUILD_DATE			= "2012-09-28";
 
 	public static final Logger	LOG						= Logger.getLogger(MOD_NAME);
-	
+
 	public static final File	DIR_MINECRAFT			= Minecraft.getMinecraftDir();
 	public static final File	DIR_MOD					= new File(DIR_MINECRAFT,
 																"mods/" + MOD_NAME + "/");
 	public static final File	DIR_MOD_HOME			= DIR_MOD;
 	public static final File	DIR_CONFIG				= new File(DIR_MOD, "config/");
-	public static final File	DIR_SCRIPTS				= new File(DIR_MOD, "scripts/");	
+	public static final File	DIR_SCRIPTS				= new File(DIR_MOD, "scripts/");
 	public static final File	DIR_WORLD_SAVES			= new File(DIR_MINECRAFT, "saves/");
 	public static final File	DIR_CACHE				= new File(DIR_MOD, "cache/");
 
@@ -33,7 +32,7 @@ public final class G {
 	public static final String	PATH_ALIAS_WORLD_DIR	= "^\\*";
 
 	public static final String	EXT_CONFIG				= ".cfg";
-	
+
 	// Property key names:
 	public static final String 	PROP_PROMPT				= "prompt";
 	public static final String	PROP_CWD				= "file.cwd";
@@ -50,10 +49,10 @@ public final class G {
 	public static final String	CFG_KEYS				= "keys";
 
 	public static final String	DEFAULT_SCRIPT_ENGINE	= "rhino";
-	
+
 	public static final String	CMD_SCRIPT_ENV			= "env";
 	public static final String 	CMD_RUN_SCRIPT			= "run";
-	
+
 	public static final String 	CMD_PREFIX				= "/";
 
 	private G() {}

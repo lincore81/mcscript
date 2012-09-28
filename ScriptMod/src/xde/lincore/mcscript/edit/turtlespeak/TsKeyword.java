@@ -2,12 +2,8 @@ package xde.lincore.mcscript.edit.turtlespeak;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
-
-import org.python.google.common.base.CaseFormat;
 
 public class TsKeyword {
 	public final int id;
@@ -15,8 +11,8 @@ public class TsKeyword {
 	public final Pattern pattern;
 	public final boolean expectsBlock;
 	public final List<TsArgumentTypes> expectedArgs;
-	
-	public TsKeyword(final int id, final String name, final String regex, 
+
+	public TsKeyword(final int id, final String name, final String regex,
 			final boolean expectsBlock, final TsArgumentTypes... expectedArgs ) {
 		this.id 			= id;
 		this.name 			= name;
@@ -41,15 +37,15 @@ public class TsKeyword {
 			return null;
 		}
 	}
-	
-	public boolean matches(TsToken token) {
+
+	public boolean matches(final TsToken token) {
 		return pattern.matcher(token.string).matches();
 	}
 
 	public String getSyntaxString() {
 		return name + " " + TsArgumentTypes.concat(expectedArgs) + (expectsBlock ? " (...)" : "");
 	}
-	
+
 	@Override
 	public String toString() {
 		return name;

@@ -1,9 +1,6 @@
 package xde.lincore.mcscript.selection;
 
-import java.util.Iterator;
-
 import xde.lincore.mcscript.BoundingBox;
-import xde.lincore.mcscript.Voxel;
 
 
 public abstract class SelectionBase implements ISelection{
@@ -25,7 +22,7 @@ public abstract class SelectionBase implements ISelection{
 	public int getDepth() {
 		return bounds.getDepth();
 	}
-	
+
 	@Override
 	public int getVolume() {
 		return volume;
@@ -35,11 +32,11 @@ public abstract class SelectionBase implements ISelection{
 	public BoundingBox getBounds() {
 		return bounds;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("(%s) - %s\n" +
-				"    volume=%d, width=%d, height=%d, depth=%d", this.getClass().getSimpleName(), 
+				"    volume=%d, width=%d, height=%d, depth=%d", this.getClass().getSimpleName(),
 				bounds, volume,	getWidth(), getHeight(), getDepth());
 	}
 

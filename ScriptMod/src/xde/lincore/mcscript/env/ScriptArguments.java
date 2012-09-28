@@ -1,6 +1,5 @@
 package xde.lincore.mcscript.env;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -10,10 +9,10 @@ import xde.lincore.util.StringTools;
 
 public class ScriptArguments {
 
-	private Iterator<String> keyIter, valueIter;	
-	private Map<String, String> args;	
-	
-	protected ScriptArguments(Map<String, String> args) {
+	private Iterator<String> keyIter, valueIter;
+	private Map<String, String> args;
+
+	protected ScriptArguments(final Map<String, String> args) {
 		if (args != null) {
 			this.args = args;
 		}
@@ -22,21 +21,21 @@ public class ScriptArguments {
 		}
 	}
 
-	
+
 	public int count() {
 		return args.size();
 	}
-	
-	public boolean contains(String key) {
+
+	public boolean contains(final String key) {
 		return args.containsKey(key);
 	}
-	
-	public String get(String key) {
+
+	public String get(final String key) {
 		return findMatch(key);
 	}
-	
-	public String get(String key, String defaultValue) {
-		String value = findMatch(key);
+
+	public String get(final String key, final String defaultValue) {
+		final String value = findMatch(key);
 		if (value == null) {
 			return defaultValue;
 		}
@@ -45,8 +44,8 @@ public class ScriptArguments {
 		}
 	}
 
-	public double getNumber(String key) {
-		String value = findMatch(key);
+	public double getNumber(final String key) {
+		final String value = findMatch(key);
 		if (value != null) {
 			return StringTools.getNumber(value);
 		}
@@ -54,20 +53,20 @@ public class ScriptArguments {
 			return Double.NaN;
 		}
 	}
-	
-	public double getNumber(String key, Double defaultValue) {
-		String value = findMatch(key);
+
+	public double getNumber(final String key, final Double defaultValue) {
+		final String value = findMatch(key);
 		if (value != null) {
-			Double result = StringTools.getNumber(value);
+			final Double result = StringTools.getNumber(value);
 			if (result != null) {
 				return result;
 			}
 		}
 		return defaultValue;
 	}
-	
-	public Boolean has(String bool) {
-		String value = findMatch(bool);
+
+	public Boolean has(final String bool) {
+		final String value = findMatch(bool);
 		if (value != null) {
 			return StringTools.getBoolean(value);
 		}
@@ -75,43 +74,43 @@ public class ScriptArguments {
 			return false;
 		}
 	}
-	
+
 	public String next() {
 		if (keyIter == null || !keyIter.hasNext()) {
 			keyIter = args.keySet().iterator();
 		}
 		return keyIter.next();
 	}
-	
+
 	public String nextValue() {
 		return get(next());
 	}
-	
+
 	public String first() {
 		keyIter = args.keySet().iterator();
 		return keyIter.next();
 	}
-	
+
 	public boolean hasNext() {
 		if (keyIter == null) {
 			keyIter = args.keySet().iterator();
 		}
 		return keyIter.hasNext();
 	}
-	
-	private String findMatch(String re) {
-		for (Entry<String, String> e: args.entrySet()) {
+
+	private String findMatch(final String re) {
+		for (final Entry<String, String> e: args.entrySet()) {
 			if (e.getKey().matches(re)) {
 				return e.getValue();
 			}
 		}
 		return null;
 	}
-	
+
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer("Arguments:\n");
-		for (Map.Entry<String, String> e: args.entrySet()) {
+		final StringBuffer buffer = new StringBuffer("Arguments:\n");
+		for (final Map.Entry<String, String> e: args.entrySet()) {
 			buffer.append("\t" + e.getKey() + ": " + e.getValue() + "\n");
 		}
 		return buffer.toString();

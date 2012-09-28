@@ -2,7 +2,6 @@ package xde.lincore.mcscript;
 
 import net.minecraft.src.Block;
 import net.minecraft.src.ItemStack;
-import xde.lincore.util.Config;
 
 public enum Blocks implements IStackable, IBlock {
 	Air("Air", 0),
@@ -113,7 +112,7 @@ public enum Blocks implements IStackable, IBlock {
 	RedstoneOre("Redstone Ore", 73),
 	GlowingRedstoneOre("Glowing Redstone Ore", 74),
 	RedstoneTorch("Redstone Torch", 75),
-	RedstoneTorchOn("Redstone Torch On", 76),	
+	RedstoneTorchOn("Redstone Torch On", 76),
 	StoneButton("Stone Button", 77),
 	Snow("Snow", 78),
 	Ice("Ice", 79),
@@ -131,12 +130,12 @@ public enum Blocks implements IStackable, IBlock {
 	JackOLantern("Jack-O-Lantern", 91),
 	CakeBlock("Cake Block", 92),
 	RedstoneRepeater("Redstone Repeater", 93),
-	RedstoneRepeaterOn("Redstone Repeater On", 94),	
+	RedstoneRepeaterOn("Redstone Repeater On", 94),
 	LockedChest("Locked Chest", 95),
 	Trapdoor("Trapdoor", 96),
 	SilverfishBlock("Silverfish Block", 97),
 	SilverfishCobblestoneBlock("Silverfish Cobblestone Block", 97, 1),
-	SilverfishStoneBrickBlock("Silverfish Stone Brick Block", 97, 1),	
+	SilverfishStoneBrickBlock("Silverfish Stone Brick Block", 97, 1),
 	StoneBrick("Stone Brick", 98),
 	MossyStoneBrick("Mossy Stone Brick", 98, 1),
 	CrackedStoneBrick("Cracked Stone Brick", 98, 2),
@@ -165,7 +164,7 @@ public enum Blocks implements IStackable, IBlock {
 	EndStone("End Stone", 121),
 	DragonEgg("Dragon Egg", 122),
 	RedstoneLamp("Redstone Lamp", 123),
-	RedstoneLampOn("Redstone Lamp On", 124),	
+	RedstoneLampOn("Redstone Lamp On", 124),
 	DoubleWoodenSlab2("Double Wooden Slab 2", 125),
 	WoodenSlab2("Wooden Slab 2", 126),
 	CocoaPlant("Cocoa Plant", 127),
@@ -178,7 +177,7 @@ public enum Blocks implements IStackable, IBlock {
 	SpruceWoodStairs("Spruce Wood Stairs", 134),
 	BirchWoodStairs("Birch Wood Stairs", 135),
 	JungleWoodStairs("Jungle Wood Stairs", 136),
-	
+
 	// 1.4?
 	CommandBlock("Command Block", 137),
 	BeaconBlock("Beacon Block", 138),
@@ -188,99 +187,102 @@ public enum Blocks implements IStackable, IBlock {
 	Potatoes("Potatoes", 142),
 	WoodenButton("Wooden Button", 143),
 	;
-	
+
 	private int id, meta;
 	private String name;
-	
-	private Blocks(String name, int id, int damage) {
+
+	private Blocks(final String name, final int id, final int damage) {
 		this.id = id;
-		this.meta = damage;
+		meta = damage;
 		this.name = name;
 	}
-	
-	private Blocks(String name, int id) {
+
+	private Blocks(final String name, final int id) {
 		this(name, id, 0);
 	}
-	
-	public static Blocks find(String searchstr) {
-		for (Blocks b: Blocks.values()) {
-			if (b.name.equalsIgnoreCase(searchstr)) return b;
+
+	public static Blocks find(final String searchstr) {
+		for (final Blocks b: Blocks.values()) {
+			if (b.name.equalsIgnoreCase(searchstr)) {
+				return b;
+			}
 		}
-		for (Blocks b: Blocks.values()) {
+		for (final Blocks b: Blocks.values()) {
 			if (b.name.toLowerCase().startsWith(searchstr.toLowerCase())) {
 				return b;
 			}
 		}
 		return null;
 	}
-	
-	public static Blocks findById(int id) {
+
+	public static Blocks findById(final int id) {
 		return findById(id, 0);
 	}
-	
-	public static Blocks findById(int id, int damage) {
-		for (Blocks b: Blocks.values()) {
+
+	public static Blocks findById(final int id, final int damage) {
+		for (final Blocks b: Blocks.values()) {
 			if (b.id == id && b.meta == damage) {
 				return b;
 			}
 		}
 		return null;
 	}
-	
+
 	public BlockData getBlockData() {
 		return new BlockData(id, meta);
 	}
-	
+
 	@Override
 	public int getId() {
 		return id;
 	}
 
-	
+
 	@Override
 	public int getMeta() {
 		return meta;
 	}
-	
+
 	@Override
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public boolean hasMeta() {
 		return meta != 0;
 	}
-	
+
 	@Override
 	public boolean hasNbtData() {
 		return false;
 	}
-	
+
 	/**
-	 * Return the minecraft Block instance with this block id. 
+	 * Return the minecraft Block instance with this block id.
 	 * @return The Block instance with the id of this Blocks entry or null if that Block
-	 * doesn't exist. <br /><b>Don't forget:</b><code> Air (id=0)</code> is NOT a block. 
+	 * doesn't exist. <br /><b>Don't forget:</b><code> Air (id=0)</code> is NOT a block.
 	 */
 	public net.minecraft.src.Block getMcBlock() {
-		Block[] list = Block.blocksList;
+		final Block[] list = Block.blocksList;
 		if (id == 0) {
 			return null;
 		}
 		else if (id < 0 || id >= list.length) {
-			throw new RuntimeException("[Blocks.getMcBlock()] Block id is out of range: " + 
+			throw new RuntimeException("[Blocks.getMcBlock()] Block id is out of range: " +
 					toString() + "\nThis shouldn't happen. Please report this error.");
 		}
 		else {
 			return list[id];
 		}
 	}
-	
+
 	@Override
-	public ItemStack getItemStack(int quantity) {
+	public ItemStack getItemStack(final int quantity) {
 		return new ItemStack(getMcBlock(), quantity, meta);
 	}
-	
+
+	@Override
 	public String toString() {
 		if (meta > 0) {
 			return String.format("%s (%2d:%2d)", name, id, meta);

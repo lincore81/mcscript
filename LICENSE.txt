@@ -1,9 +1,9 @@
-Scripting Mod
+mcscript
 Copyright (c)2012 Dominik 'lincore' Rosehnal
 
 LICENSE TERMS:
 
-Permission is granted to anyone to use this software for any 
+Permission is granted to anyone to use this software for any
 non-commercial purpose and to alter it and redistribute it
 freely, subject to the following restrictions:
 
@@ -12,10 +12,10 @@ freely, subject to the following restrictions:
    in a product, an acknowledgment in the product documentation would be
    appreciated but is not required.
 
-   3. Altered versions must be plainly marked as such, and must not be
+   2. Altered versions must be plainly marked as such, and must not be
    misrepresented as being the original software.
 
-   4. This notice may not be removed or altered from any distribution.
+   3. This notice may not be removed or altered from any distribution.
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the author be held liable for any damages

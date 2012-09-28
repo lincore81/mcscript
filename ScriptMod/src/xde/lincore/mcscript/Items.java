@@ -4,23 +4,23 @@ import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
 
 public enum Items implements IStackable {
-	Apple("Apple", 260),
-	Arrow("Arrow", 262),
-	BakedPotato("Baked Potato", 393),
-	Bed("Bed", 355),
-	BlazePowder("Blaze Powder", 377),
-	BlazeRod("Blaze Rod", 369),
-	Boat("Boat", 333),
-	Bone("Bone", 352),
-	BoneMeal("Bone Meal", 351, 15),
-	Book("Book", 340),
-	BookAndQuill("Book and Quill", 386),
-	Bow("Bow", 261),
-	Bowl("Bowl", 281),
-	Bread("Bread", 297),
+	Apple("Apple", 260, "food|fruit(s)?"),
+	Arrow("Arrow", 262, 0, "ammo", "amm(o|unition)"),
+	BakedPotato("Baked Potato", 393, "food|vegetable(s)?|baked"),
+	Bed("Bed", 355, "furniture"),
+	BlazePowder("Blaze Powder", 377, "brewing|ingedient(s)?|powder|blaze|loot"),
+	BlazeRod("Blaze Rod", 369, 0, "rod", "brewing|blaze|drop(s)?"),
+	Boat("Boat", 333, "vehicle|wooden"),
+	Bone("Bone", 352, "skeleton|drop(s)?"),
+	BoneMeal("Bone Meal", 351, 15, "meal", "farm(ing)?|skeleton"),
+	Book("Book", 340, "books|enchant(ment(s)?|ing)?"),
+	BookAndQuill("Book and Quill", 386, 0, "note(book|pad)|book(\\s*(\\&|n|\\+)\\*s)quill", "writ(e|ing)|quill|books"),
+	Bow("Bow", 261, "weapon"),
+	Bowl("Bowl", 281, "mushroom(s| stew)?|stew|food"),
+	Bread("Bread", 297, "food|farm(ing)?"),
 	BrewingStand("Brewing Stand", 379),
 	Bucket("Bucket", 325),
-	CactusGreen("Cactus Green", 351, 2),
+	CactusGreen("Cactus Green", 351, 2, "green dye", "cactus|green|dye"),
 	Cake("Cake", 354),
 	Carrots("Carrots", 391),
 	Cauldron("Cauldron", 380),
@@ -193,41 +193,58 @@ public enum Items implements IStackable {
 	WoodenSword("Wooden Sword", 268),
 	WrittenBook("Written Book", 387),
 	;
-	
-	
+
+
 	private int id, meta;
 	private String name;
 	private String regex;
-	
-	private Items(String name, int id) {
-		this(name, id, 0);
+	private String apropos;
+
+	private Items(final String name, final int id) {
+		this(name, id, 0, null, null);
 	}
 	
-	private Items(String name, int id, int meta) {
-		this(name, id, meta, null);
+	private Items(final String name, final int id, final String apropos) {
+		this(name, id, 0, null, apropos);
+	}
+
+	private Items(final String name, final int id, final int meta) {
+		this(name, id, meta, null, null);
 	}
 	
-	private Items(String name, int id, int meta, String regex) {
+	private Items(final String name, final int id, final int meta, final String apropos) {
+		this(name, id, meta, null, apropos);
+	}
+
+	private Items(final String name, final int id, final int meta, final String regex, final String apropos) {
 		this.name = name;
 		this.id = id;
 		this.meta = meta;
-		this.regex = regex;
+		this.regex = "(?i)" + regex;
+		this.apropos = "(?i)" + apropos;
+		
 	}
-	
-	public static Items find(String name) {		
-		for (Items item: Items.values()) {
-			if (item.name.equalsIgnoreCase(name)) return item;
+
+	public static Items find(final String name) {
+		for (final Items item: Items.values()) {
+			if (item.name.equalsIgnoreCase(name)) {
+				return item;
+			}
 		}
-		String name_ = name.toLowerCase().trim();
-		for (Items item: Items.values()) {
-			if (item.name.toLowerCase().startsWith(name_)) return item;
+		final String name_ = name.toLowerCase().trim();
+		for (final Items item: Items.values()) {
+			if (item.name.toLowerCase().startsWith(name_)) {
+				return item;
+			}
 		}
 		return null;
 	}
-	
-	public static Items findById(int id, int meta) {
-		for (Items item: Items.values()) {
-			if (item.id == id && item.meta == meta) return item;
+
+	public static Items findById(final int id, final int meta) {
+		for (final Items item: Items.values()) {
+			if (item.id == id && item.meta == meta) {
+				return item;
+			}
 		}
 		return null;
 	}
@@ -243,17 +260,17 @@ public enum Items implements IStackable {
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
-	public ItemStack getItemStack(int quantity) {		
+	public ItemStack getItemStack(final int quantity) {
 		return new ItemStack(getMcItem(), quantity, meta);
 	}
-	
+
 	public int getMaxStackSize() {
 		return getMcItem().getItemStackLimit();
 	}
-	
-	public Item getMcItem() {		
+
+	public Item getMcItem() {
 		assert id >= 0 && id < Item.itemsList.length : "id is out of bounds!";
 		return Item.itemsList[id];
 	}

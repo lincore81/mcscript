@@ -4,7 +4,7 @@ import xde.lincore.mcscript.Voxel;
 
 public interface ITurtle {
 
-	public abstract ITurtle backward(int times);	
+	public abstract ITurtle backward(int times);
 
 	public abstract ITurtle forward(int times);
 
@@ -38,6 +38,6 @@ public interface ITurtle {
 
 	public abstract ITurtle togglePen();
 
-	public abstract ITurtle turnAround();	
+	public abstract ITurtle turnAround();
 
 }

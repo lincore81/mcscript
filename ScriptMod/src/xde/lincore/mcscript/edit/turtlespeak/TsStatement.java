@@ -15,9 +15,11 @@ public class TsStatement {
 		arguments = new ArrayList<Float>();
 		block = null;
 	}
-	
+
 	public boolean isComplete() {
-		if (keyword == null) return false;
+		if (keyword == null) {
+			return false;
+		}
 		return true;
 	}
 
@@ -25,26 +27,26 @@ public class TsStatement {
 		return block;
 	}
 
-	public void setBlock(TsBlock block) {
+	public void setBlock(final TsBlock block) {
 		this.block = block;
 	}
-	
+
 	public boolean hasBlock() {
 		return block != null;
 	}
-	
+
 	@Override
 	public String toString() {
-		return String.format("Keyword=%s; Arguments=\"%s\"; hasBlock? %b", keyword.name, 
+		return String.format("Keyword=%s; Arguments=\"%s\"; hasBlock? %b", keyword.name,
 				StringTools.join(arguments), hasBlock());
 	}
 
 	public String dump(int indent) {
-		String tabs = StringTools.repeat("    ", indent);
-		if (hasBlock())
-			return String.format("%s%s %s %s%s\n", tabs, keyword.name, 
+		final String tabs = StringTools.repeat("    ", indent);
+		if (hasBlock()) {
+			return String.format("%s%s %s %s%s\n", tabs, keyword.name,
 					StringTools.join(arguments), block.dump(++indent), tabs + ")");
-		else {
+		} else {
 			return tabs + keyword.name + " " + StringTools.join(arguments) + "\n";
 		}
 	}

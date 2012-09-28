@@ -1,7 +1,5 @@
 package xde.lincore.test.mcscript.edit.turtle.parser;
 
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,9 +11,9 @@ public class TurtleSpeakParserTest {
 
 	private ITurtleDialect dialect;
 	private TurtleSpeakParser parser;
-	
+
 	private static final String program = "rep 5 (rep 4 (fd 20 rt) goup 1) (reset)";
-	
+
 	@Before
 	public void setUp() {
 		dialect = new TurtleTestDialect();
@@ -29,8 +27,8 @@ public class TurtleSpeakParserTest {
 			parser.parse(program);
 			System.out.println("Evaluating...");
 			parser.eval();
-		} catch (SyntaxError e) {
-			System.err.println(e.getMessage());			
+		} catch (final SyntaxError e) {
+			System.err.println(e.getMessage());
 		}
 	}
 

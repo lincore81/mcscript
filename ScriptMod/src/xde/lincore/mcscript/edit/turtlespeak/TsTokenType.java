@@ -16,6 +16,6 @@ enum TsTokenType {
 		this.regex = Pattern.compile(regex);
 		this.name = name;
 	}
-	
-	
+
+
 }

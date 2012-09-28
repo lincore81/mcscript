@@ -1,11 +1,10 @@
 package xde.lincore.test.mcscript.edit.turtle.parser;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,8 +17,8 @@ public class TsTokenizerTest {
 
 	private static final int	HashMap	= 0;
 	HashMap<String, Boolean> testCases;
-	
-	
+
+
 	@Before
 	public void setUp() {
 		testCases = new HashMap<String, Boolean>();
@@ -28,25 +27,25 @@ public class TsTokenizerTest {
 		testCases.put("fd rt fd lt bk rt rep 2 (rt)", 			false);
 		testCases.put("()(())()()()()()())(()((())", 			false);
 		testCases.put("to octagon (rep 8(fd 20 rt 45))", 		false);
-		testCases.put("rep 20 :(rep 4 (fd 17.5 rt 90) goup)", 	true);		
+		testCases.put("rep 20 :(rep 4 (fd 17.5 rt 90) goup)", 	true);
 		testCases.put("äpfel und birnen", 						true);
-		testCases.put("78a", 									true);		
-		testCases.put("hôtel", 									true);		
+		testCases.put("78a", 									true);
+		testCases.put("hôtel", 									true);
 		testCases.put("fd?", 									true);
 	}
 
 	@Test
 	public void testRun() {
 		int i = 1;
-		for (Map.Entry<String, Boolean> e: testCases.entrySet()) {
-			TsTokenizer tokenizer = new TsTokenizer();
+		for (final Map.Entry<String, Boolean> e: testCases.entrySet()) {
+			final TsTokenizer tokenizer = new TsTokenizer();
 			Deque<TsToken> tokens = null;
-			String program = e.getKey();
-			boolean shouldThrow = e.getValue();
+			final String program = e.getKey();
+			final boolean shouldThrow = e.getValue();
 			System.out.format("Case #%d/%d: \"%s\" (syntax error? %b)\n", i++, testCases.size(), program, shouldThrow);
 			try {
 				tokens = tokenizer.run(program);
-			} catch(SyntaxError se) {
+			} catch(final SyntaxError se) {
 				System.out.println("\t" + se);
 				if (!shouldThrow) {
 					System.out.println("\tFAILED: program is correct, but tokenizer threw.");

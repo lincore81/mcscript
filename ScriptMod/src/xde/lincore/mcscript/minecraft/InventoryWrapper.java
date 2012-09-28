@@ -1,40 +1,37 @@
 package xde.lincore.mcscript.minecraft;
 
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.ItemStack;
-import xde.lincore.mcscript.Blocks;
 import xde.lincore.mcscript.IStackable;
 import xde.lincore.mcscript.Items;
 import xde.lincore.mcscript.env.ScriptEnvironment;
 
 public class InventoryWrapper extends AbstractWrapper {
 
-	protected InventoryWrapper(ScriptEnvironment env, MinecraftWrapper mc) {
+	protected InventoryWrapper(final ScriptEnvironment env, final MinecraftWrapper mc) {
 			super(env, mc);
 	}
-	
-	public void giveItem(Items item) {
+
+	public void giveItem(final Items item) {
 		giveItem(item, item.getMaxStackSize());
 	}
-	
-	public void giveItem(Items item, int amount) {
-		int amount_ = (amount > 0)? amount : 1; 
+
+	public void giveItem(final Items item, final int amount) {
+		final int amount_ = (amount > 0)? amount : 1;
 		env.getUser().inventory.addItemStackToInventory(item.getItemStack(amount));
 	}
-	
-	public void holdItem(IStackable item, int quantity) {
-		int slot = getHotbarIndex();
+
+	public void holdItem(final IStackable item, final int quantity) {
+		final int slot = getHotbarIndex();
 		env.getUser().inventory.setInventorySlotContents(slot, item.getItemStack(quantity));
 	}
-	
-	public void setSlotContent(int slot, IStackable item, int quantity) {
+
+	public void setSlotContent(final int slot, final IStackable item, final int quantity) {
 		env.getUser().inventory.setInventorySlotContents(slot, item.getItemStack(quantity));
 	}
-	
+
 	public int getHotbarIndex() {
 		return env.getUser().inventory.currentItem;
 	}
-	
-	
+
+
 
 }

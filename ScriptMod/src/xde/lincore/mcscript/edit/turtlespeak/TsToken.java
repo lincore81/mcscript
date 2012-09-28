@@ -5,10 +5,10 @@ public class TsToken {
 	public final TsTokenType type;
 
 	public TsToken (final String str, final TsTokenType type) {
-		this.string = str;
+		string = str;
 		this.type = type;
 	}
-	
+
 	@Override
 	public String toString() {
 		return type.name + ": \"" + string + "\"";

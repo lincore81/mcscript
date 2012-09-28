@@ -1,7 +1,6 @@
 package xde.lincore.mcscript.selection;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 
 import xde.lincore.mcscript.G;
@@ -15,14 +14,14 @@ public class LogicConnector extends SelectionBase {
 	public static final int OP_AND 	= 1;
 	public static final int OP_XOR	= 2;
 	public static final int OP_NAND	= 3;
-	
-	
-	
-	private ISelection a, b;
+
+
+
+	private final ISelection a, b;
 	private int operator;
 	private ArrayList<Voxel> voxels;
-	
-	public LogicConnector(ISelection a, ISelection b, int operator) {
+
+	public LogicConnector(final ISelection a, final ISelection b, final int operator) {
 		this.a = a;
 		this.b = b;
 		if (operator >= OP_OR && operator <= OP_NAND) {
@@ -36,16 +35,16 @@ public class LogicConnector extends SelectionBase {
 		volume = voxels.size();
 		bounds = a.getBounds().add(b.getBounds());
 	}
-	
+
 	private void setVoxels() {
 		voxels = new ArrayList<Voxel>();
-		ArrayList<Voxel> va = a.getVoxels();
-		ArrayList<Voxel> vb = b.getVoxels();
-		HashSet<Voxel> all = new HashSet<Voxel>(va.size() + vb.size(), 1f);
+		final ArrayList<Voxel> va = a.getVoxels();
+		final ArrayList<Voxel> vb = b.getVoxels();
+		final HashSet<Voxel> all = new HashSet<Voxel>(va.size() + vb.size(), 1f);
 		all.addAll(va);
 		all.addAll(vb);
 		int i = 0;
-		for (Voxel v: all) {
+		for (final Voxel v: all) {
 			if (connect(va.contains(v), vb.contains(v))) {
 				voxels.add(v);
 				System.out.println(String.valueOf(i++) + ": " + v);
@@ -54,7 +53,7 @@ public class LogicConnector extends SelectionBase {
 	}
 
 	@Override
-	public boolean contains(Voxel v) {
+	public boolean contains(final Voxel v) {
 		return voxels.contains(v);
 	}
 
@@ -62,8 +61,8 @@ public class LogicConnector extends SelectionBase {
 	public ArrayList<Voxel> getVoxels() {
 		return voxels;
 	}
-	
-	private boolean connect(boolean ca, boolean cb) {
+
+	private boolean connect(final boolean ca, final boolean cb) {
 		switch (operator) {
 			case OP_OR:
 				return (ca || cb);

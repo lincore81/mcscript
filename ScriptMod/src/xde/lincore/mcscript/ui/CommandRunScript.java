@@ -10,10 +10,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.src.CommandBase;
-import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.ICommandSender;
 import xde.lincore.mcscript.G;
 import xde.lincore.mcscript.env.ScriptEnvironment;
@@ -90,13 +88,15 @@ public final class CommandRunScript extends CommandBase {
 			if (fileParam != null) {
 				fileParam = fileParam.trim();
 			}
-			boolean success = runScript(langParam, fileParam, argsParam, exprParam);
-			if (success) return;
+			final boolean success = runScript(langParam, fileParam, argsParam, exprParam);
+			if (success) {
+				return;
+			}
 		}
 		env.chat.err("Syntax error:§r\n\t" + input);
 	}
-	
-	private boolean runScript(String language, String filename, String argsList, String source) {
+
+	private boolean runScript(final String language, final String filename, final String argsList, final String source) {
 		if (source != null) {
 			env.runScript(source, language, null);
 			return true;

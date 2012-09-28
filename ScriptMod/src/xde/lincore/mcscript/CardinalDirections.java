@@ -8,30 +8,30 @@ public enum CardinalDirections {
 	West(Voxel.WEST),
 	Up(Voxel.UP),
 	Down(Voxel.DOWN);
-	
+
 	private Voxel move;
-	
-	private CardinalDirections(Voxel move) {
+
+	private CardinalDirections(final Voxel move) {
 		this.move = move;
 	}
-	
-	public static CardinalDirections get(String name) {
-		for (CardinalDirections d: values()) {
+
+	public static CardinalDirections get(final String name) {
+		for (final CardinalDirections d: values()) {
 			if (d.name().equalsIgnoreCase(name)) {
 				return d;
 			}
 		}
 		return null;
 	}
-	
+
 	public Voxel getVoxel() {
 		return move;
 	}
-	
+
 	public Vector3d getVector() {
 		return new Vector3d(move);
 	}
-	
+
 	public CardinalDirections turnLeft() {
 		switch (this) {
 			case North:
@@ -46,7 +46,7 @@ public enum CardinalDirections {
 				return null;
 		}
 	}
-	
+
 	public CardinalDirections turnRight() {
 		switch (this) {
 			case North:
@@ -61,7 +61,7 @@ public enum CardinalDirections {
 				return null;
 		}
 	}
-	
+
 	public CardinalDirections turnAround() {
 		switch (this) {
 			case North:
@@ -75,12 +75,12 @@ public enum CardinalDirections {
 			case Up:
 				return Down;
 			case Down:
-				return Up;				
+				return Up;
 			default:
 				return null;
 		}
 	}
-	
+
 	public boolean isHorizontal() {
 		return !(this == Up && this == Down);
 	}
