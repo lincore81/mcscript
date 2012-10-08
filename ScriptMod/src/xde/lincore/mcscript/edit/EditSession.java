@@ -3,19 +3,19 @@ package xde.lincore.mcscript.edit;
 import xde.lincore.mcscript.BoundingBox;
 import xde.lincore.mcscript.IBlock;
 import xde.lincore.mcscript.Voxel;
-import xde.lincore.mcscript.minecraft.WorldWrapper;
+import xde.lincore.mcscript.minecraft.WorldFacade;
 import xde.lincore.util.undo.IUndoHistory;
 
 public class EditSession implements IEditSession {
 	private final EditSessionController controller;
 	private BoundingBox bounds;
 	private WorldEdit worldEdit;
-	private final WorldWrapper world;
+	private final WorldFacade world;
 	private int blockLimit;
 	public static final int NO_BLOCK_LIMIT = -1;
 
 	protected EditSession(final String editor, final BoundingBox bounds,
-			final int blockLimit, final EditSessionController controller, final WorldWrapper world) {
+			final int blockLimit, final EditSessionController controller, final WorldFacade world) {
 
 		this.world = world;
 		this.controller = controller;
@@ -32,7 +32,7 @@ public class EditSession implements IEditSession {
 	@Override
 	public void setBlock(final Voxel position, final IBlock block) {
 		if (canSetBlock(position)) {
-			final IBlock oldBlock = world.getBlockData(position);
+			final IBlock oldBlock = world.getBlock(position);
 			worldEdit.add(new BlockEdit(oldBlock, block, position));
 		}
 	}

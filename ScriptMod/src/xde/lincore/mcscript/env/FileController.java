@@ -3,7 +3,6 @@ package xde.lincore.mcscript.env;
 import java.io.File;
 import java.io.IOException;
 
-import xde.lincore.mcscript.G;
 import xde.lincore.util.Config;
 
 public class FileController extends AbstractController {
@@ -17,7 +16,7 @@ public class FileController extends AbstractController {
 	}
 
 	public String getCurrentWorldDirName() {
-		return env.getServer().worldServers[0].getSaveHandler().getSaveDirectoryName();
+		return env.getScriptContext().server.getWorldDirectoryString();
 		//return env.getServer().theWorldServer[0].getSaveHandler().getSaveDirectoryName();
 		//return getUser().worldObj.getSaveHandler().getSaveDirectoryName();
 	}

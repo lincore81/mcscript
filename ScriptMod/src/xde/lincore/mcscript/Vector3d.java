@@ -1,11 +1,10 @@
 package xde.lincore.mcscript;
 
-import net.minecraft.src.MathHelper;
-import net.minecraft.src.Vec3;
+import xde.lincore.mcscript.math.RoundingMethod;
 
 public final class Vector3d implements Comparable<Vector3d>{
 
-	public double x, y, z;
+	public final double x, y, z;
 
 	public static final Vector3d ZERO 			= new Vector3d( 0d,  0d,  0d);
 	public static final Vector3d UP 			= new Vector3d( 0d,  1d,  0d);
@@ -70,9 +69,9 @@ public final class Vector3d implements Comparable<Vector3d>{
 
 	public Vector3d floor() {
 		return new Vector3d(
-				MathHelper.floor_double(x),
-				MathHelper.floor_double(y),
-				MathHelper.floor_double(z));
+				RoundingMethod.Floor.round(x),
+				RoundingMethod.Floor.round(y),
+				RoundingMethod.Floor.round(z));
 	}
 
 
@@ -201,16 +200,16 @@ public final class Vector3d implements Comparable<Vector3d>{
 
 	@Override
 	public String toString() {
-		return String.format("(%.2f, %.2f, %.2f)", x, y, z);
+		return String.format("(%.3f, %.3f, %.3f)", x, y, z);
 	}
 
-	public Vec3 toVec3() {
-		return Vec3.createVectorHelper(x, y, z);
-	}
-
-	public static Vector3d fromVec3(final Vec3 v) {
-		return new Vector3d(v.xCoord, v.yCoord, v.zCoord);
-	}
+//	public Vec3 toVec3() {
+//		return Vec3.createVectorHelper(x, y, z);
+//	}
+//
+//	public static Vector3d fromVec3(final Vec3 v) {
+//		return new Vector3d(v.xCoord, v.yCoord, v.zCoord);
+//	}
 
 	public Voxel toVoxel() {
 		return new Voxel(this);
@@ -222,19 +221,9 @@ public final class Vector3d implements Comparable<Vector3d>{
 	}
 
 	public Vector3d round(final RoundingMethod roundingMethod) {
-		if (roundingMethod == null) throw new NullPointerException(
-				"argument 'roundingMethod' must not be null.");
-		switch (roundingMethod) {
-			case Round:
-				return new Vector3d(Math.round(x), Math.round(y), Math.round(z));
-			case Floor:
-				return new Vector3d(Math.floor(x), Math.floor(y), Math.floor(z));
-			case Ceil:
-				return new Vector3d(Math.ceil(x), Math.ceil(y), Math.ceil(z));
-			case CastInt:
-				return new Vector3d((int)x, (int)y, (int)z);
-			default:
-				throw new IllegalArgumentException("Invalid argument: " + roundingMethod);
-		}
+		return new Vector3d(
+				roundingMethod.round(x),
+				roundingMethod.round(y),
+				roundingMethod.round(z));
 	}
 }

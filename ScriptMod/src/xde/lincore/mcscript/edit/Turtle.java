@@ -1,7 +1,7 @@
 package xde.lincore.mcscript.edit;
 
 import xde.lincore.mcscript.Blocks;
-import xde.lincore.mcscript.CardinalDirections;
+import xde.lincore.mcscript.Directions;
 import xde.lincore.mcscript.IBlock;
 import xde.lincore.mcscript.Voxel;
 import xde.lincore.mcscript.edit.turtlespeak.SimpleTurtleDialect;
@@ -15,23 +15,23 @@ public class Turtle implements ITurtle {
 	private Voxel 					initialPosition;
 	private Voxel 					currentPosition;
 	private boolean 				isPenDown;
-	private CardinalDirections 		direction;
-	private final CardinalDirections 		lastHorizDirection;
+	private Directions 				direction;
+	private final Directions 		lastHorizDirection;
 
 	private TurtleSpeakParser parser;
 	private SimpleTurtleDialect dialect;
 
 
-	public Turtle(final Voxel position, final IBlock block, final CardinalDirections direction) {
+	public Turtle(final Voxel position, final IBlock block, final Directions direction) {
 		this.block = block;
 		setBlockPosition(position);
 		this.direction = direction;
-		lastHorizDirection = (direction.isHorizontal())? direction : CardinalDirections.North;
+		lastHorizDirection = (direction.isHorizontal())? direction : Directions.North;
 		penDown();
 	}
 
 	public Turtle(final Voxel position) {
-		this(position, Blocks.Stone, CardinalDirections.North);
+		this(position, Blocks.Stone, Directions.North);
 	}
 
 
@@ -47,7 +47,7 @@ public class Turtle implements ITurtle {
 
 
 	public Turtle down() {
-		look(CardinalDirections.Down);
+		look(Directions.Down);
 		return this;
 	}
 
@@ -64,7 +64,7 @@ public class Turtle implements ITurtle {
 		return block;
 	}
 
-	public CardinalDirections getDirection() {
+	public Directions getDirection() {
 		return direction;
 	}
 
@@ -124,7 +124,7 @@ public class Turtle implements ITurtle {
 		return this;
 	}
 
-	public Turtle look(final CardinalDirections direction) {
+	public Turtle look(final Directions direction) {
 		if (direction == null) {
 			throw new RuntimeException("Turtle: I can't look this way.");
 		}
@@ -142,7 +142,7 @@ public class Turtle implements ITurtle {
 	}
 
 	public Turtle look(final String direction) {
-		final CardinalDirections dir = CardinalDirections.get(direction);
+		final Directions dir = Directions.get(direction);
 		if (dir != null) {
 			look(dir);
 		}
@@ -166,7 +166,7 @@ public class Turtle implements ITurtle {
 	 */
 	@Override
 	public Turtle goDown(final int blocks) {
-		final CardinalDirections tmp = direction;
+		final Directions tmp = direction;
 		down().forward(blocks);
 		look(tmp);
 		return this;
@@ -214,7 +214,7 @@ public class Turtle implements ITurtle {
 	}
 
 	public Turtle raise() {
-		final CardinalDirections tmp = direction;
+		final Directions tmp = direction;
 		up().forward(1);
 		look(tmp);
 		return this;
@@ -225,7 +225,7 @@ public class Turtle implements ITurtle {
 	 */
 	@Override
 	public Turtle goUp(final int height) {
-		final CardinalDirections tmp = direction;
+		final Directions tmp = direction;
 		up().forward(height);
 		look(tmp);
 		return this;
@@ -280,13 +280,13 @@ public class Turtle implements ITurtle {
 	 */
 	@Override
 	public Turtle turnAround() {
-		look(direction.turnAround());
+		look(direction.invert());
 		return this;
 	}
 
 
 	public Turtle up() {
-		look(CardinalDirections.Up);
+		look(Directions.Up);
 		return this;
 	}
 
@@ -304,17 +304,17 @@ public class Turtle implements ITurtle {
 				editSession.setBlock(currentPosition, block);
 			}
 			if (forward) {
-				currentPosition = currentPosition.add(direction.getVoxel());
+				currentPosition = currentPosition.add(direction.toVoxel());
 			}
 			else {
-				currentPosition = currentPosition.sub(direction.getVoxel());
+				currentPosition = currentPosition.sub(direction.toVoxel());
 			}
 		}
 	}
 
 	private boolean isValidPosition(final Voxel position) {
 		final int worldHeight = ScriptEnvironment.getInstance().scripts.getScript().
-				getMinecraftWrapper().world.getMaxHeight();
+				getScriptContext().getWorld().getMaxHeight();
 		return !(position.x >= 30000000 || position.x <= -30000000 ||
 				 position.z >= 30000000 || position.z <= -30000000 ||
 				 position.y < 0 && position.y > worldHeight);

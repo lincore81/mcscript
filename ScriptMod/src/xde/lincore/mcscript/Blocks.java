@@ -1,9 +1,7 @@
 package xde.lincore.mcscript;
 
-import net.minecraft.src.Block;
-import net.minecraft.src.ItemStack;
 
-public enum Blocks implements IStackable, IBlock {
+public enum Blocks implements IBlock {
 	Air("Air", 0),
 	Stone("Stone", 1),
 	Grass("Grass", 2),
@@ -219,9 +217,9 @@ public enum Blocks implements IStackable, IBlock {
 		return findById(id, 0);
 	}
 
-	public static Blocks findById(final int id, final int damage) {
+	public static Blocks findById(final int id, final int meta) {
 		for (final Blocks b: Blocks.values()) {
-			if (b.id == id && b.meta == damage) {
+			if (b.id == id && b.meta == meta) {
 				return b;
 			}
 		}
@@ -248,39 +246,15 @@ public enum Blocks implements IStackable, IBlock {
 		return name;
 	}
 
-	@Override
-	public boolean hasMeta() {
-		return meta != 0;
-	}
-
-	@Override
-	public boolean hasNbtData() {
-		return false;
-	}
-
-	/**
-	 * Return the minecraft Block instance with this block id.
-	 * @return The Block instance with the id of this Blocks entry or null if that Block
-	 * doesn't exist. <br /><b>Don't forget:</b><code> Air (id=0)</code> is NOT a block.
-	 */
-	public net.minecraft.src.Block getMcBlock() {
-		final Block[] list = Block.blocksList;
-		if (id == 0) {
-			return null;
-		}
-		else if (id < 0 || id >= list.length) {
-			throw new RuntimeException("[Blocks.getMcBlock()] Block id is out of range: " +
-					toString() + "\nThis shouldn't happen. Please report this error.");
-		}
-		else {
-			return list[id];
-		}
-	}
-
-	@Override
-	public ItemStack getItemStack(final int quantity) {
-		return new ItemStack(getMcBlock(), quantity, meta);
-	}
+//	@Override
+//	public boolean hasMeta() {
+//		return meta != 0;
+//	}
+//
+//	@Override
+//	public boolean hasNbtData() {
+//		return false;
+//	}
 
 	@Override
 	public String toString() {
@@ -290,5 +264,9 @@ public enum Blocks implements IStackable, IBlock {
 		else {
 			return String.format("%s (%2d)", name, id);
 		}
+	}	
+	
+	public boolean equals(IBlock block) {		
+		return this.getId() == block.getId() && this.getMeta() == block.getMeta();
 	}
 }

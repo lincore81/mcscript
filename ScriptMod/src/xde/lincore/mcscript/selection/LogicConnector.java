@@ -3,8 +3,8 @@ package xde.lincore.mcscript.selection;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import xde.lincore.mcscript.G;
 import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.env.G;
 
 
 

@@ -4,7 +4,6 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 
-import net.minecraft.server.MinecraftServer;
 import xde.lincore.mcscript.env.ScriptEnvironment;
 
 public final class McChatLogHandler extends Handler {
@@ -35,7 +34,7 @@ public final class McChatLogHandler extends Handler {
 		}
 
 		final String msg = getFormatter().format(record);
-		if (isServerRunning()) {
+		if (env.isConnected()) {
 			env.chat.echo(msg);
 			System.out.println(msg);
 		}
@@ -43,9 +42,4 @@ public final class McChatLogHandler extends Handler {
 			System.out.println(msg);
 		}
 	}
-
-	private boolean isServerRunning() {
-		return MinecraftServer.getServer() != null && !MinecraftServer.getServer().isDemo();
-	}
-
 }

@@ -3,8 +3,6 @@ package xde.lincore.mcscript.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.src.KeyBinding;
-
 import org.lwjgl.input.Keyboard;
 
 import xde.lincore.util.StringTools;
@@ -128,9 +126,9 @@ public enum Keys {
 	KeyZ(Keyboard.KEY_Z, "Z"),
 	;
 
-	private int keycode;
-	private String name;
-	private String regex;
+	final public int keycode;
+	final public String name;
+	final private String regex;
 
 	private Keys(final int keycode, final String name) {
 		this(keycode, name, null);
@@ -142,6 +140,9 @@ public enum Keys {
 		if (regex != null) {
 			this.regex = "(?i)" + regex;
 		}
+		else {
+			this.regex = "";
+		}
 	}
 
 	public static List<Keys> apropos(final String str) {
@@ -152,14 +153,13 @@ public enum Keys {
 			if (!match && k.regex != null) {
 				match = str.matches(k.regex);
 			}
-			if (match) {
-				result.add(k);
-			}
+			if (match) result.add(k);
 		}
 		return result;
 	}
 
 	public static Keys find(final String name) {
+		if (name == null) throw new IllegalArgumentException();
 		if (name.matches("#[0-9A-Fa-f]+")) {
 			final String codeStr = name.substring(1);
 			System.out.println(codeStr);
@@ -194,39 +194,11 @@ public enum Keys {
 		}
 		return result.toString();
 	}
-
-	public KeyBinding bind(final String description) {
-		return new KeyBinding(description, keycode);
-	}
-
-	public KeyBinding unbind() {
-		final KeyBinding b = getKeyBinding();
-		if (b == null) {
-			return null;
-		} else {
-			KeyBinding.keybindArray.remove(b);
-			return (KeyBinding)(KeyBinding.hash.removeObject(keycode));
-		}
-	}
-
-	public boolean isBound() {
-		return getKeyBinding() != null;
-	}
-
-	public KeyBinding getKeyBinding() {
-		return (KeyBinding)(KeyBinding.hash.lookup(keycode));
-	}
-
-	public String getName() {
-		return name;
-	}
+	
 
 	@Override
 	public String toString() {
 		return "0x" + Integer.toHexString(keycode).toUpperCase() + ": " + name;
 	}
 
-	public int getKeycode() {
-		return keycode;
-	}
 }

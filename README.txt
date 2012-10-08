@@ -6,13 +6,14 @@ ABOUT:
 mcscript is a mod that adds scripting support to Minecraft. Any JSR-223 compliant
 scripting engine can be used by putting it's jar-file into the ./minecraft/bin directory.
 
-If you use Oracle's JVM (unless you know what that means you most certainly do) there is
-already built-in support for JavaScript/ECMAScript 1.6.
+If you use Oracle's HotSpot JVM (unless you know what that means you almost certainly do) there is
+already built-in support for JavaScript/ECMAScript 1.6. If you are using a different JVM you might
+want to check the documentation.
 
 Languages/Engines tested so far:
-- JavaScript/ECMAScript 1.6 / Mozilla Rhino
-- Python / jython
-- Lua / luaj
+- JavaScript (ECMAScript) 1.6 / Mozilla Rhino
+- Python / jython 2.5.3
+- Lua 5.1 / luaj 2.0.2
 
 
 DOWNLOAD:
@@ -42,6 +43,10 @@ There is none at the moment, sorry.
 
 FEEDBACK:
 Yes, please!
+
+
+BUG REPORTS & FEATURE REQUESTS:
+https://github.com/lincore81/mcscript/issues
 
 
 CONTACT:

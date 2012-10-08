@@ -1,6 +1,8 @@
 package xde.lincore.mcscript.env;
 
-import xde.lincore.mcscript.minecraft.ScriptError;
+import xde.lincore.mcscript.spi.ScriptError;
+
+
 
 public class ScriptRunner implements Runnable {
 

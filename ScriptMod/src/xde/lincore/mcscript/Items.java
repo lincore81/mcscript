@@ -1,9 +1,6 @@
 package xde.lincore.mcscript;
 
-import net.minecraft.src.Item;
-import net.minecraft.src.ItemStack;
-
-public enum Items implements IStackable {
+public enum Items implements IItem {
 	Apple("Apple", 260, "food|fruit(s)?"),
 	Arrow("Arrow", 262, 0, "ammo", "amm(o|unition)"),
 	BakedPotato("Baked Potato", 393, "food|vegetable(s)?|baked"),
@@ -249,29 +246,18 @@ public enum Items implements IStackable {
 		return null;
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public int getMeta() {
 		return meta;
 	}
 
+	@Override
 	public String getName() {
 		return name;
-	}
-
-	@Override
-	public ItemStack getItemStack(final int quantity) {
-		return new ItemStack(getMcItem(), quantity, meta);
-	}
-
-	public int getMaxStackSize() {
-		return getMcItem().getItemStackLimit();
-	}
-
-	public Item getMcItem() {
-		assert id >= 0 && id < Item.itemsList.length : "id is out of bounds!";
-		return Item.itemsList[id];
 	}
 }

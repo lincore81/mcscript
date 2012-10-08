@@ -44,13 +44,23 @@ public class ScriptArguments {
 		}
 	}
 
-	public double getNumber(final String key) {
+	public Double getNumber(final String key) {
 		final String value = findMatch(key);
 		if (value != null) {
 			return StringTools.getNumber(value);
 		}
-		else {
-			return Double.NaN;
+		else {			
+			return null;
+		}
+	}
+	
+	public Integer getInteger(final String key) {
+		final String value = findMatch(key);
+		if (value != null) {
+			return StringTools.getInteger(value);
+		}
+		else {			
+			return null;
 		}
 	}
 

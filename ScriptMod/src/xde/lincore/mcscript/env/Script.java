@@ -14,10 +14,9 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import xde.lincore.mcscript.G;
 import xde.lincore.mcscript.edit.EditSessionController;
 import xde.lincore.mcscript.edit.IEditSession;
-import xde.lincore.mcscript.minecraft.MinecraftWrapper;
+import xde.lincore.mcscript.spi.McScriptContext;
 import xde.lincore.util.Config;
 import xde.lincore.util.Text;
 
@@ -38,7 +37,7 @@ public final class Script {
 
 	private ScriptRunner runner;
 
-	private final MinecraftWrapper mcWrapper;
+	private final McScriptContext scriptContext;
 
 	private IEditSession editSession;
 
@@ -52,13 +51,14 @@ public final class Script {
 
 
 
-	public Script(final String source, final File file, final ScriptEngine engine, final ScriptArguments arguments,
-			final ScriptGlobals globals, final MinecraftWrapper mcWrapper, final EditSessionController editController) {
+	public Script(final String source, final File file, final ScriptEngine engine,
+			final ScriptArguments arguments, final ScriptGlobals globals,
+			final McScriptContext scriptContext, final EditSessionController editController) {
 		this.source 	= source;
 		this.file 		= file;
 		this.engine 	= engine;
 		this.arguments 	= arguments;
-		this.mcWrapper  = mcWrapper;
+		this.scriptContext = scriptContext;
 		this.globals 	= globals;
 		this.editController = editController;
 	}
@@ -82,11 +82,11 @@ public final class Script {
 	}
 
 	public void eval() throws ScriptException {
-		editSession = editController.checkOut(getEditorString(), mcWrapper.world);
+		editSession = editController.checkOut(getEditorString(), scriptContext.getWorld());
 		if (bindings == null) {
 			bindings = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
 		}
-		bindings.put("mc",	    mcWrapper);
+		bindings.put("mc",	    scriptContext);
 		bindings.put("args", 	arguments);
 		bindings.put("edit", 	editSession);
 		bindings.put("globals", globals);
@@ -123,8 +123,8 @@ public final class Script {
 		return file.getName();
 	}
 
-	public MinecraftWrapper getMinecraftWrapper() {
-		return mcWrapper;
+	public McScriptContext getScriptContext() {
+		return scriptContext;
 	}
 
 	public Object getReturnValue() {

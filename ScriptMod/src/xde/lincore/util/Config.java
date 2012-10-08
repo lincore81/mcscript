@@ -12,7 +12,7 @@ import java.util.Properties;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import xde.lincore.mcscript.G;
+import xde.lincore.mcscript.env.G;
 
 
 

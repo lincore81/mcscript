@@ -3,7 +3,7 @@ package xde.lincore.mcscript.edit;
 import java.util.HashSet;
 import java.util.Set;
 
-import xde.lincore.mcscript.minecraft.WorldWrapper;
+import xde.lincore.mcscript.minecraft.WorldFacade;
 import xde.lincore.util.undo.Undoable;
 
 /**
@@ -16,9 +16,9 @@ class WorldEdit implements Undoable {
 	private Set<BlockEdit> blocks;
 	private String description;
 	private final String editor;
-	private final WorldWrapper world;
+	private final WorldFacade world;
 
-	public WorldEdit(final String editor, final WorldWrapper world) {
+	public WorldEdit(final String editor, final WorldFacade world) {
 		this.editor = editor;
 		blocks = new HashSet<BlockEdit>();
 		this.world = world;
@@ -104,7 +104,7 @@ class WorldEdit implements Undoable {
 		this.description = description;
 	}
 	
-	public WorldWrapper getWorld() {
+	public WorldFacade getWorld() {
 		return world;
 	}
 

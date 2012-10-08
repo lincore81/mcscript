@@ -1,21 +1,12 @@
 package xde.lincore.mcscript;
 
-import net.minecraft.src.ItemStack;
-import net.minecraft.src.TileEntity;
-
-public class BlockData implements IStackable, IBlock{
+public class BlockData implements IBlock {
 	private int id;
 	private int meta;
-	private TileEntity entity;
 
-	public BlockData(final int id, final int data, final TileEntity entity) {
-		this(id, data);
-		this.entity = entity;
-	}
-
-	public BlockData(final int id, final int data) {
+	public BlockData(final int id, final int meta) {
 		this.id = id;
-		meta = data;
+		this.meta = meta;
 	}
 
 	public BlockData(final int id) {
@@ -25,10 +16,6 @@ public class BlockData implements IStackable, IBlock{
 	@Override
 	public int getId() {
 		return id;
-	}
-
-	public boolean hasTileEntity() {
-		return entity != null;
 	}
 
 	public boolean isAir() {
@@ -55,27 +42,18 @@ public class BlockData implements IStackable, IBlock{
 
 	@Override
 	public String getName() {
-		final Blocks b = Blocks.findById(id);
-		assert b != null;
-		return b.getName();
+		final Blocks b = Blocks.findById(id, meta);
+		return (b != null) ? b.getName() : "null";
 	}
 
-	@Override
-	public boolean hasMeta() {
-		return meta != 0;
-	}
-
-	@Override
-	public boolean hasNbtData() {
-		// TODO Implement BlockData.hasNbtData
-		return false;
-	}
-
-	@Override
-	public ItemStack getItemStack(final int quantity) {
-		// TODO Expand BlockData.getItemStack to consider meta data
-		final Blocks b = Blocks.findById(id);
-		assert b != null;
-		return b.getItemStack(quantity);
-	}
+//	@Override
+//	public boolean hasMeta() {
+//		return meta != 0;
+//	}
+//
+//	@Override
+//	public boolean hasNbtData() {
+//		// TODO Implement BlockData.hasNbtData
+//		return false;
+//	}
 }

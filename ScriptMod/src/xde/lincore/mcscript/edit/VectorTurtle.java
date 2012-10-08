@@ -1,7 +1,6 @@
 package xde.lincore.mcscript.edit;
 
 import xde.lincore.mcscript.Blocks;
-import xde.lincore.mcscript.RoundingMethod;
 import xde.lincore.mcscript.Vector3d;
 import xde.lincore.mcscript.Voxel;
 import xde.lincore.mcscript.edit.turtlespeak.ITurtleDialect;
@@ -9,6 +8,7 @@ import xde.lincore.mcscript.edit.turtlespeak.SyntaxError;
 import xde.lincore.mcscript.edit.turtlespeak.TurtleSpeakParser;
 import xde.lincore.mcscript.edit.turtlespeak.VectorTurtleDialect;
 import xde.lincore.mcscript.env.ScriptEnvironment;
+import xde.lincore.mcscript.math.RoundingMethod;
 
 public class VectorTurtle {
 

@@ -8,7 +8,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
-import xde.lincore.mcscript.G;
+import xde.lincore.util.Config;
 
 public final class EngineController {
 	public static final String DEFAULT_ENGINE = null;
@@ -24,10 +24,12 @@ public final class EngineController {
 
 	public void reset() {
 		manager = new ScriptEngineManager();
-		defaultEngine = manager.getEngineByName(G.DEFAULT_SCRIPT_ENGINE);
+		String defaultEngineProperty = Config.get(G.CFG_MAIN, G.PROP_DEFAULT_ENGINE);
+		assert defaultEngineProperty != null : "IAmStupidException: defaultEngineProperty is null!";
+		defaultEngine = manager.getEngineByName(defaultEngineProperty);
 		if (defaultEngine == null) {
 			throw new RuntimeException("Could not find the default scripting engine \"" +
-					G.DEFAULT_SCRIPT_ENGINE + "\".");
+					defaultEngineProperty + "\".");
 		}
 		currentEngine = defaultEngine;
 		enginePool = new HashMap<String, ScriptEngine>();

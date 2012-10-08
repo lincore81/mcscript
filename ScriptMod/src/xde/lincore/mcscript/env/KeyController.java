@@ -1,43 +1,19 @@
 package xde.lincore.mcscript.env;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.src.CommandHandler;
-import net.minecraft.src.ICommandSender;
-import net.minecraft.src.KeyBinding;
-import xde.lincore.mcscript.G;
+import xde.lincore.mcscript.minecraft.IActionListener;
+import xde.lincore.mcscript.minecraft.InputFacade;
 import xde.lincore.mcscript.ui.Keys;
 import xde.lincore.util.Config;
 
-public class KeyController extends AbstractController {
+public class KeyController extends AbstractController implements IActionListener {
 
-	private final Map<KeyBinding, String> bindings;
-	public static final String[] GAME_KEYS;
-
-	static {
-		GAME_KEYS = new String[] {
-				"key.attack",
-				"key.use",
-				"key.forward",
-				"key.left",
-				"key.back",
-				"key.right",
-				"key.jump",
-				"key.sneak",
-				"key.drop",
-				"key.inventory",
-				"key.chat",
-				"key.playerlist",
-				"key.pickItem",
-				"key.command"
-		};
-	}
-
+	InputFacade input;
+	
 	public KeyController(final ScriptEnvironment env) {
 		super(env);
-		bindings = new HashMap<KeyBinding, String>();
+		input = new InputFacade(this);
 		loadConfig();
 	}
 
@@ -46,14 +22,16 @@ public class KeyController extends AbstractController {
 		for (final Map.Entry e: Config.getMap(G.CFG_KEYS).entrySet()) {
 			boolean success = true;
 			final Keys key = Keys.find((String)(e.getKey()));
-			final KeyBinding binding = key.getKeyBinding();
-			if (binding == null && !isGameKey(binding)) {
-				success = setKey((String)(e.getKey()), (String)(e.getValue()));
-			} else {
-				bindings.put(binding, (String)(e.getValue()));
+			if (input.isGameKey(key)) {
+				G.LOG.warning("Config contains game key: " + key.toString());
+				continue;
 			}
-			if (!success) {
-				G.LOG.warning("Unable to bind key " + key + " to action " + e.getValue());
+			try {
+				input.setKey(key, (String)e.getValue());
+			}
+			catch (IllegalArgumentException ex) {
+				G.LOG.warning("Bad property in config: " + e.getKey().toString() + " = " + e.getValue().toString());
+				continue;
 			}
 		}
 	}
@@ -62,95 +40,47 @@ public class KeyController extends AbstractController {
 		Config.save(G.CFG_KEYS);
 	}
 
-	public boolean isGameKey(final String keyStr) {
-		final Keys key = Keys.find(keyStr);
-		if (key == null || !key.isBound()) {
-			return false;
-		}
-		return isGameKey(key.getKeyBinding());
+	public boolean setKey(final String keyString, final String action) {
+		Keys key = Keys.find(keyString);
+		if (key == null) return false;
+		input.setKey(key, action);
+		Config.set(G.CFG_KEYS, key.name, action);
+		return true;
+	}
+	
+	public boolean isGameKey(final String keyString) {
+		Keys key = Keys.find(keyString);
+		return input.isGameKey(key);
+	}
+	
+	public boolean removeKey(final String keyString) {
+		Keys key = Keys.find(keyString);
+		if (key == null) return false;
+		input.removeKey(key);
+		Config.remove(G.CFG_KEYS, key.name);
+		return true;
 	}
 
-	public boolean isGameKey(final KeyBinding binding) {
-		if (binding == null) {
-			return false;
-		}
-		for (final String desc: GAME_KEYS) {
-			if (desc.equals(binding.keyDescription)) {
-				return true;
-			}
-		}
-		final int keycode = binding.keyCode;
-		if (keycode >= Keys.Key1.getKeycode() && keycode <= Keys.Key9.getKeycode()) {
-			return true;
-		}
-		return false;
+	
+	public String getAction(final Keys key) {
+		return input.getAction(key);
 	}
 
-	public boolean setKey(final String keyStr, final String action) {
-		final Keys key = Keys.find(keyStr);
-		if (key == null || action == null || action.isEmpty()) {
-			return false;
-		} else {
-			if (key.isBound()) {
-				final KeyBinding b = key.unbind();
-				bindings.remove(b);
-			}
-			final KeyBinding binding = key.bind(action);
-			bindings.put(binding, action);
-			Config.set(G.CFG_KEYS, key.getName(), action);
-			return true;
-		}
-	}
 
-	public boolean removeKey(final String keyStr) {
-		if (keyStr == null || keyStr.isEmpty()) {
-			return false;
-		}
-		final Keys key = Keys.find(keyStr);
-		if (key != null) {
-			final KeyBinding b = key.unbind();
-			bindings.remove(b);
-			Config.remove(G.CFG_KEYS, key.getName());
-			return true;
-		} else {
-			return false;
-		}
-	}
 
 	public void update() {
-		for (final Map.Entry<KeyBinding, String> b: bindings.entrySet()) {
-			if (b.getKey().isPressed()) {
-				onAction(b.getValue());
-			}
-		}
+		input.update();
 	}
 
+	@Override
 	public void onAction(final String action) {
-		final ICommandSender sender = env.getUser();
 		if (action.startsWith("/")) {
-			CommandHandler handler;
-			if (MinecraftServer.getServer().getCommandManager() instanceof CommandHandler) {
-				handler = (CommandHandler)(MinecraftServer.getServer().getCommandManager());
-			}
-			else {
-				env.chat.err("An unexpected error has occured, I can't run the command, sorry.");
-				G.LOG.warning("Command manager is not an instance of CommandHandler, dunno what to do!");
-				return;
-			}
-			handler.executeCommand(sender, action);
+			env.commands.doCommand(env.getPlayer(), action);
 		}
 		else {
-			final String[] newargs = action.split(" ");
-			System.out.println(action);
-			env.modInst.getRunCommand().processCommand(sender, newargs);
+			env.commands.doRunCommand(env.getPlayer(), action);
 		}
 	}
 
-	public String getAction(final Keys key) {
-		if (key.isBound()) {
-			return bindings.get(key.getKeyBinding());
-		} else {
-			return null;
-		}
-	}
+	
 }

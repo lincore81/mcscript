@@ -1,11 +1,11 @@
 package xde.lincore.mcscript;
 
-import net.minecraft.src.MathHelper;
-import net.minecraft.src.Vec3;
+
+import xde.lincore.mcscript.math.RoundingMethod;
 
 public final class Voxel implements Comparable<Voxel>{
 
-	public int x, y, z;
+	public final int x, y, z;
 
 	public static final Voxel ZERO 			= new Voxel( 0,  0,  0);
 	public static final Voxel UP 			= new Voxel( 0,  1,  0);
@@ -29,9 +29,10 @@ public final class Voxel implements Comparable<Voxel>{
 	}
 
 	public Voxel(final Vector3d vec) {
-		x = MathHelper.floor_double(vec.x);
-		y = MathHelper.floor_double(vec.y);
-		z = MathHelper.floor_double(vec.z);
+		RoundingMethod rm = RoundingMethod.Floor;
+		x = rm.round(vec.x);
+		y = rm.round(vec.y);
+		z = rm.round(vec.z);
 	}
 	
 	public Voxel(final Vector3d vec, final RoundingMethod roundingMethod) {
@@ -43,7 +44,7 @@ public final class Voxel implements Comparable<Voxel>{
 		z = (int)vec_.z;
 	}
 
-	public Voxel() {}
+	public Voxel() {x = 0; y = 0; z = 0;}
 
 	@Override
 	public Voxel clone() {
@@ -155,18 +156,6 @@ public final class Voxel implements Comparable<Voxel>{
 	public String toString() {
 		return String.format("(%d, %d, %d)", x, y, z);
 	}
-
-	protected Vec3 toVec3() {
-		return Vec3.createVectorHelper(x, y, z);
-	}
-
-	protected static Voxel fromVec3(final Vec3 v) {
-		return new Voxel(
-				MathHelper.floor_double(v.xCoord),
-				MathHelper.floor_double(v.yCoord),
-				MathHelper.floor_double(v.zCoord));
-	}
-
 
 	@Override
 	public int compareTo(final Voxel other) {

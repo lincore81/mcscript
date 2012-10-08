@@ -1,7 +1,9 @@
 package xde.lincore.mcscript;
 
-import net.minecraft.src.ItemStack;
-
-public interface IStackable {
-	public ItemStack getItemStack(int quantity);
+public interface IStackable extends ICollectable {
+	public int getAmount();
+	public void setAmount(int amount);
+	public void addAmount(int amount);
+	public boolean canMerge(IStackable other);
+	public IStackable merge(IStackable other);
 }

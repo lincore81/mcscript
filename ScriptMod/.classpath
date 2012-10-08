@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry combineaccessrules="false" kind="src" path="/Client"/>
-	<classpathentry excluding="xde/lincore/util/parse/" kind="src" path="src"/>
+	<classpathentry excluding="xde/lincore/util/parse/|xde/lincore/mcscript/spi/AbstractWrapper.java|xde/lincore/mcscript/spi/InventoryWrapper.java|xde/lincore/mcscript/spi/MinecraftWrapper.java|xde/lincore/mcscript/spi/TimeWrapper.java|xde/lincore/mcscript/spi/UserWrapper.java|xde/lincore/mcscript/spi/WorldWrapper.java" kind="src" path="src"/>
 	<classpathentry excluding="src/" kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>

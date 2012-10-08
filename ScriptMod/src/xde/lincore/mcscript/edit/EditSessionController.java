@@ -3,8 +3,7 @@ package xde.lincore.mcscript.edit;
 import java.util.ArrayDeque;
 
 import xde.lincore.mcscript.env.ScriptEnvironment;
-import xde.lincore.mcscript.minecraft.WorldWrapper;
-import xde.lincore.mcscript.ui.McChatLogHandler;
+import xde.lincore.mcscript.minecraft.WorldFacade;
 import xde.lincore.util.undo.UndoStack;
 
 public class EditSessionController extends UndoStack<WorldEdit> {
@@ -25,7 +24,7 @@ public class EditSessionController extends UndoStack<WorldEdit> {
 		}
 	}
 
-	public IEditSession checkOut(final String editor, final WorldWrapper world) {
+	public IEditSession checkOut(final String editor, final WorldFacade world) {
 		return new EditSession(editor, null, EditSession.NO_BLOCK_LIMIT, this, world);
 	}
 

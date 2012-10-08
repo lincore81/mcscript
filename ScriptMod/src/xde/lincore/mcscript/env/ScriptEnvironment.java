@@ -4,23 +4,24 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.ModLoader;
-import net.minecraft.src.mod_McScript;
 import xde.lincore.mcscript.edit.EditSessionController;
-import xde.lincore.mcscript.minecraft.MinecraftWrapper;
+import xde.lincore.mcscript.minecraft.Commands;
+import xde.lincore.mcscript.minecraft.LocalChatFacade;
+import xde.lincore.mcscript.minecraft.PlayerFacade;
+import xde.lincore.mcscript.minecraft.ServerFacade;
+import xde.lincore.mcscript.spi.McScriptContext;
+import xde.lincore.mcscript.ui.McChatLogHandler;
+import xde.lincore.util.Config;
 
 public final class ScriptEnvironment {
 
 	private static ScriptEnvironment instance;
-	private EntityPlayer currentUser;
-	private MinecraftWrapper mcWrapper;
+	private McScriptContext scriptContext;
 
 	private Bindings cuiBindings;
 	private Bindings fileBindings;
@@ -28,56 +29,61 @@ public final class ScriptEnvironment {
 	public final AliasController aliases;
 	public final FileController files;
 	public final KeyController keys;
-	public final ChatIoController chat;
+	public final LocalChatFacade chat;
 	public final IScriptController scripts;
 	public final EngineController engines;
+	public final Commands commands;
 
 	private final EditSessionController editSessionController;
 
 	//private ExecutorService executor;
-	public final mod_McScript modInst;
+	
 
 	private final ScriptGlobals globals;
 	private Exception lastScriptException;
 	private boolean isIngame;
+	private PlayerFacade player;
 
-	public static ScriptEnvironment createInstance(final mod_McScript modInst) {
+	public static ScriptEnvironment createInstance() {
 		if (instance != null) {
 			throw new IllegalStateException("Instance already exists!");
 		}
 		else {
-			instance = new ScriptEnvironment(modInst);
+			instance = new ScriptEnvironment();
 		}
 		return instance;
 	}
 
-	public static ScriptEnvironment getInstance() {		
+	public static ScriptEnvironment getInstance() {
 		return instance;
 	}
 
-	private ScriptEnvironment(final mod_McScript modInst) {
-		this.modInst 	= modInst;
-		editSessionController = new EditSessionController(this);
+	private ScriptEnvironment() {
+		if (G.DEBUG) G.LOG.setLevel(Level.ALL);
+		G.LOG.addHandler(new McChatLogHandler(this));
+		G.DIR_MOD.mkdirs();
+		G.DIR_SCRIPTS.mkdir();
+		G.DIR_CACHE.mkdir();
+		Config.createMap(G.CFG_MAIN, G.defaultProperties);
+		Config.load(G.CFG_MAIN);
 
 		//executor = Executors.newCachedThreadPool();
-
+		
+		commands = new Commands(this);
+		editSessionController = new EditSessionController(this);
 		scripts = new ThreadedScriptController(this);
-		chat 	= new ChatIoController(this);
+		chat 	= new LocalChatFacade();
 		files	= new FileController(this);
 		aliases = new AliasController(this);
 		keys 	= new KeyController(this);
 		globals = new ScriptGlobals();
 		engines = new EngineController();
+		
+		aliases.loadAliases();
 	}
 
 
-	public MinecraftServer getServer() {
-		return MinecraftServer.getServer();
-	}
-
-	public EntityPlayer getUser() {
-		return currentUser;
-	}
+	
 
 	public Bindings getCuiBindings() {
 		return cuiBindings;
@@ -98,8 +104,10 @@ public final class ScriptEnvironment {
 	public EditSessionController getEditSessionController() {
 		return editSessionController;
 	}
-
-
+	
+	public McScriptContext getScriptContext() {
+		return scriptContext;
+	}
 
 	public void runScriptFile(final String fileName, final String engineName, final Map<String, String> args)
 			throws FileNotFoundException, IOException {
@@ -108,8 +116,8 @@ public final class ScriptEnvironment {
 		final File file = files.resolvePath(fileName);
 		files.assertIsValidFile(file);
 
-		final Script script = new Script(Script.NO_SOURCE, file, engine, new ScriptArguments(args),
-				globals, mcWrapper, editSessionController);
+		final Script script = new Script(Script.NO_SOURCE, file, engine,
+				new ScriptArguments(args), globals, scriptContext, editSessionController);
 		script.load();
 		final ScriptRunner runner = new ScriptRunner(script, this);
 		runner.run();
@@ -119,7 +127,7 @@ public final class ScriptEnvironment {
 	public void runScript(final String source, final String engineName, final Map<String, String> args) {
 		final ScriptEngine engine = engines.getEngine(engineName);
 		final Script script = new Script(source, Script.NO_FILE, engine, new ScriptArguments(args),
-				globals, mcWrapper, editSessionController);
+				globals, scriptContext, editSessionController);
 		final ScriptRunner runner = new ScriptRunner(script, this);
 		runner.run();
 		//executor.execute(runner);
@@ -168,21 +176,29 @@ public final class ScriptEnvironment {
 		}
 		return false;
 	}
+	
+	public PlayerFacade getPlayer() {
+		return player;
+	}
 
+	public boolean isConnected() {
+		return isIngame;
+	}
 
-
-	public void onClientConnect() {
+	public void onConnect() {
 		isIngame = true;
-		aliases.loadAliases();
-		currentUser = Minecraft.getMinecraft().thePlayer;
-		mcWrapper = new MinecraftWrapper(this);
+		scriptContext = new McScriptContext(this);
+		commands.registerCommands(ServerFacade.getCurrentServer());
+		aliases.registerAliases();
+		player = PlayerFacade.getLocalPlayer();
 	}
 
 
-	public void onClientDisconnect() {
+	public void onDisconnect() {
 		isIngame = false;
-		currentUser = null;
-		mcWrapper = null;
+		commands.unregisterCommands();
+		player = null;
+		scriptContext = null;
 	}
 
 
