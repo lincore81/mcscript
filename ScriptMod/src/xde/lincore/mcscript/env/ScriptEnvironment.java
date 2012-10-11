@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
 import javax.script.Bindings;
@@ -11,6 +13,7 @@ import javax.script.ScriptEngine;
 
 import xde.lincore.mcscript.edit.EditSessionController;
 import xde.lincore.mcscript.minecraft.Commands;
+import xde.lincore.mcscript.minecraft.ILocalChatWriter;
 import xde.lincore.mcscript.minecraft.LocalChatFacade;
 import xde.lincore.mcscript.minecraft.PlayerFacade;
 import xde.lincore.mcscript.minecraft.ServerFacade;
@@ -29,19 +32,19 @@ public final class ScriptEnvironment {
 	public final AliasController aliases;
 	public final FileController files;
 	public final KeyController keys;
-	public final LocalChatFacade chat;
+	public final ILocalChatWriter chat;
 	public final IScriptController scripts;
 	public final EngineController engines;
 	public final Commands commands;
 
 	private final EditSessionController editSessionController;
 
-	//private ExecutorService executor;
-	
+	private ExecutorService executor;
 
 	private final ScriptGlobals globals;
-	private Exception lastScriptException;
+	private Throwable lastScriptException;
 	private boolean isIngame;
+	private final boolean multithreading;
 	private PlayerFacade player;
 
 	public static ScriptEnvironment createInstance() {
@@ -66,8 +69,10 @@ public final class ScriptEnvironment {
 		G.DIR_CACHE.mkdir();
 		Config.createMap(G.CFG_MAIN, G.defaultProperties);
 		Config.load(G.CFG_MAIN);
-
-		//executor = Executors.newCachedThreadPool();
+		multithreading = Config.getBoolean(G.CFG_MAIN, G.PROP_MULTI_THREADING);
+		if (multithreading) {
+			executor = Executors.newCachedThreadPool();
+		}
 		
 		commands = new Commands(this);
 		editSessionController = new EditSessionController(this);
@@ -112,36 +117,39 @@ public final class ScriptEnvironment {
 	public void runScriptFile(final String fileName, final String engineName, final Map<String, String> args)
 			throws FileNotFoundException, IOException {
 		final ScriptEngine engine = engines.getEngine(engineName);
-
 		final File file = files.resolvePath(fileName);
 		files.assertIsValidFile(file);
-
 		final Script script = new Script(Script.NO_SOURCE, file, engine,
 				new ScriptArguments(args), globals, scriptContext, editSessionController);
 		script.load();
-		final ScriptRunner runner = new ScriptRunner(script, this);
-		runner.run();
-		//executor.execute(runner);
+		startScriptRunner(script);
 	}
 
 	public void runScript(final String source, final String engineName, final Map<String, String> args) {
 		final ScriptEngine engine = engines.getEngine(engineName);
 		final Script script = new Script(source, Script.NO_FILE, engine, new ScriptArguments(args),
 				globals, scriptContext, editSessionController);
-		final ScriptRunner runner = new ScriptRunner(script, this);
-		runner.run();
-		//executor.execute(runner);
+		startScriptRunner(script);
 	}
 
+	private void startScriptRunner(final Script script) {
+		final ScriptRunner runner = new ScriptRunner(script, this);
+		if (multithreading) {
+			executor.execute(runner);
+		} else {
+			runner.run();
+		}
+	}
 
-
-
+	public boolean isMultithreaded() {
+		return multithreading;
+	}
 
 	public ScriptGlobals getGlobals() {
 		return globals;
 	}
 
-	public Exception getLastScriptException() {
+	public Throwable getLastScriptException() {
 		return lastScriptException;
 	}
 
@@ -159,7 +167,7 @@ public final class ScriptEnvironment {
 //	    }
 //	}
 
-	public void setLastScriptException(final Exception lastException) {
+	public void setLastScriptException(final Throwable lastException) {
 		lastScriptException = lastException;
 	}
 

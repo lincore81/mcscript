@@ -25,7 +25,7 @@ public enum Keywords {
 	Reset		("reset"),
 	Save		("save"),
 	Set			("set"),
-	Threads		("threads"),
+	Scripts		("scripts|sc"),
 	NoMatch		(""),
 	;
 	private String regex;

@@ -21,7 +21,7 @@ public final class StringTools {
 	public static Integer getInteger(final String string) {
 		Integer result = null;
 		try {
-			if (string.trim().matches("[+-]?(0[xX])?[0-9A-Fa-f]+")) {
+			if (string.trim().matches("[+-]?(0[xX])[0-9A-Fa-f]+")) {
 				final String hexstring = string.replaceFirst("0[xX]", "");
 				result = Integer.valueOf(hexstring, 16);
 			}

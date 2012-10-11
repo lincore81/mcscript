@@ -64,6 +64,10 @@ public final class Config {
 	public static String get(final String propertiesName, final String key) {
 		return properties.get(propertiesName).getProperty(key);
 	}
+	
+	public static boolean getBoolean(final String mapName, final String key) {
+		return StringTools.getBoolean(get(mapName, key));
+	}
 
 	public static boolean remove(final String map, final String key) {
 		return properties.get(map).remove(key) != null;

@@ -3,14 +3,14 @@ package xde.lincore.mcscript.spi;
 /**
  * This exception is thrown when a script explicitly ends by calling "exit".
  */
-public class ScriptEnd extends RuntimeException {
+public class ExplicitScriptExit extends RuntimeException {
 	private final Object exitValue;
 		
-	public ScriptEnd() {
+	public ExplicitScriptExit() {
 		exitValue = null;
 	}
 	
-	public ScriptEnd(final Object exitValue) {
+	public ExplicitScriptExit(final Object exitValue) {
 		this.exitValue = exitValue;
 	}
 	

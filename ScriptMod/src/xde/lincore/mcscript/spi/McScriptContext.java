@@ -10,6 +10,7 @@ import xde.lincore.mcscript.Items;
 import xde.lincore.mcscript.env.G;
 import xde.lincore.mcscript.env.Script;
 import xde.lincore.mcscript.env.ScriptEnvironment;
+import xde.lincore.mcscript.minecraft.ILocalChatWriter;
 import xde.lincore.mcscript.minecraft.LocalChatFacade;
 import xde.lincore.mcscript.minecraft.PlayerFacade;
 import xde.lincore.mcscript.minecraft.ServerFacade;
@@ -17,19 +18,19 @@ import xde.lincore.mcscript.minecraft.WorldFacade;
 import xde.lincore.util.Config;
 import xde.lincore.util.Text;
 
-public class McScriptContext extends LocalChatFacade {
+public class McScriptContext implements ILocalChatWriter {
 	
 	private final ScriptEnvironment env;
 	
 	public final PlayerFacade 	player;
 	public final ServerFacade 	server;
-	//public final LocalChatFacade chat;
+	public final LocalChatFacade chat;
 	
 	public McScriptContext(final ScriptEnvironment env) {
 		this.env = env;
 		this.server = ServerFacade.getCurrentServer();
 		this.player = PlayerFacade.getLocalPlayer();
-		//this.chat = new LocalChatFacade();
+		this.chat = new LocalChatFacade();
 	}
 	
 	public WorldFacade getWorld() {
@@ -42,11 +43,11 @@ public class McScriptContext extends LocalChatFacade {
 	}
 	
 	public void exit(final Object value) {
-		throw new ScriptEnd(value);
+		throw new ExplicitScriptExit(value);
 	}
 	
 	public void exit() {
-		throw new ScriptEnd();
+		throw new ExplicitScriptExit();
 	}
 	
 	
@@ -59,12 +60,12 @@ public class McScriptContext extends LocalChatFacade {
 	}
 	
 	
-	public Exception getLastException() {
+	public Throwable getLastException() {
 		return env.getLastScriptException();
 	}
 	
 	public StackTraceElement[] getStackTrace() {
-		final Exception e = env.getLastScriptException();
+		final Throwable e = env.getLastScriptException();
 	
 		if (e != null) {
 			return e.getStackTrace();
@@ -120,7 +121,24 @@ public class McScriptContext extends LocalChatFacade {
 		try {
 			Thread.sleep(milliseconds);
 		} catch (final InterruptedException e) {
-			e.printStackTrace();
+			throw new ScriptInterruptedException(e);
 		}
+	}
+
+	@Override
+	public void echo(final Object obj) {
+		chat.echo(obj);
+		
+	}
+
+	@Override
+	public void err(final Object obj) {
+		chat.err(obj);
+		
+	}
+
+	@Override
+	public void format(final String format, final Object... args) {
+		chat.format(format, args);
 	}
 }

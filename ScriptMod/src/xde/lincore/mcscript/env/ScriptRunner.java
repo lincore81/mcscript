@@ -1,6 +1,9 @@
 package xde.lincore.mcscript.env;
 
+import javax.script.ScriptException;
+
 import xde.lincore.mcscript.spi.ScriptError;
+import xde.lincore.mcscript.spi.ScriptInterruptedException;
 
 
 
@@ -19,29 +22,49 @@ public class ScriptRunner implements Runnable {
 
 	@Override
 	public void run() {
-		script.setBindings(script.isScriptFile() ? env.getFileBindings() : env.getCuiBindings());
-		env.scripts.registerScript(script);
+		preExecution();
 		try {
-			if (script.isScriptFile()) {
-				script.compile();
-			}
-			script.eval();
-			if (script.isScriptFile()) {
-				env.setFileBindings(script.getBindings());
-			} else {
-				env.setCuiBindings(script.getBindings());
+			try {
+				if (script.isScriptFile()) {
+					script.compile();
+				}
+				script.eval();
+				postExecution();
+			} catch (final ScriptException e) {
+				if (e.getCause() != null) {
+					throw e.getCause();
+				} else {
+					throw e;
+				}
 			}
 		} catch (final ScriptError e) {
-			env.chat.err("Error: " + e.getMessage());
-		} catch (final Exception e) {
+			env.chat.err(e.getErrorDescription());
+		} catch (ScriptInterruptedException e) {
+			env.chat.err(String.format("Script interrupted: %s, §e(%d)",
+					script.toString(), script.getThreadId()));
+		} catch (final Throwable e) {
 			env.setLastScriptException(e);
 			printException(e);
 		} finally {
 			env.scripts.removeScript();
 		}
 	}
+	
+	private void preExecution() {
+		script.setBindings(script.isScriptFile() ? env.getFileBindings() : env.getCuiBindings());
+		env.scripts.registerScript(script);
+		script.setThreadId(env.scripts.getThreadId());
+	}
+	
+	private void postExecution() {
+		if (script.isScriptFile()) {
+			env.setFileBindings(script.getBindings());
+		} else {
+			env.setCuiBindings(script.getBindings());
+		}
+	}
 
-	private void printException(final Exception e) {
+	private void printException(final Throwable e) {
 
 		String msg = e.getMessage();
 		if (msg == null) {

@@ -47,6 +47,7 @@ public final class G {
 	public static final String	PROP_LINE_TERMINATOR	= "file.line-terminator";
 	public static final String	PROP_AUTOSAVE			= "config.autosave";
 	public static final String	PROP_DEFAULT_ENGINE		= "engine.default";
+	public static final String	PROP_MULTI_THREADING	= "multi-threading";
 
 	public static final String	BIND_TOGGLE_CONSOLE		= "toggle console";
 
@@ -76,6 +77,7 @@ public final class G {
 		defaultProperties.setProperty(PROP_TOOL_EDITOR, "auto");
 		defaultProperties.setProperty(PROP_PATH, ".");
 		defaultProperties.setProperty(PROP_DEFAULT_ENGINE, DEFAULT_SCRIPT_ENGINE);
+		defaultProperties.setProperty(PROP_MULTI_THREADING, "yes");
 		String cwd = null;
 		try {
 			cwd = DIR_SCRIPTS.getCanonicalPath();

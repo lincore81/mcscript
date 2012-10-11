@@ -6,24 +6,30 @@ public class ScriptError extends RuntimeException {
 	 *
 	 */
 	private static final long	serialVersionUID	= 5613801294101994663L;
+	
+	private final String errorDescription;
 
 	public ScriptError() {
 		super();
-		// TODO Implement ScriptError ctor
+		errorDescription = "No description given.";
 	}
 
 	public ScriptError(final String message, final Throwable cause) {
 		super(message, cause);
-		// TODO Implement ScriptError ctor
+		errorDescription = message;
 	}
 
 	public ScriptError(final String message) {
 		super(message);
-		// TODO Implement ScriptError ctor
+		errorDescription = message;
 	}
 
 	public ScriptError(final Throwable cause) {
 		super(cause);
-		// TODO Implement ScriptError ctor
+		errorDescription = cause.getMessage();
+	}
+	
+	public String getErrorDescription() {
+		return errorDescription;
 	}
 }

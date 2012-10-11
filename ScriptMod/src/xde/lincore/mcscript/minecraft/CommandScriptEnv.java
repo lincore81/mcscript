@@ -19,6 +19,7 @@ import javax.script.ScriptEngineManager;
 import net.minecraft.src.CommandBase;
 import net.minecraft.src.ICommandSender;
 import xde.lincore.mcscript.env.G;
+import xde.lincore.mcscript.env.Script;
 import xde.lincore.mcscript.env.ScriptEnvironment;
 import xde.lincore.mcscript.ui.BadUserInputException;
 import xde.lincore.mcscript.ui.Keys;
@@ -74,6 +75,9 @@ public final class CommandScriptEnv extends CommandBase {
 			switch(keyword) {
 				case Info:
 					handleInfo();
+					break;
+				case Scripts:
+					handleThreads();
 					break;
 				case Alias:
 					handleAliases();
@@ -147,6 +151,45 @@ public final class CommandScriptEnv extends CommandBase {
 				throw new BadUserInputException("Invalid argument: " + token);
 		}
 	}
+	
+	private void handleThreads() {
+		assertArgCount(1, "Missing argument.");
+		String token = tokens.pollFirst();
+		switch (Keywords.findMatch(token)) {
+			case List:
+				doScriptsList();
+				break;
+			case Kill:
+				doScriptsKill();
+				break;
+			default:
+				throw new BadUserInputException("Invalid argument: " + token);
+		}
+	}
+
+	private void doScriptsKill() {
+		assertArgCount(1, "Missing argument.");
+		String token = tokens.pollFirst();
+		Integer id = StringTools.getInteger(token);
+		if (id != null) {
+			try {
+				env.scripts.stop(id);
+			} catch (IllegalArgumentException e) {
+				env.chat.err("There is no script with the id " + token + ".");
+			}
+		} else {
+			env.chat.err("You must enter the id of the script to stop.");
+		}
+	}
+
+	private void doScriptsList() {
+		int i = 1;
+		env.chat.echo("§e§oCurrently running scripts:");
+		for (Script script: env.scripts) {
+			env.chat.format("  %d: %s (%d)\n", i++, script.getShortDescription(),
+					script.getThreadId());
+		}
+	}
 
 	private void handleConfig() {
 		assertArgCount(1, "Missing argument: either get, set, list, remove, save, reload or reset.");
@@ -213,7 +256,7 @@ public final class CommandScriptEnv extends CommandBase {
 			case Engine:
 				doInfoEngineShow();
 				break;
-			case Threads:
+			case Scripts:
 				doInfoThreadsList();
 				break;
 			case Key:

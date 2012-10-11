@@ -2,7 +2,7 @@ package xde.lincore.mcscript.minecraft;
 
 import java.util.Collection;
 
-public class LocalChatFacade {
+public class LocalChatFacade implements ILocalChatWriter {
 	
 	public LocalChatFacade(){}
 	
