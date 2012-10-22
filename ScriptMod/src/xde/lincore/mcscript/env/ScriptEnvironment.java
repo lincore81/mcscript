@@ -36,6 +36,7 @@ public final class ScriptEnvironment {
 	public final IScriptController scripts;
 	public final EngineController engines;
 	public final Commands commands;
+	public final WandController wands;
 
 	private final EditSessionController editSessionController;
 
@@ -81,9 +82,10 @@ public final class ScriptEnvironment {
 		files	= new FileController(this);
 		aliases = new AliasController(this);
 		keys 	= new KeyController(this);
+		wands 	= new WandController(this);
 		globals = new ScriptGlobals();
 		engines = new EngineController();
-		
+		 		
 		aliases.loadAliases();
 	}
 

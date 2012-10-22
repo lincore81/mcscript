@@ -97,6 +97,9 @@ public final class CommandScriptEnv extends CommandBase {
 				case Key:
 					handleKeys();
 					break;
+				case Wand:
+					handleWands();
+					break;
 				default:
 					throw new BadUserInputException("Invalid argument: " + token);
 			}
@@ -108,6 +111,54 @@ public final class CommandScriptEnv extends CommandBase {
 
 		sender = null;
 		tokens = null;
+	}
+
+	private void handleWands() {
+		assertArgCount(1, "Missing argument: either give, bind or unbind.");
+		final String token = tokens.pollFirst();
+		switch (Keywords.findMatch(token)) {
+			case Give:
+				doWandGive();
+				break;
+			case Bind:
+				doWandBind();
+				break;
+			case Unbind:
+				doWandUnbind();
+				break;
+			case List:
+				doWandList();
+				break;
+			default:
+				throw new BadUserInputException("Invalid argument: " + token);
+		}
+	}
+
+	private void doWandList() {
+		env.chat.echo(StringTools.dumpMap(env.wands.dumpBindings()));
+	}
+
+	private void doWandUnbind() {
+		env.wands.unbind();
+	}
+
+	private void doWandGive() {
+		String color;
+		if (tokens.size() == 0) {
+			color = "white";
+		} else {
+			color = tokens.poll();
+		}
+		if (!env.wands.hasColor(color)) {
+			throw new BadUserInputException("There is no wand with the color " + color + ".");
+		}
+		env.wands.give(color);
+	}
+
+	private void doWandBind() {
+		assertArgCount(1, "Missing argument: What do you wand to bind to the wand?");
+		String action = StringTools.join(tokens).trim();
+		env.wands.bind(action);
 	}
 
 	private void handleKeys() {

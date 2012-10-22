@@ -225,6 +225,15 @@ public final class StringTools {
 		}
 		return results;
 	}
+	
+	public static String dumpMap(final Map map) {
+		StringBuilder builder = new StringBuilder();
+		int i = 0;
+		for (Object k: map.keySet()) {
+			builder.append(String.format("%d: %s = %s\n", i++, k, map.get(k)));
+		}
+		return builder.toString();
+	}
 
 
 	/**

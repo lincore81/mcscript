@@ -65,6 +65,11 @@ public final class MinecraftUtils {
 		}
 	}
 	
+	protected static ICollectable toCollectable(final ItemStack stack) {
+		if (stack == null) return null;
+		return new CollectableData(stack.itemID, stack.getItemDamage());
+	}
+	
 	protected static ItemStack toItemStack(final ICollectable item, final int size) {
 		if (item instanceof IBlock) {
 			Block mcBlock = toMcBlock((IBlock)item);
@@ -75,7 +80,7 @@ public final class MinecraftUtils {
 			return new ItemStack(mcItem, size, item.getMeta());
 		}
 		else {
-			throw new UnsupportedOperationException();
+			return new ItemStack(item.getId(), size, item.getMeta());
 		}
 	}
 	

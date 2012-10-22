@@ -72,6 +72,11 @@ public final class PlayerFacade extends EntityFacade {
 		}
 	}
 	
+	public void giveItem(final int id, final int meta, final int amount) {
+		ItemStack stack = new ItemStack(id, amount, meta);
+		player.inventory.addItemStackToInventory(stack);
+	}
+	
 	public void giveItem(final IItem item) {
 		giveItem(item, MinecraftUtils.getMaxStackSize(item));
 	}
@@ -93,5 +98,14 @@ public final class PlayerFacade extends EntityFacade {
 
 	public int getHotbarIndex() {
 		return player.inventory.currentItem;
+	}
+	
+	public int getFirstFreeSlotIndex() {
+		return player.inventory.getFirstEmptyStack();
+	}
+	
+	public ICollectable getItemHeld() {
+		ItemStack stack = player.inventory.getStackInSlot(getHotbarIndex());
+		return MinecraftUtils.toCollectable(stack);
 	}
 }

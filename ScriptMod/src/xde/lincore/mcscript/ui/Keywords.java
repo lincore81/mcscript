@@ -26,6 +26,10 @@ public enum Keywords {
 	Save		("save"),
 	Set			("set"),
 	Scripts		("scripts|sc"),
+	Wand		("wand|wa"),
+	Give		("give|g"),
+	Bind		("bind|b"),
+	Unbind		("unbind|u"),
 	NoMatch		(""),
 	;
 	private String regex;
