@@ -5,18 +5,18 @@ import javax.script.ScriptEngine;
 import org.junit.Before;
 import org.junit.Test;
 
-import xde.lincore.mcscript.env.EngineController;
+import xde.lincore.mcscript.env.ScriptEngineController;
 
 public class EngineControllerTest {
 
-	EngineController engines;
+	ScriptEngineController engines;
 	String[] tests = new String[] {
 			"js", "javascript", "java", "rhino", "moz", "lua", "jlua", "luaj", "l", "py", "jython"};
 
 
 	@Before
 	public void setUp() {
-		engines = new EngineController();
+		engines = new ScriptEngineController();
 	}
 
 	@Test

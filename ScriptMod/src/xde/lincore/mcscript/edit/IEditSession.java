@@ -15,6 +15,8 @@ public interface IEditSession {
 	public int getBlockLimit();
 
 	public void setBlock(Voxel position, IBlock block);
+	
+	public void setBlocks(VoxelMap voxels);
 
 	public void flush();
 
@@ -35,4 +37,7 @@ public interface IEditSession {
 	public String getDescription();
 
 	WorldEdit getEditData();
+
+
+	
 }

@@ -4,27 +4,26 @@ import xde.lincore.mcscript.IBlock;
 import xde.lincore.mcscript.Voxel;
 
 
-final class BlockEdit {
-	public final IBlock oldBlock, newBlock;
-	public final Voxel position;
+public final class BlockEdit {
+	private IBlock oldBlock, newBlock;
+	private Voxel position;
 
 	public BlockEdit(final IBlock oldBlock, final IBlock newBlock, final Voxel position) {
-		if (newBlock == null) {
-			throw new NullPointerException("new block to set must not be null!"); // possible script error
-		}
-		else if (position == null) {
-			throw new NullPointerException("position to set the block at must not be null!"); // possible script error
-		}
-		// if oldBlock is null that's my fault, let it crash hard :~)
-		
 		this.oldBlock = oldBlock;
 		this.newBlock = newBlock;
+		this.position = position;
+	}
+	
+	public BlockEdit(final Voxel position) {
 		this.position = position;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("Position=%s, Block: %s -> %s", position, oldBlock, newBlock);
+		return String.format("Position=%s, Block: %s -> %s",
+				(position != null) ? position : "null",
+				(oldBlock != null) ? oldBlock : "null",
+				(newBlock != null) ? newBlock : "null");
 	}
 
 	@Override
@@ -38,5 +37,33 @@ final class BlockEdit {
 
 	public boolean equalsPosition(final BlockEdit other) {
 		return (position.equalsVoxel(other.position));
+	}
+
+	public IBlock getOldBlock() {
+		return oldBlock;
+	}
+
+	public IBlock getNewBlock() {
+		return newBlock;
+	}
+
+	public Voxel getPosition() {
+		return position;
+	}
+
+	public void setOldBlock(final IBlock oldBlock) {
+		this.oldBlock = oldBlock;
+	}
+
+	public void setNewBlock(final IBlock newBlock) {
+		this.newBlock = newBlock;
+	}
+
+	public void setPosition(final Voxel position) {
+		this.position = position;
+	}
+
+	public boolean validate() {
+		return !(position == null || oldBlock == null || newBlock == null);
 	}
 }

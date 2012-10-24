@@ -22,6 +22,16 @@ public final class ScriptGlobals implements Serializable {
 	public Object get(final String key) {
 		return vars.get(key);
 	}
+	
+	public Object getObject(final String key, final Class objType) {
+		Object result = vars.get(key);
+		if (result.getClass().getName().equals(objType.getName())) {
+			return result;
+		}
+		else {
+			return null;
+		}
+	}
 
 	public Object get(final String key, final Object defaultValue) {
 		final Object value = vars.get(key);
@@ -44,6 +54,10 @@ public final class ScriptGlobals implements Serializable {
 
 	public boolean contains(final String key) {
 		return vars.containsKey(key);
+	}
+	
+	public boolean contains(final String key, final Class objType) {
+		return vars.containsKey(key) && vars.get(key).getClass().getName().equals(objType);
 	}
 
 	public boolean equals(final String key, final Object obj) {

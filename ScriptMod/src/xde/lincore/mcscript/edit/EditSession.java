@@ -1,5 +1,7 @@
 package xde.lincore.mcscript.edit;
 
+import java.util.Map;
+
 import xde.lincore.mcscript.BoundingBox;
 import xde.lincore.mcscript.IBlock;
 import xde.lincore.mcscript.Voxel;
@@ -34,6 +36,15 @@ public class EditSession implements IEditSession {
 		if (canSetBlock(position)) {
 			final IBlock oldBlock = world.getBlock(position);
 			worldEdit.add(new BlockEdit(oldBlock, block, position));
+		}
+	}
+	
+	@Override
+	public void setBlocks(final VoxelMap voxels) {
+		for (Map.Entry<Voxel, IBlock> e: voxels) {
+			if (e.getValue() != null) {
+				setBlock(e.getKey(), e.getValue());
+			}
 		}
 	}
 

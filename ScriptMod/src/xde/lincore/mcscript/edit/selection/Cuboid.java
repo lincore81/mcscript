@@ -1,13 +1,18 @@
-package xde.lincore.mcscript.selection;
-
-import java.util.ArrayList;
+package xde.lincore.mcscript.edit.selection;
 
 import xde.lincore.mcscript.BoundingBox;
+import xde.lincore.mcscript.Vector3d;
 import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.edit.VoxelMap;
+import xde.lincore.mcscript.math.RoundingMethod;
 
 
 public class Cuboid extends SelectionBase {
 
+	public Cuboid(final Voxel center, final double radius) {
+		super(center, radius);
+	}
+	
 	public Cuboid(final Voxel pos1, final Voxel pos2) {
 		this(pos1, pos2.sub(pos1).x + 1, pos2.sub(pos1).y + 1, pos2.sub(pos1).z + 1);
 	}
@@ -49,18 +54,28 @@ public class Cuboid extends SelectionBase {
 
 
 	@Override
-	public ArrayList<Voxel> getVoxels() {
-		final ArrayList<Voxel> result = new ArrayList<Voxel>(volume);
+	public VoxelMap getVoxels() {
+		VoxelMap result = new VoxelMap();
 		//Voxel[] result = new Voxel[(int)volume];
 
 		for (int x = bounds.getMinX(); x <= bounds.getMaxX(); x++) {
 			for (int y = bounds.getMinY(); y <= bounds.getMaxY(); y++) {
 				for (int z = bounds.getMinZ(); z <= bounds.getMaxZ(); z++) {
-					result.add(new Voxel(x, y, z));
+					result.put(new Voxel(x, y, z));
 				}
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public void setCenter(final Voxel center) {
+		this.center = center;
+		Vector3d pos1 = center.toVector3d().sub(radius, radius, radius);
+		Vector3d pos2 = center.toVector3d().add(radius, radius, radius);
+		bounds = new BoundingBox(
+				new Voxel(pos1, RoundingMethod.Round),
+				new Voxel(pos2, RoundingMethod.Round));
 	}
 }
 

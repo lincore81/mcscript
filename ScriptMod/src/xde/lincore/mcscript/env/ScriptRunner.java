@@ -22,14 +22,13 @@ public class ScriptRunner implements Runnable {
 
 	@Override
 	public void run() {
-		preExecution();
+		env.scripts.registerScript(script);
 		try {
 			try {
 				if (script.isScriptFile()) {
 					script.compile();
 				}
 				script.eval();
-				postExecution();
 			} catch (final ScriptException e) {
 				if (e.getCause() != null) {
 					throw e.getCause();
@@ -49,23 +48,8 @@ public class ScriptRunner implements Runnable {
 			env.scripts.removeScript();
 		}
 	}
-	
-	private void preExecution() {
-		script.setBindings(script.isScriptFile() ? env.getFileBindings() : env.getCuiBindings());
-		env.scripts.registerScript(script);
-		script.setThreadId(env.scripts.getThreadId());
-	}
-	
-	private void postExecution() {
-		if (script.isScriptFile()) {
-			env.setFileBindings(script.getBindings());
-		} else {
-			env.setCuiBindings(script.getBindings());
-		}
-	}
 
 	private void printException(final Throwable e) {
-
 		String msg = e.getMessage();
 		if (msg == null) {
 			env.chat.err(e.toString());

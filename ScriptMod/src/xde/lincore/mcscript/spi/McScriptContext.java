@@ -124,6 +124,11 @@ public class McScriptContext implements ILocalChatWriter {
 			throw new ScriptInterruptedException(e);
 		}
 	}
+	
+	public Object publish(final String name, final Object value) {
+		return env.bindings.export(name, value);
+	}
+	
 
 	@Override
 	public void echo(final Object obj) {

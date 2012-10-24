@@ -10,7 +10,7 @@ import javax.script.ScriptEngineManager;
 
 import xde.lincore.util.Config;
 
-public final class EngineController {
+public final class ScriptEngineController {
 	public static final String DEFAULT_ENGINE = null;
 
 	private ScriptEngine defaultEngine;
@@ -18,7 +18,7 @@ public final class EngineController {
 	private HashMap<String, ScriptEngine> enginePool;
 	private ScriptEngineManager manager;
 
-	public EngineController() {
+	public ScriptEngineController() {
 		reset();
 	}
 

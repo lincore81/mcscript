@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
-import javax.script.Bindings;
 import javax.script.ScriptEngine;
 
 import xde.lincore.mcscript.edit.EditSessionController;
@@ -26,15 +25,13 @@ public final class ScriptEnvironment {
 	private static ScriptEnvironment instance;
 	private McScriptContext scriptContext;
 
-	private Bindings cuiBindings;
-	private Bindings fileBindings;
-
 	public final AliasController aliases;
 	public final FileController files;
 	public final KeyController keys;
 	public final ILocalChatWriter chat;
 	public final IScriptController scripts;
-	public final EngineController engines;
+	public final ScriptEngineController engines;
+	public final ScriptBindingsController bindings;
 	public final Commands commands;
 	public final WandController wands;
 
@@ -84,7 +81,8 @@ public final class ScriptEnvironment {
 		keys 	= new KeyController(this);
 		wands 	= new WandController(this);
 		globals = new ScriptGlobals();
-		engines = new EngineController();
+		engines = new ScriptEngineController();
+		bindings = new ScriptBindingsController(this);
 		 		
 		aliases.loadAliases();
 	}
@@ -92,21 +90,7 @@ public final class ScriptEnvironment {
 
 	
 
-	public Bindings getCuiBindings() {
-		return cuiBindings;
-	}
-
-	public Bindings getFileBindings() {
-		return fileBindings;
-	}
-
-	public void setCuiBindings(final Bindings bindings) {
-		cuiBindings = bindings;
-	}
-
-	public void setFileBindings(final Bindings bindings) {
-		fileBindings = bindings;
-	}
+	
 
 	public EditSessionController getEditSessionController() {
 		return editSessionController;

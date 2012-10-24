@@ -47,14 +47,14 @@ class WorldEdit implements Undoable {
 	@Override
 	public void undo() {
 		for (final BlockEdit edit: blocks) {
-			world.setBlock(edit.position, edit.oldBlock);
+			world.setBlock(edit.getPosition(), edit.getOldBlock());
 		}
 	}
 
 	public void flush() {
 		world.startEdit();
 		for (final BlockEdit edit: blocks) {
-			world.setBlock(edit.position, edit.newBlock);
+			world.setBlock(edit.getPosition(), edit.getNewBlock());
 		}
 		world.endEdit();
 	}

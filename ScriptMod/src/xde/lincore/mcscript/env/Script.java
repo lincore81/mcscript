@@ -87,6 +87,8 @@ public final class Script {
 		if (bindings == null) {
 			bindings = engine.getBindings(ScriptContext.GLOBAL_SCOPE);
 		}
+		ScriptBindingsController sbc = ScriptEnvironment.getInstance().bindings;
+		bindings = sbc.getBindings(this);
 		bindings.put("mc", scriptContext);
 		bindings.put("args", arguments);
 		bindings.put("edit", editSession);
@@ -100,16 +102,16 @@ public final class Script {
 		} catch (ExplicitScriptExit e) {
 			returnValue = e.getExitValue();
 		}
+		sbc.setBindings(this, bindings);
 		editController.checkIn(editSession);
+		
 	}
 
 	public ScriptArguments getArguments() {
 		return arguments;
 	}
 
-	public Bindings getBindings() {
-		return bindings;
-	}
+	
 
 	public IEditSession getEditSession() {
 		return editSession;
@@ -191,10 +193,6 @@ public final class Script {
 
 	public void setArguments(final ScriptArguments arguments) {
 		this.arguments = arguments;
-	}
-
-	public void setBindings(final Bindings bindings) {
-		this.bindings = bindings;
 	}
 
 	// public void setMinecraftWrapper(MinecraftWrapper mcWrapper) {

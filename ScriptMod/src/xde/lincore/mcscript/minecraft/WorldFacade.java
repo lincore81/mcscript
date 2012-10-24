@@ -1,5 +1,7 @@
 package xde.lincore.mcscript.minecraft;
 
+import java.util.Map;
+
 import net.minecraft.src.ChunkCoordinates;
 import net.minecraft.src.WorldServer;
 import xde.lincore.mcscript.BlockData;
@@ -9,6 +11,7 @@ import xde.lincore.mcscript.IBlock;
 import xde.lincore.mcscript.Vector3d;
 import xde.lincore.mcscript.Voxel;
 import xde.lincore.mcscript.WeatherTypes;
+import xde.lincore.mcscript.edit.VoxelMap;
 
 public class WorldFacade {
 	
@@ -55,6 +58,15 @@ public class WorldFacade {
 		int id = mcWorld.getBlockId(position.x, position.y, position.z);
 		int meta = mcWorld.getBlockMetadata(position.x, position.y, position.z);
 		return new BlockData(id, meta);
+	}
+	
+	public VoxelMap getBlocks(final VoxelMap voxels) {
+		for (Map.Entry<Voxel, IBlock> e: voxels) {
+			Voxel position = e.getKey();
+			IBlock block = getBlock(position);
+			e.setValue(block);
+		}
+		return voxels;
 	}
 	
 	

@@ -1,9 +1,8 @@
-package xde.lincore.mcscript.selection;
-
-import java.util.ArrayList;
+package xde.lincore.mcscript.edit.selection;
 
 import xde.lincore.mcscript.BoundingBox;
 import xde.lincore.mcscript.Voxel;
+import xde.lincore.mcscript.edit.VoxelMap;
 
 public interface ISelection {
 
@@ -14,7 +13,9 @@ public interface ISelection {
 	public BoundingBox getBounds();
 
 	public boolean contains(Voxel v);
+	
+	public void setCenter(Voxel center);
 
 	public int getVolume();
-	public ArrayList<Voxel> getVoxels();
+	public VoxelMap getVoxels();
 }
